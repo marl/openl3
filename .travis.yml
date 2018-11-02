@@ -1,0 +1,32 @@
+language: python
+
+notifications:
+    email: false
+
+python:
+    - "2.7"
+    - "3.4"
+    - "3.5"
+    - "3.6"
+
+before_install:
+    - pip install python-coveralls
+    - pip install pytest-faulthandler
+    - pip install pytest-cov
+#    - pip install numpydoc
+
+install:
+    - pip install tensorflow pytest
+    - pip install -e .[tests]
+
+#before_script:
+#    - pep8 tests
+
+script:
+#    - nosetests -v --with-coverage --cover-package=mir_eval
+#    - python setup.py build_sphinx
+#    - python setup.py egg_info -b.dev sdist --formats gztar
+     - py.test
+
+after_success:
+    - coveralls
