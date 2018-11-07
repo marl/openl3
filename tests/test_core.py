@@ -10,7 +10,7 @@ from openl3.openl3_warnings import OpenL3Warning
 
 
 TEST_DIR = os.path.dirname(__file__)
-TEST_AUDIO_DIR = os.path.join(TEST_DIR, 'audio')
+TEST_AUDIO_DIR = os.path.join(TEST_DIR, 'data', 'audio')
 
 # Test audio file paths
 CHIRP_MONO_PATH = os.path.join(TEST_AUDIO_DIR, 'chirp_mono.wav')
