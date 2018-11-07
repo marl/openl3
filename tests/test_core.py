@@ -6,6 +6,7 @@ import os
 import shutil
 import soundfile as sf
 from openl3.openl3_exceptions import OpenL3Error
+from openl3.openl3_warnings import OpenL3Warning
 
 
 TEST_DIR = os.path.dirname(__file__)
@@ -149,6 +150,11 @@ def test_get_embedding():
     assert len(ts4) == 1
     assert ts4[0] == 0
     assert not np.any(np.isnan(emb4))
+
+    # Make sure user is warned when audio is too short
+    pytest.warns(OpenL3Warning, openl3.get_embedding, audio, sr,
+        input_repr="mel256", content_type="music", embedding_size=6144,
+        center=True, hop_size=0.1, verbose=1)
 
     # Make sure silence is handled
     audio, sr = sf.read(SILENCE_PATH)
