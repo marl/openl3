@@ -1,5 +1,7 @@
 import os
 import resampy
+import traceback
+import soundfile as sf
 import numpy as np
 import warnings
 from .models import get_embedding_model
@@ -128,7 +130,23 @@ def process_file(filepath, output_dir=None, suffix=None, input_repr="mel256", co
     -------
 
     """
-    raise NotImplementedError()
+    if not os.path.exists(filepath):
+        raise OpenL3Error('File "{}" could not be found.'.format(filepath))
+
+    try:
+        audio, sr = sf.read(filepath)
+    except Exception as e:
+        raise OpenL3Error('Could not open file "{}":\n{}'.format(filepath, traceback.format_exc()))
+
+    if not suffix:
+        suffix = ""
+
+    output_path = get_output_path(filepath, suffix + ".npy", output_dir)
+
+    embedding, ts = get_embedding(audio, sr, input_repr=input_repr, content_type=content_type,
+        embedding_size=embedding_size, center=center, hop_size=hop_size, verbose=1 if verbose else 0)
+
+    np.savez(output_path, embedding=embedding, timestamps=ts)
 
 
 def get_output_path(filepath, suffix, output_dir=None):
