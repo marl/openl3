@@ -221,7 +221,7 @@ def test_get_output_path():
     test_filepath = '/path/to/the/test/file/audio.wav'
     suffix = '_embedding.h5'
     test_output_dir = '/tmp/test/output/dir'
-    exp_output_path = '/tmp/test/output/dir/audio.npy'
+    exp_output_path = '/tmp/test/output/dir/audio_embedding.npy'
     output_path = openl3.get_output_path(test_filepath, suffix, test_output_dir)
     assert output_path == exp_output_path
 
