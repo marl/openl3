@@ -228,8 +228,14 @@ def test_get_output_path():
     output_path = openl3.get_output_path(test_filepath, suffix, test_output_dir)
     assert output_path == exp_output_path
 
-    exp_output_path = '/path/to/the/test/file/audio.npy'
+    # No output directory
+    exp_output_path = '/path/to/the/test/file/audio_embedding.npy'
     output_path = openl3.get_output_path(test_filepath, suffix)
+    assert output_path == exp_output_path
+
+    # No suffix
+    exp_output_path = '/path/to/the/test/file/audio.npy'
+    output_path = openl3.get_output_path(test_filepath, '.npy')
     assert output_path == exp_output_path
 
 
