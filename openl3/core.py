@@ -171,7 +171,7 @@ def get_output_path(filepath, suffix, output_dir=None):
     if not output_dir:
         output_dir = os.path.dirname(filepath)
 
-    if suffix[0] == '.':
+    if suffix[0] != '.':
         output_filename = "{}_{}".format(base_filename, suffix)
     else:
         output_filename = base_filename + suffix

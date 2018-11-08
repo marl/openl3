@@ -222,7 +222,7 @@ def test_get_embedding():
 
 def test_get_output_path():
     test_filepath = '/path/to/the/test/file/audio.wav'
-    suffix = '_embedding.npy'
+    suffix = 'embedding.npy'
     test_output_dir = '/tmp/test/output/dir'
     exp_output_path = '/tmp/test/output/dir/audio_embedding.npy'
     output_path = openl3.get_output_path(test_filepath, suffix, test_output_dir)
