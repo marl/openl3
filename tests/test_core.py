@@ -168,7 +168,6 @@ def test_get_embedding():
         input_repr="mel256", content_type="music", embedding_size=6144,
         center=True, hop_size=0.1, verbose=1)
 
-
     # Check for centering
     audio, sr = sf.read(CHIRP_1S_PATH)
     emb6, ts6 = openl3.get_embedding(audio, sr,
@@ -235,13 +234,16 @@ def test_process_file():
     test_output_dir = tempfile.mkdtemp()
     exp_output_path1 = os.path.join(TEST_AUDIO_DIR, "chirp_mono.npy")
     exp_output_path2 = os.path.join(test_output_dir, "chirp_mono.npy")
+    exp_output_path3 = os.path.join(test_output_dir, "chirp_mono_suffix.npy")
     try:
         openl3.process_file(CHIRP_MONO_PATH, output_dir=test_output_dir)
         openl3.process_file(CHIRP_MONO_PATH)
+        openl3.process_file(CHIRP_MONO_PATH, output_dir=test_output_dir, suffix='suffix')
 
         # MAke sure paths both exist
         assert os.path.exists(exp_output_path1)
         assert os.path.exists(exp_output_path2)
+        assert os.path.exists(exp_output_path3)
 
         data = np.load(exp_output_path1)
         assert 'embedding' in data
@@ -253,11 +255,12 @@ def test_process_file():
         # Quick sanity check on data
         assert embedding.ndim == 2
         assert timestamps.ndim == 1
+
+        # Make sure that suffices work
     finally:
         if os.path.exists(exp_output_path1):
             os.remove(exp_output_path1)
         shutil.rmtree(test_output_dir)
-
 
     # Make sure we fail when file cannot be opened
     pytest.raises(OpenL3Error, openl3.process_file, '/fake/directory/asdf.wav')

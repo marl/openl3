@@ -34,7 +34,7 @@ def get_embedding(audio, sr, input_repr="mel256", content_type="music", embeddin
     raise NotImplementedError()
 
 
-def process_file(filepath, output_dir=None, input_repr="mel256", content_type="music",
+def process_file(filepath, output_dir=None, suffix=None, input_repr="mel256", content_type="music",
                  embedding_size=6144, center=True, hop_size=0.1, verbose=True):
     """
     Computes and saves L3 embedding for given audio file
@@ -46,6 +46,9 @@ def process_file(filepath, output_dir=None, input_repr="mel256", content_type="m
     output_dir : str or None
         Path to directory for saving output files. If None, output files will
         be saved to the directory containing the input file.
+    suffix : str or None
+        String to be appended to the output filename, i.e. <base filename>_<suffix>.npy.
+        If None, then no suffix will be added, i.e. <base filename>.npy.
     input_repr : "linear", "mel128", or "mel256"
         Spectrogram representation used for model.
     content_type : "music" or "env"

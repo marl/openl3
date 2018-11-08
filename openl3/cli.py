@@ -26,6 +26,10 @@ def main():
                              'saved to the same directory as the input WAV '
                              'file(s).')
 
+    parser.add_argument('--suffix', '-x', default=None,
+                        help='String to append to the output filenames.'
+                             'If not provided, no suffix is added.')
+
     parser.add_argument('--input-repr', '-i', default='mel256',
                         choices=['linear', 'mel128', 'mel256'],
                         help='String specifying the time-frequency input '
