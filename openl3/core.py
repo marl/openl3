@@ -1,4 +1,13 @@
 import os
+import resampy
+import numpy as np
+import warnings
+from .models import get_embedding_model
+from .openl3_exceptions import OpenL3Error
+from .openl3_warnings import OpenL3Warning
+
+
+TARGET_SR = 48000
 
 
 def get_embedding(audio, sr, input_repr="mel256", content_type="music", embedding_size=6144,
@@ -34,7 +43,56 @@ def get_embedding(audio, sr, input_repr="mel256", content_type="music", embeddin
             Array of timestamps corresponding to each embedding in the output.
 
     """
-    raise NotImplementedError()
+    # Warn user if audio is all zero
+    if np.all(audio == 0):
+        warnings.warn('Provided audio is all zeros', OpenL3Warning)
+
+    # Check audio array dimension
+    if audio.ndim > 2:
+        raise OpenL3Error('Audio array can only be be 1D or 2D')
+    elif audio.ndim == 2:
+        # Downmix if multichannel
+        audio = np.mean(audio, axis=1)
+
+    # Resample if necessary
+    if sr != TARGET_SR:
+        audio = resampy.resample(audio, sr_orig=sr, sr_new=TARGET_SR)
+
+    # Get embedding model
+    model = get_embedding_model(input_repr, content_type, embedding_size)
+
+    audio_len = audio.shape[0]
+    frame_len = TARGET_SR
+    hop_len = int(hop_size * TARGET_SR)
+
+    if center:
+        # Center audio
+        audio = np.pad(audio, (int(frame_len / 2), 0), mode='constant')
+
+    # Pad if necessary to ensure that we process all samples
+    if audio_len < frame_len:
+        pad_length = frame_len - audio_len
+    else:
+        pad_length = int(np.ceil(audio_len - frame_len)/ hop_len) * hop_len \
+                     - (audio_len - frame_len)
+
+    if pad_length > 0:
+        audio = np.pad(audio, (0, pad_length), mode='constant', constant_values=0)
+
+    # Split audio into frames
+    n_frames = 1 + int((len(audio) - frame_len) / hop_len)
+    x = np.lib.stride_tricks.as_strided(audio, shape=(frame_len, n_frames),
+        strides=(audio.itemsize, hop_len * audio.itemsize)).T
+
+    # Add a channel dimension
+    x = x.reshape((x.shape[0], 1, x.shape[-1]))
+
+    # TODO(jtcramer): process audio in chunks to better handle large audio files
+    # Get embedding and timestamps
+    embedding = model.predict(x, verbose=verbose)
+    ts = np.arange(embedding.shape[0]) * hop_size
+
+    return embedding, ts
 
 
 def process_file(filepath, output_dir=None, suffix=None, input_repr="mel256", content_type="music",

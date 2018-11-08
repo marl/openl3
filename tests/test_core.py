@@ -173,12 +173,14 @@ def test_get_embedding():
     emb6, ts6 = openl3.get_embedding(audio, sr,
         input_repr="mel256", content_type="music", embedding_size=6144,
         center=True, hop_size=hop_size, verbose=1)
-    assert emb6.shape[0] == int(np.ceil(len(audio) / (hop_size * sr) + 0.5 / hop_size))
+    n_frames = 1 + int((audio.shape[0] + 0.5*sr - sr) / int(hop_size*sr))
+    assert emb6.shape[0] == n_frames
 
     emb7, ts7 = openl3.get_embedding(audio, sr,
         input_repr="mel256", content_type="music", embedding_size=6144,
         center=False, hop_size=hop_size, verbose=1)
-    assert emb7.shape[0] == int(np.ceil(len(audio) / (hop_size * sr)))
+    n_frames = 1 + int((audio.shape[0] - sr) / int(hop_size*sr))
+    assert emb7.shape[0] == n_frames
 
     # Check for hop size
 
@@ -186,7 +188,8 @@ def test_get_embedding():
     emb8, ts8 = openl3.get_embedding(audio, sr,
         input_repr="mel256", content_type="music", embedding_size=6144,
         center=True, hop_size=hop_size, verbose=1)
-    assert emb8.shape[0] == int(np.ceil(len(audio) / (hop_size * sr) + 0.5 / hop_size))
+    n_frames = 1 + int((audio.shape[0] + 0.5*sr - sr) / int(hop_size*sr))
+    assert emb8.shape[0] == n_frames
 
     # Make sure changing verbosity doesn't break
     openl3.get_embedding(audio, sr,
