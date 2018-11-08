@@ -1,3 +1,6 @@
+import os
+
+
 def get_embedding(audio, sr, input_repr="mel256", content_type="music", embedding_size=6144,
                   center=True, hop_size=0.1, verbose=1):
     """
@@ -70,7 +73,7 @@ def process_file(filepath, output_dir=None, suffix=None, input_repr="mel256", co
     raise NotImplementedError()
 
 
-def get_output_path(filepath, suffix, output_dir):
+def get_output_path(filepath, suffix, output_dir=None):
     """
 
     Parameters
@@ -79,7 +82,7 @@ def get_output_path(filepath, suffix, output_dir):
         Path to audio file to be processed
     suffix : str
         String to append to filename (including extension)
-    output_dir : str
+    output_dir : str or None
         Path to directory where file will be saved
 
     Returns
@@ -88,4 +91,5 @@ def get_output_path(filepath, suffix, output_dir):
         Path to output file
 
     """
-    raise NotImplementedError()
+    basename = os.path.basename(filepath)
+
