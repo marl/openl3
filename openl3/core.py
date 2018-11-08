@@ -83,7 +83,7 @@ def get_output_path(filepath, suffix, output_dir=None):
     suffix : str
         String to append to filename (including extension)
     output_dir : str or None
-        Path to directory where file will be saved
+        Path to directory where file will be saved. If None, will use directory of given filepath.
 
     Returns
     -------
@@ -91,5 +91,14 @@ def get_output_path(filepath, suffix, output_dir=None):
         Path to output file
 
     """
-    basename = os.path.basename(filepath)
+    base_filename = os.path.splitext(os.path.basename(filepath))[0]
+    if not output_dir:
+        output_dir = os.path.dirname(filepath)
+
+    if suffix[0] == '.':
+        output_filename = "{}_{}".format(base_filename, suffix)
+    else:
+        output_filename = base_filename + suffix
+
+    return os.path.join(output_dir, output_filename)
 
