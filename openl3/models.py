@@ -1,5 +1,3 @@
-from .version import version as __version__
-
 def get_embedding_model(input_repr, content_type, embedding_size):
     """
     Returns a model with the given characteristics. Loads the model

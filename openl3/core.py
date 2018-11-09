@@ -7,7 +7,6 @@ import warnings
 from .models import get_embedding_model
 from .openl3_exceptions import OpenL3Error
 from .openl3_warnings import OpenL3Warning
-from .version import version as __version__
 
 
 TARGET_SR = 48000
