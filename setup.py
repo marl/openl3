@@ -20,12 +20,15 @@ if len(sys.argv) > 1 and sys.argv[1] == 'sdist':
     # exclude the weight files in sdist
     weight_files = []
 else:
+    root_path = os.path.join('openl3', 'models')
+    if not os.path.exists(root_path):
+        os.makedirs(root_path)
     # in all other cases, decompress the weights file if necessary
     for weight_file in weight_files:
-        weight_path = os.path.join('openl3', weight_file)
+        weight_path = os.path.join(root_path, weight_file)
         if not os.path.isfile(weight_path):
             compressed_file = weight_file + '.gz'
-            compressed_path = os.path.join('openl3', compressed_file)
+            compressed_path = os.path.join(root_path, compressed_file)
             if not os.path.isfile(compressed_file):
                 print('Downloading weight file {} ...'.format(compressed_file))
                 urlretrieve(base_url + compressed_file, compressed_path)
