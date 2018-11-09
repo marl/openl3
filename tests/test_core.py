@@ -143,7 +143,7 @@ def test_get_embedding():
     audio, sr = sf.read(SHORT_PATH)
     emb4, ts4 = openl3.get_embedding(audio, sr,
         input_repr="mel256", content_type="music", embedding_size=6144,
-        center=True, hop_size=0.1, verbose=1)
+        center=False, hop_size=0.1, verbose=1)
 
     assert emb4.shape[0] == 1
     assert emb4.shape[1] == 6144
