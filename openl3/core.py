@@ -141,7 +141,7 @@ def process_file(filepath, output_dir=None, suffix=None, input_repr="mel256", co
     if not suffix:
         suffix = ""
 
-    output_path = get_output_path(filepath, suffix + ".npy", output_dir)
+    output_path = get_output_path(filepath, suffix + ".npy", output_dir=output_dir)
 
     embedding, ts = get_embedding(audio, sr, input_repr=input_repr, content_type=content_type,
         embedding_size=embedding_size, center=center, hop_size=hop_size, verbose=1 if verbose else 0)

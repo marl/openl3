@@ -31,28 +31,28 @@ def test_get_embedding():
     emb1, ts1 = openl3.get_embedding(audio, sr,
         input_repr="mel256", content_type="music", embedding_size=512,
         center=True, hop_size=hop_size, verbose=1)
-    assert np.abs(np.diff(ts1) - hop_size) < tol
+    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
     assert emb1.shape[1] == 512
     assert not np.any(np.isnan(emb1))
 
     emb1, ts1 = openl3.get_embedding(audio, sr,
         input_repr="mel128", content_type="music", embedding_size=512,
         center=True, hop_size=hop_size, verbose=1)
-    assert np.abs(np.diff(ts1) - hop_size) < tol
+    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
     assert emb1.shape[1] == 512
     assert not np.any(np.isnan(emb1))
 
     emb1, ts1 = openl3.get_embedding(audio, sr,
         input_repr="mel128", content_type="music", embedding_size=6144,
         center=True, hop_size=hop_size, verbose=1)
-    assert np.abs(np.diff(ts1) - hop_size) < tol
+    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
     assert emb1.shape[1] == 6144
     assert not np.any(np.isnan(emb1))
 
     emb1, ts1 = openl3.get_embedding(audio, sr,
         input_repr="linear", content_type="music", embedding_size=512,
         center=True, hop_size=hop_size, verbose=1)
-    assert np.abs(np.diff(ts1) - hop_size) < tol
+    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
     assert emb1.shape[1] == 512
     assert not np.any(np.isnan(emb1))
 
@@ -60,56 +60,56 @@ def test_get_embedding():
     emb1, ts1 = openl3.get_embedding(audio, sr,
         input_repr="linear", content_type="music", embedding_size=6144,
         center=True, hop_size=hop_size, verbose=1)
-    assert np.abs(np.diff(ts1) - hop_size) < tol
+    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
     assert emb1.shape[1] == 6144
     assert not np.any(np.isnan(emb1))
 
     emb1, ts1 = openl3.get_embedding(audio, sr,
         input_repr="mel256", content_type="env", embedding_size=512,
         center=True, hop_size=hop_size, verbose=1)
-    assert np.abs(np.diff(ts1) - hop_size) < tol
+    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
     assert emb1.shape[1] == 512
     assert not np.any(np.isnan(emb1))
 
     emb1, ts1 = openl3.get_embedding(audio, sr,
         input_repr="mel256", content_type="env", embedding_size=6144,
         center=True, hop_size=hop_size, verbose=1)
-    assert np.abs(np.diff(ts1) - hop_size) < tol
+    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
     assert emb1.shape[1] == 6144
     assert not np.any(np.isnan(emb1))
 
     emb1, ts1 = openl3.get_embedding(audio, sr,
         input_repr="mel128", content_type="env", embedding_size=512,
         center=True, hop_size=hop_size, verbose=1)
-    assert np.abs(np.diff(ts1) - hop_size) < tol
+    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
     assert emb1.shape[1] == 512
     assert not np.any(np.isnan(emb1))
 
     emb1, ts1 = openl3.get_embedding(audio, sr,
         input_repr="mel128", content_type="env", embedding_size=6144,
         center=True, hop_size=hop_size, verbose=1)
-    assert np.abs(np.diff(ts1) - hop_size) < tol
+    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
     assert emb1.shape[1] == 6144
     assert not np.any(np.isnan(emb1))
 
     emb1, ts1 = openl3.get_embedding(audio, sr,
         input_repr="linear", content_type="env", embedding_size=512,
         center=True, hop_size=hop_size, verbose=1)
-    assert np.abs(np.diff(ts1) - hop_size) < tol
+    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
     assert emb1.shape[1] == 512
     assert not np.any(np.isnan(emb1))
 
     emb1, ts1 = openl3.get_embedding(audio, sr,
         input_repr="linear", content_type="env", embedding_size=6144,
         center=True, hop_size=hop_size, verbose=1)
-    assert np.abs(np.diff(ts1) - hop_size) < tol
+    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
     assert emb1.shape[1] == 6144
     assert not np.any(np.isnan(emb1))
 
     emb1, ts1 = openl3.get_embedding(audio, sr,
         input_repr="mel256", content_type="music", embedding_size=6144,
         center=True, hop_size=hop_size, verbose=1)
-    assert np.abs(np.diff(ts1) - hop_size) < tol
+    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
     assert emb1.shape[1] == 6144
     assert not np.any(np.isnan(emb1))
 
@@ -119,8 +119,8 @@ def test_get_embedding():
         input_repr="mel256", content_type="music", embedding_size=6144,
         center=True, hop_size=0.1, verbose=1)
 
-    assert np.abs(emb1 - emb2) < tol
-    assert np.abs(ts1 - ts2) < tol
+    assert np.all(np.abs(emb1 - emb2) < tol)
+    assert np.all(np.abs(ts1 - ts2) < tol)
     assert not np.any(np.isnan(emb2))
 
     # Make sure that the embeddings are approximately the same if we resample the audio
@@ -129,8 +129,8 @@ def test_get_embedding():
         input_repr="mel256", content_type="music", embedding_size=6144,
         center=True, hop_size=0.1, verbose=1)
 
-    assert np.abs(emb1 - emb3) < tol
-    assert np.abs(ts1 - ts3) < tol
+    assert np.all(np.abs(emb1 - emb3) < tol)
+    assert np.all(np.abs(ts1 - ts3) < tol)
     assert not np.any(np.isnan(emb3))
 
     # Make sure empty audio is handled
@@ -249,10 +249,10 @@ def test_process_file():
         openl3.process_file(CHIRP_MONO_PATH)
         openl3.process_file(CHIRP_MONO_PATH, output_dir=test_output_dir, suffix='suffix')
 
-        # MAke sure paths both exist
-        assert os.path.exists(exp_output_path1)
-        assert os.path.exists(exp_output_path2)
-        assert os.path.exists(exp_output_path3)
+        # Make sure paths all exist
+        assert os.path.exists(exp_output_path1), str(os.listdir(TEST_AUDIO_DIR))
+        assert os.path.exists(exp_output_path2), str(os.listdir(test_output_dir))
+        assert os.path.exists(exp_output_path3), str(os.listdir(test_output_dir))
 
         data = np.load(exp_output_path1)
         assert 'embedding' in data
