@@ -45,6 +45,9 @@ def get_embedding(audio, sr, input_repr="mel256", content_type="music", embeddin
             Array of timestamps corresponding to each embedding in the output.
 
     """
+    if audio.size == 0:
+        raise OpenL3Error('Got empty audio')
+
     # Warn user if audio is all zero
     if np.all(audio == 0):
         warnings.warn('Provided audio is all zeros', OpenL3Warning)

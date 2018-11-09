@@ -241,18 +241,25 @@ def test_get_output_path():
 
 def test_process_file():
     test_output_dir = tempfile.mkdtemp()
-    exp_output_path1 = os.path.join(TEST_AUDIO_DIR, "chirp_mono.npy")
-    exp_output_path2 = os.path.join(test_output_dir, "chirp_mono.npy")
-    exp_output_path3 = os.path.join(test_output_dir, "chirp_mono_suffix.npy")
+    test_subdir = os.path.join(test_output_dir, "subdir")
+    os.makedirs(test_subdir)
+
+    # Make a copy of the file so we can test the case where we save to the same directory
+    input_path_alt = os.path.join(test_subdir, "chirp_mono.wav")
+    shutil.copy(CHIRP_MONO_PATH, test_subdir)
+
+    exp_output_path1 = os.path.join(test_output_dir, "chirp_mono.npy")
+    exp_output_path2 = os.path.join(test_output_dir, "chirp_mono_suffix.npy")
+    exp_output_path3 = os.path.join(test_subdir, "chirp_mono.npy")
     try:
         openl3.process_file(CHIRP_MONO_PATH, output_dir=test_output_dir)
-        openl3.process_file(CHIRP_MONO_PATH)
         openl3.process_file(CHIRP_MONO_PATH, output_dir=test_output_dir, suffix='suffix')
+        openl3.process_file(input_path_alt)
 
         # Make sure paths all exist
-        assert os.path.exists(exp_output_path1), str(os.listdir(TEST_AUDIO_DIR))
-        assert os.path.exists(exp_output_path2), str(os.listdir(test_output_dir))
-        assert os.path.exists(exp_output_path3), str(os.listdir(test_output_dir))
+        assert os.path.exists(exp_output_path1)
+        assert os.path.exists(exp_output_path2)
+        assert os.path.exists(exp_output_path3)
 
         data = np.load(exp_output_path1)
         assert 'embedding' in data
@@ -267,8 +274,6 @@ def test_process_file():
 
         # Make sure that suffices work
     finally:
-        if os.path.exists(exp_output_path1):
-            os.remove(exp_output_path1)
         shutil.rmtree(test_output_dir)
 
     # Make sure we fail when file cannot be opened
