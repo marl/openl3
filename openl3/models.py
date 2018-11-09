@@ -1,3 +1,5 @@
+import os
+
 from kapre.time_frequency import Spectrogram, Melspectrogram
 from keras.layers import (
     Input, Conv2D, BatchNormalization, MaxPooling2D,
@@ -45,8 +47,7 @@ def get_embedding_model(input_repr, content_type, embedding_size):
 
     # Construct embedding model and load model weights
     m = MODELS[input_repr]()
-    m.load_weights(get_embedding_model_path(input_repr, content_type,
-                                            embedding_size))
+    m.load_weights(get_embedding_model_path(input_repr, content_type))
 
     # Pooling for final output embedding size
     pool_size = POOLINGS[input_repr][embedding_size]
@@ -56,7 +57,7 @@ def get_embedding_model(input_repr, content_type, embedding_size):
     return m
 
 
-def get_embedding_model_path(input_repr, content_type, embedding_size):
+def get_embedding_model_path(input_repr, content_type):
     """
     Returns the local path to the model weights file for the model
     with the given characteristics
@@ -67,8 +68,6 @@ def get_embedding_model_path(input_repr, content_type, embedding_size):
         Spectrogram representation used for model.
     content_type : "music" or "env"
         Type of content used to train embedding.
-    embedding_size : 6144 or 512
-        Embedding dimensionality.
 
     Returns
     -------
@@ -76,7 +75,9 @@ def get_embedding_model_path(input_repr, content_type, embedding_size):
         Path to given model object
     """
 
-    return 'openl3/openl3_audio_{}_{}.h5'.format(input_repr, content_type)
+    return os.path.join(os.path.dirname(__file__),
+                        'models',
+                        'openl3_audio_{}_{}.h5'.format(input_repr, content_type))
 
 
 def _construct_linear_audio_network():

@@ -2,10 +2,58 @@ from openl3.models import get_embedding_model, get_embedding_model_path
 
 
 def test_get_embedding_model_path():
-    for input_repr in ('linear', 'mel128', 'mel256'):
-        for content_type in ('music', 'env'):
-            for embedding_size in (512, 6144):
-                model_path = get_embedding_model_path(input_repr=input_repr,
-                                                      content_type=content_type,
-                                                      embedding_size=embedding_size)
-                assert model_path == 'openl3/openl3_audio_{}_{}.h5'.format(input_repr, content_type)
+    embedding_model_path = get_embedding_model_path('linear', 'music')
+    assert embedding_model_path == 'openl3/models/openl3_audio_linear_music.h5'
+
+    embedding_model_path = get_embedding_model_path('linear', 'env')
+    assert embedding_model_path == 'openl3/models/openl3_audio_linear_env.h5'
+
+    embedding_model_path = get_embedding_model_path('mel128', 'music')
+    assert embedding_model_path == 'openl3/models/openl3_audio_mel128_music.h5'
+
+    embedding_model_path = get_embedding_model_path('mel128', 'env')
+    assert embedding_model_path == 'openl3/models/openl3_audio_mel128_music.h5'
+
+    embedding_model_path = get_embedding_model_path('mel256', 'music')
+    assert embedding_model_path == 'openl3/models/openl3_audio_mel256_env.h5'
+
+    embedding_model_path = get_embedding_model_path('mel256', 'env')
+    assert embedding_model_path == 'openl3/models/openl3_audio_mel256_music.h5'
+
+
+def test_get_embedding_model():
+    m = get_embedding_model('linear', 'music', 6144)
+    assert m.output_shape[1] == 6144
+
+    m = get_embedding_model('linear', 'music', 512)
+    assert m.output_shape[1] == 512
+
+    m = get_embedding_model('linear', 'env', 6144)
+    assert m.output_shape[1] == 6144
+
+    m = get_embedding_model('linear', 'env', 512)
+    assert m.output_shape[1] == 512
+
+    m = get_embedding_model('mel128', 'music', 6144)
+    assert m.output_shape[1] == 6144
+
+    m = get_embedding_model('mel128', 'music', 512)
+    assert m.output_shape[1] == 512
+
+    m = get_embedding_model('mel128', 'env', 6144)
+    assert m.output_shape[1] == 6144
+
+    m = get_embedding_model('mel128', 'env', 512)
+    assert m.output_shape[1] == 512
+
+    m = get_embedding_model('mel256', 'music', 6144)
+    assert m.output_shape[1] == 6144
+
+    m = get_embedding_model('mel256', 'music', 512)
+    assert m.output_shape[1] == 512
+
+    m = get_embedding_model('mel256', 'env', 6144)
+    assert m.output_shape[1] == 6144
+
+    m = get_embedding_model('mel256', 'env', 512)
+    assert m.output_shape[1] == 512

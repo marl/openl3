@@ -22,7 +22,7 @@ if len(sys.argv) > 1 and sys.argv[1] == 'sdist':
 else:
     # in all other cases, decompress the weights file if necessary
     for weight_file in weight_files:
-        weight_path = os.path.join('openl3', weight_file)
+        weight_path = os.path.join('openl3', 'models', weight_file)
         if not os.path.isfile(weight_path):
             compressed_file = weight_file + '.gz'
             compressed_path = os.path.join('openl3', compressed_file)
