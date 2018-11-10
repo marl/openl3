@@ -3,6 +3,7 @@ import resampy
 import traceback
 import soundfile as sf
 import numpy as np
+from numbers import Real
 import warnings
 from .models import get_embedding_model
 from .openl3_exceptions import OpenL3Error
@@ -52,6 +53,25 @@ def get_embedding(audio, sr, input_repr="mel256", content_type="music", embeddin
     if np.all(audio == 0):
         warnings.warn('Provided audio is all zeros', OpenL3Warning)
 
+    if str(input_repr) not in ("linear", "mel128", "mel256"):
+        raise OpenL3Error('Invalid input representation "{}"'.format(input_repr))
+
+    if str(content_type) not in ("music", "env"):
+        raise OpenL3Error('Invalid content type "{}"'.format(content_type))
+
+    if embedding_size not in (6144, 512):
+        raise OpenL3Error('Invalid content type "{}"'.format(embedding_size))
+
+    if not isinstance(hop_size, Real) or hop_size <= 0:
+        raise OpenL3Error('Invalid hop size {}'.format(hop_size))
+
+    if verbose not in (0, 1):
+        raise OpenL3Error('Invalid verbosity level {}'.format(verbose))
+
+    if center not in (True, False):
+        raise OpenL3Error('Invalid center value {}'.format(center))
+
+
     # Check audio array dimension
     if audio.ndim > 2:
         raise OpenL3Error('Audio array can only be be 1D or 2D')
@@ -66,13 +86,19 @@ def get_embedding(audio, sr, input_repr="mel256", content_type="music", embeddin
     # Get embedding model
     model = get_embedding_model(input_repr, content_type, embedding_size)
 
-    audio_len = audio.shape[0]
+    audio_len = audio.size
     frame_len = TARGET_SR
     hop_len = int(hop_size * TARGET_SR)
+
+    if audio_len < frame_len:
+        warnings.warn('Duration of provided audio is shorter than window size (1 second). Audio will be padded.',
+                      OpenL3Warning)
 
     if center:
         # Center audio
         audio = np.pad(audio, (int(frame_len / 2), 0), mode='constant')
+
+    audio_len = audio.size
 
     # Pad if necessary to ensure that we process all samples
     if audio_len < frame_len:

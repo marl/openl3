@@ -139,8 +139,13 @@ def test_get_embedding():
         input_repr="mel256", content_type="music", embedding_size=6144,
         center=True, hop_size=0.1, verbose=1)
 
-    # Make sure short audio can be handled
+    # Make sure user is warned when audio is too short
     audio, sr = sf.read(SHORT_PATH)
+    pytest.warns(OpenL3Warning, openl3.get_embedding, audio, sr,
+                 input_repr="mel256", content_type="music", embedding_size=6144,
+                 center=False, hop_size=0.1, verbose=1)
+
+    # Make sure short audio can be handled
     emb4, ts4 = openl3.get_embedding(audio, sr,
         input_repr="mel256", content_type="music", embedding_size=6144,
         center=False, hop_size=0.1, verbose=1)
@@ -151,22 +156,17 @@ def test_get_embedding():
     assert ts4[0] == 0
     assert not np.any(np.isnan(emb4))
 
-    # Make sure user is warned when audio is too short
-    pytest.warns(OpenL3Warning, openl3.get_embedding, audio, sr,
-        input_repr="mel256", content_type="music", embedding_size=6144,
-        center=True, hop_size=0.1, verbose=1)
-
     # Make sure silence is handled
     audio, sr = sf.read(SILENCE_PATH)
+    pytest.warns(OpenL3Warning, openl3.get_embedding, audio, sr,
+                 input_repr="mel256", content_type="music", embedding_size=6144,
+                 center=True, hop_size=0.1, verbose=1)
+
     emb5, ts5 = openl3.get_embedding(audio, sr,
         input_repr="mel256", content_type="music", embedding_size=6144,
         center=True, hop_size=0.1, verbose=1)
     assert emb5.shape[1] == 6144
     assert not np.any(np.isnan(emb5))
-
-    pytest.warns(OpenL3Warning, openl3.get_embedding, audio, sr,
-        input_repr="mel256", content_type="music", embedding_size=6144,
-        center=True, hop_size=0.1, verbose=1)
 
     # Check for centering
     audio, sr = sf.read(CHIRP_1S_PATH)
