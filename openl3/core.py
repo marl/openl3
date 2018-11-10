@@ -117,13 +117,16 @@ def get_embedding(audio, sr, input_repr="mel256", content_type="music", embeddin
 
     # Add a channel dimension
     x = x.reshape((x.shape[0], 1, x.shape[-1]))
+    embedding = []
 
-    # TODO(jtcramer): process audio in chunks to better handle large audio files
     # Get embedding and timestamps
-    embedding = model.predict(x, verbose=verbose)
-    ts = np.arange(embedding.shape[0]) * hop_size
+    for idx in range(x.shape[0]):
+        # Process frames individually to avoid memory problems
+        embedding.append(model.predict(x[idx:idx+1], verbose=verbose).flatten())
 
-    return embedding, ts
+    ts = np.arange(len(embedding)) * hop_size
+
+    return np.array(embedding), ts
 
 
 def process_file(filepath, output_dir=None, suffix=None, input_repr="mel256", content_type="music",
@@ -176,6 +179,7 @@ def process_file(filepath, output_dir=None, suffix=None, input_repr="mel256", co
         embedding_size=embedding_size, center=center, hop_size=hop_size, verbose=1 if verbose else 0)
 
     np.savez(output_path, embedding=embedding, timestamps=ts)
+    assert os.path.exists(output_path)
 
 
 def get_output_path(filepath, suffix, output_dir=None):
