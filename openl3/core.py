@@ -176,7 +176,6 @@ def process_file(filepath, output_dir=None, suffix=None, input_repr="mel256", co
         embedding_size=embedding_size, center=center, hop_size=hop_size, verbose=1 if verbose else 0)
 
     np.savez(output_path, embedding=embedding, timestamps=ts)
-    assert os.path.exists(output_path)
 
 
 def get_output_path(filepath, suffix, output_dir=None):
