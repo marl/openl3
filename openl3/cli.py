@@ -10,9 +10,13 @@ from six import string_types
 
 def positive_float(value):
     """An argparse type method for accepting only positive floats"""
-    fvalue = float(value)
+    try:
+        fvalue = float(value)
+    except (ValueError, TypeError) as e:
+        raise ArgumentTypeError('Expected a positive float, error message: '
+                                '{}'.format(e))
     if fvalue <= 0:
-        raise ArgumentTypeError('expected a positive float')
+        raise ArgumentTypeError('Expected a positive float')
     return fvalue
 
 
