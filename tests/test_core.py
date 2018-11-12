@@ -222,20 +222,20 @@ def test_get_embedding():
 
 def test_get_output_path():
     test_filepath = '/path/to/the/test/file/audio.wav'
-    suffix = 'embedding.npy'
+    suffix = 'embedding.npz'
     test_output_dir = '/tmp/test/output/dir'
-    exp_output_path = '/tmp/test/output/dir/audio_embedding.npy'
+    exp_output_path = '/tmp/test/output/dir/audio_embedding.npz'
     output_path = openl3.get_output_path(test_filepath, suffix, test_output_dir)
     assert output_path == exp_output_path
 
     # No output directory
-    exp_output_path = '/path/to/the/test/file/audio_embedding.npy'
+    exp_output_path = '/path/to/the/test/file/audio_embedding.npz'
     output_path = openl3.get_output_path(test_filepath, suffix)
     assert output_path == exp_output_path
 
     # No suffix
-    exp_output_path = '/path/to/the/test/file/audio.npy'
-    output_path = openl3.get_output_path(test_filepath, '.npy')
+    exp_output_path = '/path/to/the/test/file/audio.npz'
+    output_path = openl3.get_output_path(test_filepath, '.npz')
     assert output_path == exp_output_path
 
 
@@ -248,9 +248,9 @@ def test_process_file():
     input_path_alt = os.path.join(test_subdir, "chirp_mono.wav")
     shutil.copy(CHIRP_MONO_PATH, test_subdir)
 
-    exp_output_path1 = os.path.join(test_output_dir, "chirp_mono.npy")
-    exp_output_path2 = os.path.join(test_output_dir, "chirp_mono_suffix.npy")
-    exp_output_path3 = os.path.join(test_subdir, "chirp_mono.npy")
+    exp_output_path1 = os.path.join(test_output_dir, "chirp_mono.npz")
+    exp_output_path2 = os.path.join(test_output_dir, "chirp_mono_suffix.npz")
+    exp_output_path3 = os.path.join(test_subdir, "chirp_mono.npz")
     try:
         openl3.process_file(CHIRP_MONO_PATH, output_dir=test_output_dir)
         openl3.process_file(CHIRP_MONO_PATH, output_dir=test_output_dir, suffix='suffix')

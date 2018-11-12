@@ -142,8 +142,8 @@ def process_file(filepath, output_dir=None, suffix=None, input_repr="mel256", co
         Path to directory for saving output files. If None, output files will
         be saved to the directory containing the input file.
     suffix : str or None
-        String to be appended to the output filename, i.e. <base filename>_<suffix>.npy.
-        If None, then no suffix will be added, i.e. <base filename>.npy.
+        String to be appended to the output filename, i.e. <base filename>_<suffix>.npz.
+        If None, then no suffix will be added, i.e. <base filename>.npz.
     input_repr : "linear", "mel128", or "mel256"
         Spectrogram representation used for model.
     content_type : "music" or "env"
@@ -173,7 +173,7 @@ def process_file(filepath, output_dir=None, suffix=None, input_repr="mel256", co
     if not suffix:
         suffix = ""
 
-    output_path = get_output_path(filepath, suffix + ".npy", output_dir=output_dir)
+    output_path = get_output_path(filepath, suffix + ".npz", output_dir=output_dir)
 
     embedding, ts = get_embedding(audio, sr, input_repr=input_repr, content_type=content_type,
         embedding_size=embedding_size, center=center, hop_size=hop_size, verbose=1 if verbose else 0)
