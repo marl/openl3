@@ -218,6 +218,12 @@ def test_get_embedding():
     pytest.raises(OpenL3Error, openl3.get_embedding, audio, sr,
         input_repr="mel256", content_type="music", embedding_size=6144,
         center=True, hop_size=0.1, verbose=-1)
+    pytest.raises(OpenL3Error, openl3.get_embedding, audio, sr,
+        input_repr="mel256", content_type="music", embedding_size=6144,
+        center='invalid', hop_size=0.1, verbose=1)
+    pytest.raises(OpenL3Error, openl3.get_embedding, np.ones((10,10,10)), sr,
+        input_repr="mel256", content_type="music", embedding_size=6144,
+        center=True, hop_size=0.1, verbose=1)
 
 
 def test_get_output_path():
@@ -248,6 +254,10 @@ def test_process_file():
     input_path_alt = os.path.join(test_subdir, "chirp_mono.wav")
     shutil.copy(CHIRP_MONO_PATH, test_subdir)
 
+    invalid_file_path = os.path.join(test_subdir, "invalid.wav")
+    with open(invalid_file_path, 'w') as f:
+        f.write('This is not an audio file.')
+
     exp_output_path1 = os.path.join(test_output_dir, "chirp_mono.npz")
     exp_output_path2 = os.path.join(test_output_dir, "chirp_mono_suffix.npz")
     exp_output_path3 = os.path.join(test_subdir, "chirp_mono.npz")
@@ -255,6 +265,9 @@ def test_process_file():
         openl3.process_file(CHIRP_MONO_PATH, output_dir=test_output_dir)
         openl3.process_file(CHIRP_MONO_PATH, output_dir=test_output_dir, suffix='suffix')
         openl3.process_file(input_path_alt)
+
+        # Make sure we fail when invalid files are provided
+        pytest.raises(OpenL3Error, openl3.process_file, invalid_file_path)
 
         # Make sure paths all exist
         assert os.path.exists(exp_output_path1)
