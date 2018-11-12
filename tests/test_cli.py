@@ -1,6 +1,21 @@
 import pytest
-from openl3.cli import positive_float
+import os
+from openl3.cli import positive_float, get_file_list
 from argparse import ArgumentTypeError
+from six import string_types
+
+
+TEST_DIR = os.path.dirname(__file__)
+TEST_AUDIO_DIR = os.path.join(TEST_DIR, 'data', 'audio')
+
+# Test audio file paths
+CHIRP_MONO_PATH = os.path.join(TEST_AUDIO_DIR, 'chirp_mono.wav')
+CHIRP_STEREO_PATH = os.path.join(TEST_AUDIO_DIR, 'chirp_stereo.wav')
+CHIRP_44K_PATH = os.path.join(TEST_AUDIO_DIR, 'chirp_44k.wav')
+CHIRP_1S_PATH = os.path.join(TEST_AUDIO_DIR, 'chirp_1s.wav')
+EMPTY_PATH = os.path.join(TEST_AUDIO_DIR, 'empty.wav')
+SHORT_PATH = os.path.join(TEST_AUDIO_DIR, 'short.wav')
+SILENCE_PATH = os.path.join(TEST_AUDIO_DIR, 'silence.wav')
 
 
 def test_positive_float():
@@ -21,4 +36,29 @@ def test_positive_float():
         pytest.raises(ArgumentTypeError, positive_float, i)
 
 
+def test_get_file_list():
 
+    # test for invalid input (must be iterable, e.g. list)
+    pytest.raises(ArgumentTypeError, get_file_list, CHIRP_44K_PATH)
+
+    # test for valid list of file paths
+    flist = get_file_list([CHIRP_44K_PATH, CHIRP_1S_PATH])
+    assert len(flist) == 2
+    assert flist[0] == CHIRP_44K_PATH and flist[1] == CHIRP_1S_PATH
+
+    # test for valid folder
+    flist = get_file_list([TEST_AUDIO_DIR])
+    assert len(flist) == 7
+
+    flist = sorted(flist)
+    assert flist[0] == CHIRP_1S_PATH
+    assert flist[1] == CHIRP_44K_PATH
+    assert flist[2] == CHIRP_MONO_PATH
+    assert flist[3] == CHIRP_STEREO_PATH
+    assert flist[4] == EMPTY_PATH
+    assert flist[5] == SHORT_PATH
+    assert flist[6] == SILENCE_PATH
+
+    # combine list of files and folders
+    flist = get_file_list([TEST_AUDIO_DIR, CHIRP_44K_PATH])
+    assert len(flist) == 8

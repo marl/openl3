@@ -22,6 +22,8 @@ def positive_float(value):
 
 def get_file_list(input_list):
     """Get list of files from the list of inputs"""
+    if not isinstance(input_list, Iterable) or isinstance(input_list, string_types):
+        raise ArgumentTypeError('input_list must be iterable (and not string)')
     file_list = []
     for item in input_list:
         if os.path.isfile(item):
