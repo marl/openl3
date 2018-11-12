@@ -100,10 +100,7 @@ def run(inputs, output_dir=None, suffix=None, input_repr="mel256", content_type=
         print('openl3: Done!')
 
 
-def main():
-    """
-    Extracts audio embeddings from models based on the Look, Listen, and Learn models (Arandjelovic and Zisserman 2017).
-    """
+def parse_args(args):
     parser = ArgumentParser(sys.argv[0], description=main.__doc__,
                             formatter_class=RawDescriptionHelpFormatter)
 
@@ -143,7 +140,15 @@ def main():
     parser.add_argument('--quiet', '-q', action='store_true',
                         help='Suppress all non-error messages to stdout.')
 
-    args = parser.parse_args()
+    return parser.parse_args(args)
+
+
+def main():
+    """
+    Extracts audio embeddings from models based on the Look, Listen, and Learn models (Arandjelovic and Zisserman 2017).
+    """
+    args = parse_args(sys.argv[1:])
+    
     run(args.inputs,
         output_dir=args.output_dir,
         suffix=args.suffix,
