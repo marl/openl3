@@ -127,7 +127,7 @@ def parse_args(args):
                         choices=['music', 'env'],
                         help='Content type used to train embedding model.')
 
-    parser.add_argument('--embedding-size', '-s', default=6144,
+    parser.add_argument('--embedding-size', '-s', type=int, default=6144,
                         help='Embedding dimensionality.')
 
     parser.add_argument('--no-centering', '-n', action='store_true', default=False,
