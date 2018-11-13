@@ -43,7 +43,7 @@ class Mock(MagicMock):
         return MagicMock()
 
 MOCK_MODULES = [
-    'numpy', 'soundfile', 'resampy', 'keras', 'tensorflow'
+    'numpy', 'soundfile', 'resampy', 'keras', 'tensorflow', 'kapre'
 ]
 
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
