@@ -1,9 +1,9 @@
 import pytest
 import os
-from openl3.cli import positive_float, get_file_list, parse_args
+from openl3.cli import positive_float, get_file_list, parse_args, run
 from argparse import ArgumentTypeError
 from openl3.openl3_exceptions import OpenL3Error
-from six import string_types
+import tempfile
 
 
 TEST_DIR = os.path.dirname(__file__)
@@ -98,4 +98,30 @@ def test_parse_args():
     assert args.no_centering is True
     assert args.hop_size == 0.5
     assert args.quiet is True
+
+
+def test_run(capsys):
+
+    # test invalid input
+    invalid = [None, 5, 1.0]
+    for i in invalid:
+        pytest.raises(OpenL3Error, run, i)
+
+    # test empty input folder
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        tempdir = tempfile.mkdtemp()
+        run([tempdir])
+
+    # make sure it exited
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == -1
+
+    # make sure it printed a message
+    captured = capsys.readouterr()
+    expected_message = 'openl3: No WAV files found in {}. Aborting.\n'.format(str([tempdir]))
+    assert captured.out == expected_message
+
+
+
+
 

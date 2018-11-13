@@ -77,7 +77,7 @@ def run(inputs, output_dir=None, suffix=None, input_repr="mel256", content_type=
     elif isinstance(inputs, Iterable):
         file_list = get_file_list(inputs)
     else:
-        raise OpenL3Error('Invalid input: {}'.format(str(input)))
+        raise OpenL3Error('Invalid input: {}'.format(str(inputs)))
 
     if len(file_list) == 0:
         print('openl3: No WAV files found in {}. Aborting.'.format(str(inputs)))
