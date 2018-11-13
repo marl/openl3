@@ -1,7 +1,8 @@
 import pytest
 import os
-from openl3.cli import positive_float, get_file_list
+from openl3.cli import positive_float, get_file_list, parse_args
 from argparse import ArgumentTypeError
+from openl3.openl3_exceptions import OpenL3Error
 from six import string_types
 
 
@@ -62,3 +63,39 @@ def test_get_file_list():
     # combine list of files and folders
     flist = get_file_list([TEST_AUDIO_DIR, CHIRP_44K_PATH])
     assert len(flist) == 8
+
+    # nonexistent path
+    pytest.raises(OpenL3Error, get_file_list, ['/fake/path/to/file'])
+
+
+def test_parse_args():
+
+    # test for all the defaults
+    args = [CHIRP_44K_PATH]
+    args = parse_args(args)
+    assert args.inputs == [CHIRP_44K_PATH]
+    assert args.output_dir is None
+    assert args.suffix is None
+    assert args.input_repr == 'mel256'
+    assert args.content_type == 'music'
+    assert args.embedding_size == 6144
+    assert args.no_centering is False
+    assert args.hop_size == 0.1
+    assert args.quiet is False
+
+    # test when setting all values
+    args = [CHIRP_44K_PATH, '-o', '/output/dir', '--suffix', 'suffix',
+            '--input-repr', 'linear', '--content-type', 'env',
+            '--embedding-size', '512', '--no-centering', '--hop-size', '0.5',
+            '--quiet']
+    args = parse_args(args)
+    assert args.inputs == [CHIRP_44K_PATH]
+    assert args.output_dir == '/output/dir'
+    assert args.suffix == 'suffix'
+    assert args.input_repr == 'linear'
+    assert args.content_type == 'env'
+    assert args.embedding_size == 512
+    assert args.no_centering is True
+    assert args.hop_size == 0.5
+    assert args.quiet is True
+
