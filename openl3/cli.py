@@ -10,14 +10,20 @@ from six import string_types
 
 def positive_float(value):
     """An argparse type method for accepting only positive floats"""
-    fvalue = float(value)
+    try:
+        fvalue = float(value)
+    except (ValueError, TypeError) as e:
+        raise ArgumentTypeError('Expected a positive float, error message: '
+                                '{}'.format(e))
     if fvalue <= 0:
-        raise ArgumentTypeError('expected a positive float')
+        raise ArgumentTypeError('Expected a positive float')
     return fvalue
 
 
 def get_file_list(input_list):
     """Get list of files from the list of inputs"""
+    if not isinstance(input_list, Iterable) or isinstance(input_list, string_types):
+        raise ArgumentTypeError('input_list must be iterable (and not string)')
     file_list = []
     for item in input_list:
         if os.path.isfile(item):
@@ -71,7 +77,7 @@ def run(inputs, output_dir=None, suffix=None, input_repr="mel256", content_type=
     elif isinstance(inputs, Iterable):
         file_list = get_file_list(inputs)
     else:
-        raise OpenL3Error('Invalid input: {}'.format(str(input)))
+        raise OpenL3Error('Invalid input: {}'.format(str(inputs)))
 
     if len(file_list) == 0:
         print('openl3: No WAV files found in {}. Aborting.'.format(str(inputs)))
@@ -94,10 +100,7 @@ def run(inputs, output_dir=None, suffix=None, input_repr="mel256", content_type=
         print('openl3: Done!')
 
 
-def main():
-    """
-    Extracts audio embeddings from models based on the Look, Listen, and Learn models (Arandjelovic and Zisserman 2017).
-    """
+def parse_args(args):
     parser = ArgumentParser(sys.argv[0], description=main.__doc__,
                             formatter_class=RawDescriptionHelpFormatter)
 
@@ -105,7 +108,7 @@ def main():
                         help='Path or paths to files to process, or path to '
                              'a directory of files to process.')
 
-    parser.add_argument('--output', '-o', default=None,
+    parser.add_argument('--output-dir', '-o', default=None,
                         help='Directory to save the ouptut file(s); '
                              'if not given, the output will be '
                              'saved to the same directory as the input WAV '
@@ -124,26 +127,34 @@ def main():
                         choices=['music', 'env'],
                         help='Content type used to train embedding model.')
 
-    parser.add_argument('--embedding-size', '-s', default=6144,
+    parser.add_argument('--embedding-size', '-s', type=int, default=6144,
                         help='Embedding dimensionality.')
 
-    parser.add_argument('--no-centering', '-n', action='store_true',
+    parser.add_argument('--no-centering', '-n', action='store_true', default=False,
                         help='Do not pad signal; timestamps will correspond to '
                              'the beginning of each analysis window.')
 
-    parser.add_argument('--hop-size', '-t', type=positive_float,
-                        help=' Hop size in seconds for processing audio files.')
+    parser.add_argument('--hop-size', '-t', type=positive_float, default=0.1,
+                        help='Hop size in seconds for processing audio files.')
 
-    parser.add_argument('--quiet', '-q', action='store_true',
+    parser.add_argument('--quiet', '-q', action='store_true', default=False,
                         help='Suppress all non-error messages to stdout.')
 
-    args = parser.parse_args()
+    return parser.parse_args(args)
+
+
+def main():
+    """
+    Extracts audio embeddings from models based on the Look, Listen, and Learn models (Arandjelovic and Zisserman 2017).
+    """
+    args = parse_args(sys.argv[1:])
+
     run(args.inputs,
         output_dir=args.output_dir,
         suffix=args.suffix,
         input_repr=args.input_repr,
         content_type=args.content_type,
         embedding_size=args.embedding_size,
-        center=args.center,
+        center=not args.no_centering,
         hop_size=args.hop_size,
         verbose=not args.quiet)
