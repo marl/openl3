@@ -193,3 +193,25 @@ def test_main():
         ['embedding', 'timestamps'])
     assert np.allclose(data_out['timestamps'], data_reg['timestamps'])
     assert np.allclose(data_out['embedding'], data_reg['embedding'])
+
+
+def test_script_main():
+
+    # Duplicate regression test from test_run just to hit coverage
+    tempdir = tempfile.mkdtemp()
+    with patch('sys.argv', ['openl3', CHIRP_44K_PATH, '--output-dir', tempdir]):
+        import openl3.__main__
+
+    # check output file created
+    outfile = os.path.join(tempdir, 'chirp_44k.npz')
+    assert os.path.isfile(outfile)
+
+    # regression test
+    data_reg = np.load(REG_CHIRP_44K_PATH)
+    data_out = np.load(outfile)
+
+    assert sorted(data_out.files) == sorted(data_out.files) == sorted(
+        ['embedding', 'timestamps'])
+    assert np.allclose(data_out['timestamps'], data_reg['timestamps'])
+    assert np.allclose(data_out['embedding'], data_reg['embedding'])
+
