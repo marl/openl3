@@ -1,5 +1,8 @@
 .. _api:
 
+API Reference
+=============
+
 .. module:: openl3
 
 Core functionality

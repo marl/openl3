@@ -19,6 +19,7 @@ import os
 import sys
 import six
 import sphinx_rtd_theme
+from sphinx.ext.autodoc import between
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('..'))
 
@@ -42,7 +43,7 @@ class Mock(MagicMock):
         return MagicMock()
 
 MOCK_MODULES = [
-    'numpy', 'soundfile', 'resampy'
+    'numpy', 'soundfile', 'resampy', 'keras', 'tensorflow'
 ]
 
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
@@ -72,7 +73,6 @@ release = openl3_version.version
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
-    'sphinx.ext.doctest',
     'sphinx.ext.coverage',
     'sphinx.ext.viewcode',
     'numpydoc',
@@ -140,7 +140,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'OpenL3doc'
+htmlhelp_basename = 'openl3doc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
