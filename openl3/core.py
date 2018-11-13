@@ -117,16 +117,13 @@ def get_embedding(audio, sr, input_repr="mel256", content_type="music", embeddin
 
     # Add a channel dimension
     x = x.reshape((x.shape[0], 1, x.shape[-1]))
-    embedding = []
 
     # Get embedding and timestamps
-    for idx in range(x.shape[0]):
-        # Process frames individually to avoid memory problems
-        embedding.append(model.predict(x[idx:idx+1], verbose=verbose).flatten())
+    embedding = model.predict(x, verbose=verbose)
 
-    ts = np.arange(len(embedding)) * hop_size
+    ts = np.arange(embedding.shape[0]) * hop_size
 
-    return np.array(embedding), ts
+    return embedding, ts
 
 
 def process_file(filepath, output_dir=None, suffix=None, input_repr="mel256", content_type="music",
