@@ -108,7 +108,7 @@ def parse_args(args):
                         help='Path or paths to files to process, or path to '
                              'a directory of files to process.')
 
-    parser.add_argument('--output', '-o', default=None,
+    parser.add_argument('--output-dir', '-o', default=None,
                         help='Directory to save the ouptut file(s); '
                              'if not given, the output will be '
                              'saved to the same directory as the input WAV '
@@ -130,14 +130,14 @@ def parse_args(args):
     parser.add_argument('--embedding-size', '-s', default=6144,
                         help='Embedding dimensionality.')
 
-    parser.add_argument('--no-centering', '-n', action='store_true',
+    parser.add_argument('--no-centering', '-n', action='store_true', default=False,
                         help='Do not pad signal; timestamps will correspond to '
                              'the beginning of each analysis window.')
 
-    parser.add_argument('--hop-size', '-t', type=positive_float,
-                        help=' Hop size in seconds for processing audio files.')
+    parser.add_argument('--hop-size', '-t', type=positive_float, default=0.1,
+                        help='Hop size in seconds for processing audio files.')
 
-    parser.add_argument('--quiet', '-q', action='store_true',
+    parser.add_argument('--quiet', '-q', action='store_true', default=False,
                         help='Suppress all non-error messages to stdout.')
 
     return parser.parse_args(args)
@@ -148,13 +148,13 @@ def main():
     Extracts audio embeddings from models based on the Look, Listen, and Learn models (Arandjelovic and Zisserman 2017).
     """
     args = parse_args(sys.argv[1:])
-    
+
     run(args.inputs,
         output_dir=args.output_dir,
         suffix=args.suffix,
         input_repr=args.input_repr,
         content_type=args.content_type,
         embedding_size=args.embedding_size,
-        center=args.center,
+        center=not args.no_centering,
         hop_size=args.hop_size,
         verbose=not args.quiet)
