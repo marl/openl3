@@ -10,9 +10,10 @@ OpenL3
 ======
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    installation
+   tutorial
 
 
 openl3 is an open-source deep audio and image embeddings.
@@ -41,7 +42,7 @@ Contribute
 Changes
 =======
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    changes
 
