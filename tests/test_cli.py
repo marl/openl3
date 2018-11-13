@@ -1,9 +1,16 @@
 import pytest
 import os
-from openl3.cli import positive_float, get_file_list, parse_args, run
+from openl3.cli import positive_float, get_file_list, parse_args, run, main
 from argparse import ArgumentTypeError
 from openl3.openl3_exceptions import OpenL3Error
 import tempfile
+import numpy as np
+import shutil
+try:
+    # python 3.4+ should use builtin unittest.mock not mock package
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
 
 
 TEST_DIR = os.path.dirname(__file__)
@@ -17,6 +24,11 @@ CHIRP_1S_PATH = os.path.join(TEST_AUDIO_DIR, 'chirp_1s.wav')
 EMPTY_PATH = os.path.join(TEST_AUDIO_DIR, 'empty.wav')
 SHORT_PATH = os.path.join(TEST_AUDIO_DIR, 'short.wav')
 SILENCE_PATH = os.path.join(TEST_AUDIO_DIR, 'silence.wav')
+
+# Regression file paths
+TEST_REG_DIR = os.path.join(TEST_DIR, 'data', 'regression')
+REG_CHIRP_44K_PATH = os.path.join(TEST_REG_DIR, 'chirp_44k.npz')
+REG_CHIRP_44K_LINEAR_PATH = os.path.join(TEST_REG_DIR, 'chirp_44k_linear.npz')
 
 
 def test_positive_float():
@@ -121,7 +133,63 @@ def test_run(capsys):
     expected_message = 'openl3: No WAV files found in {}. Aborting.\n'.format(str([tempdir]))
     assert captured.out == expected_message
 
+    # detele tempdir
+    os.rmdir(tempdir)
+
+    # test correct execution on test file (regression)
+    tempdir = tempfile.mkdtemp()
+    run(CHIRP_44K_PATH, output_dir=tempdir, verbose=True)
+
+    # check output file created
+    outfile = os.path.join(tempdir, 'chirp_44k.npz')
+    assert os.path.isfile(outfile)
+
+    # regression test
+    data_reg = np.load(REG_CHIRP_44K_PATH)
+    data_out = np.load(outfile)
+
+    assert sorted(data_out.files) == sorted(data_out.files) == sorted(['embedding', 'timestamps'])
+    assert np.allclose(data_out['timestamps'], data_reg['timestamps'])
+    assert np.allclose(data_out['embedding'], data_reg['embedding'])
+
+    # SECOND regression test
+    run(CHIRP_44K_PATH, output_dir=tempdir, suffix='linear', input_repr='linear',
+        content_type='env', embedding_size=512, center=False, hop_size=0.5,
+        verbose=False)
+
+    # check output file created
+    outfile = os.path.join(tempdir, 'chirp_44k_linear.npz')
+    assert os.path.isfile(outfile)
+
+    # regression test
+    data_reg = np.load(REG_CHIRP_44K_LINEAR_PATH)
+    data_out = np.load(outfile)
+
+    assert sorted(data_out.files) == sorted(data_out.files) == sorted(
+        ['embedding', 'timestamps'])
+    assert np.allclose(data_out['timestamps'], data_reg['timestamps'])
+    assert np.allclose(data_out['embedding'], data_reg['embedding'])
+
+    # delete output file and temp folder
+    shutil.rmtree(tempdir)
 
 
+def test_main():
 
+    # Duplicate regression test from test_run just to hit coverage
+    tempdir = tempfile.mkdtemp()
+    with patch('sys.argv', ['openl3', CHIRP_44K_PATH, '--output-dir', tempdir]):
+        main()
 
+    # check output file created
+    outfile = os.path.join(tempdir, 'chirp_44k.npz')
+    assert os.path.isfile(outfile)
+
+    # regression test
+    data_reg = np.load(REG_CHIRP_44K_PATH)
+    data_out = np.load(outfile)
+
+    assert sorted(data_out.files) == sorted(data_out.files) == sorted(
+        ['embedding', 'timestamps'])
+    assert np.allclose(data_out['timestamps'], data_reg['timestamps'])
+    assert np.allclose(data_out['embedding'], data_reg['embedding'])
