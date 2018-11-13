@@ -1,12 +1,16 @@
 import os
+import warnings
 
-from kapre.time_frequency import Spectrogram, Melspectrogram
-from keras.layers import (
-    Input, Conv2D, BatchNormalization, MaxPooling2D,
-    Flatten, Activation, Lambda
-)
-from keras.models import Model
-import keras.regularizers as regularizers
+with warnings.catch_warnings():
+    # Suppress TF and Keras warnings when importing
+    warnings.simplefilter("ignore")
+    from kapre.time_frequency import Spectrogram, Melspectrogram
+    from keras.layers import (
+        Input, Conv2D, BatchNormalization, MaxPooling2D,
+        Flatten, Activation, Lambda
+    )
+    from keras.models import Model
+    import keras.regularizers as regularizers
 
 
 POOLINGS = {
@@ -46,7 +50,10 @@ def get_embedding_model(input_repr, content_type, embedding_size):
     """
 
     # Construct embedding model and load model weights
-    m = MODELS[input_repr]()
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        m = MODELS[input_repr]()
+
     m.load_weights(get_embedding_model_path(input_repr, content_type))
 
     # Pooling for final output embedding size
