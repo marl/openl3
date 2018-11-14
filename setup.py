@@ -10,25 +10,26 @@ try:
 except ImportError:
     from urllib import urlretrieve
 
+model_dir = os.path.join('openl3', 'models')
 modalities = ['audio', 'image']
 input_reprs = ['linear', 'mel128', 'mel256']
 content_type = ['music', 'env']
-weight_files = ['openl3_{}_{}_{}.h5'.format(*tup) for tup in product(modalities, input_reprs, content_type)]
+weight_files = ['openl3_{}_{}_{}.h5'.format(*tup)
+                for tup in product(modalities, input_reprs, content_type)]
 base_url = 'https://github.com/marl/openl3/raw/models/'
 
 if len(sys.argv) > 1 and sys.argv[1] == 'sdist':
     # exclude the weight files in sdist
     weight_files = []
 else:
-    root_path = os.path.join('openl3', 'models')
-    if not os.path.exists(root_path):
-        os.makedirs(root_path)
+    if not os.path.exists(model_dir):
+        os.makedirs(model_dir)
     # in all other cases, decompress the weights file if necessary
     for weight_file in weight_files:
-        weight_path = os.path.join(root_path, weight_file)
+        weight_path = os.path.join(model_dir, weight_file)
         if not os.path.isfile(weight_path):
             compressed_file = weight_file + '.gz'
-            compressed_path = os.path.join(root_path, compressed_file)
+            compressed_path = os.path.join(model_dir, compressed_file)
             if not os.path.isfile(compressed_file):
                 print('Downloading weight file {} ...'.format(compressed_file))
                 urlretrieve(base_url + compressed_file, compressed_path)
@@ -37,6 +38,8 @@ else:
                 with open(weight_path, 'wb') as target:
                     target.write(source.read())
             print('Decompression complete')
+            os.remove(compressed_path)
+            print('Removing compressed file')
 
 version = imp.load_source('openl3.version', os.path.join('openl3', 'version.py'))
 
@@ -91,6 +94,7 @@ setup(
         'tests': []
     },
     package_data={
-        'openl3': weight_files
+        'openl3': [os.path.join('models', fname)
+                   for fname in weight_files]
     },
 )
