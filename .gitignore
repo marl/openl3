@@ -18,3 +18,5 @@ docs/_build/*
 thumbs.db
 
 *.egg-info
+
+models/*
