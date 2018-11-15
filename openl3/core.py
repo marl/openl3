@@ -96,7 +96,7 @@ def get_embedding(audio, sr, input_repr="mel256", content_type="music", embeddin
 
     if center:
         # Center audio
-        audio = np.pad(audio, (int(frame_len / 2), 0), mode='constant')
+        audio = np.pad(audio, (int(frame_len / 2.0), 0), mode='constant')
 
     audio_len = audio.size
 
@@ -104,14 +104,14 @@ def get_embedding(audio, sr, input_repr="mel256", content_type="music", embeddin
     if audio_len < frame_len:
         pad_length = frame_len - audio_len
     else:
-        pad_length = int(np.ceil(audio_len - frame_len)/ hop_len) * hop_len \
+        pad_length = int(np.ceil(audio_len - frame_len)/ float(hop_len)) * hop_len \
                      - (audio_len - frame_len)
 
     if pad_length > 0:
         audio = np.pad(audio, (0, pad_length), mode='constant', constant_values=0)
 
     # Split audio into frames
-    n_frames = 1 + int((len(audio) - frame_len) / hop_len)
+    n_frames = 1 + int((len(audio) - frame_len) / float(hop_len))
     x = np.lib.stride_tricks.as_strided(audio, shape=(frame_len, n_frames),
         strides=(audio.itemsize, hop_len * audio.itemsize)).T
 
