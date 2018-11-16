@@ -13,6 +13,26 @@ from .openl3_warnings import OpenL3Warning
 TARGET_SR = 48000
 
 
+def _center_audio(audio, frame_len):
+    """Center audio so that first sample will occur in the middle of the first frame"""
+    return np.pad(audio, (int(frame_len / 2.0), 0), mode='constant', constant_values=0)
+
+
+def _pad_audio(audio, frame_len, hop_len):
+    """Pad audio if necessary so that all samples are processed"""
+    audio_len = audio.size
+    if audio_len < frame_len:
+        pad_length = frame_len - audio_len
+    else:
+        pad_length = int(np.ceil((audio_len - frame_len)/float(hop_len))) * hop_len \
+                     - (audio_len - frame_len)
+
+    if pad_length > 0:
+        audio = np.pad(audio, (0, pad_length), mode='constant', constant_values=0)
+
+    return audio
+
+
 def get_embedding(audio, sr, input_repr="mel256", content_type="music", embedding_size=6144,
                   center=True, hop_size=0.1, verbose=1):
     """
@@ -71,7 +91,6 @@ def get_embedding(audio, sr, input_repr="mel256", content_type="music", embeddin
     if center not in (True, False):
         raise OpenL3Error('Invalid center value {}'.format(center))
 
-
     # Check audio array dimension
     if audio.ndim > 2:
         raise OpenL3Error('Audio array can only be be 1D or 2D')
@@ -96,21 +115,12 @@ def get_embedding(audio, sr, input_repr="mel256", content_type="music", embeddin
 
     if center:
         # Center audio
-        audio = np.pad(audio, (int(frame_len / 2.0), 0), mode='constant')
-
-    audio_len = audio.size
+        audio = _center_audio(audio, frame_len)
 
     # Pad if necessary to ensure that we process all samples
-    if audio_len < frame_len:
-        pad_length = frame_len - audio_len
-    else:
-        pad_length = int(np.ceil(audio_len - frame_len)/ float(hop_len)) * hop_len \
-                     - (audio_len - frame_len)
+    audio = _pad_audio(audio, frame_len, hop_len)
 
-    if pad_length > 0:
-        audio = np.pad(audio, (0, pad_length), mode='constant', constant_values=0)
-
-    # Split audio into frames
+    # Split audio into frames, copied from librosa.util.frame
     n_frames = 1 + int((len(audio) - frame_len) / float(hop_len))
     x = np.lib.stride_tricks.as_strided(audio, shape=(frame_len, n_frames),
         strides=(audio.itemsize, hop_len * audio.itemsize)).T
@@ -164,7 +174,7 @@ def process_file(filepath, output_dir=None, suffix=None, input_repr="mel256", co
 
     try:
         audio, sr = sf.read(filepath)
-    except Exception as e:
+    except Exception:
         raise OpenL3Error('Could not open file "{}":\n{}'.format(filepath, traceback.format_exc()))
 
     if not suffix:
@@ -207,4 +217,3 @@ def get_output_path(filepath, suffix, output_dir=None):
         output_filename = base_filename + suffix
 
     return os.path.join(output_dir, output_filename)
-
