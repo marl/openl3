@@ -291,3 +291,50 @@ def test_process_file():
 
     # Make sure we fail when file cannot be opened
     pytest.raises(OpenL3Error, openl3.process_file, '/fake/directory/asdf.wav')
+
+
+def test_center_audio():
+    audio_len = 100
+    audio = np.ones((audio_len,))
+
+    # Test even window size
+    frame_len = 50
+    centered = openl3.core._center_audio(audio, frame_len)
+    assert centered.size == 125
+    assert np.all(centered[:25] == 0)
+    assert np.array_equal(audio, centered[25:])
+
+    # Test odd window size
+    frame_len = 49
+    centered = openl3.core._center_audio(audio, frame_len)
+    assert centered.size == 125
+    assert np.all(centered[:24] == 0)
+    assert np.array_equal(audio, centered[24:])
+
+
+def test_pad_audio():
+    frame_len = 50
+    hop_len = 25
+
+    # Test short case
+    audio_len = 10
+    audio = np.ones((audio_len,))
+    padded = openl3.core._pad_audio(audio, frame_len, hop_len)
+    assert padded.size == 50
+    assert np.array_equal(padded[:10], audio)
+    assert np.all(padded[10:] == 0)
+
+    # Test case when audio needs to be padded so all samples are processed
+    audio_len = 90
+    audio = np.ones((audio_len,))
+    padded = openl3.core._pad_audio(audio, frame_len, hop_len)
+    assert padded.size == 100
+    assert np.array_equal(padded[:90], audio)
+    assert np.all(padded[90:] == 0)
+
+    # Test case when audio does not need padding
+    audio_len = 100
+    audio = np.ones((audio_len,))
+    padded = openl3.core._pad_audio(audio, frame_len, hop_len)
+    assert padded.size == 100
+    assert np.array_equal(padded, audio)
