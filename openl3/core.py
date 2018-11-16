@@ -100,7 +100,7 @@ def get_embedding(audio, sr, input_repr="mel256", content_type="music", embeddin
 
     # Resample if necessary
     if sr != TARGET_SR:
-        audio = resampy.resample(audio, sr_orig=sr, sr_new=TARGET_SR)
+        audio = resampy.resample(audio, sr_orig=sr, sr_new=TARGET_SR, filter='kaiser_best')
 
     # Get embedding model
     model = get_embedding_model(input_repr, content_type, embedding_size)
