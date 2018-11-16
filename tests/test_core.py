@@ -173,22 +173,21 @@ def test_get_embedding():
     emb6, ts6 = openl3.get_embedding(audio, sr,
         input_repr="mel256", content_type="music", embedding_size=6144,
         center=True, hop_size=hop_size, verbose=1)
-    n_frames = 1 + int((audio.shape[0] + 0.5*sr - sr) / int(hop_size*sr))
+    n_frames = 1 + int((audio.shape[0] + sr//2 - sr) / float(int(hop_size*sr)))
     assert emb6.shape[0] == n_frames
 
     emb7, ts7 = openl3.get_embedding(audio, sr,
         input_repr="mel256", content_type="music", embedding_size=6144,
         center=False, hop_size=hop_size, verbose=1)
-    n_frames = 1 + int((audio.shape[0] - sr) / int(hop_size*sr))
+    n_frames = 1 + int((audio.shape[0] - sr) / float(int(hop_size*sr)))
     assert emb7.shape[0] == n_frames
 
     # Check for hop size
-
     hop_size = 0.2
     emb8, ts8 = openl3.get_embedding(audio, sr,
         input_repr="mel256", content_type="music", embedding_size=6144,
-        center=True, hop_size=hop_size, verbose=1)
-    n_frames = 1 + int((audio.shape[0] + 0.5*sr - sr) / int(hop_size*sr))
+        center=False, hop_size=hop_size, verbose=1)
+    n_frames = 1 + int((audio.shape[0] - sr) / float(int(hop_size*sr)))
     assert emb8.shape[0] == n_frames
 
     # Make sure changing verbosity doesn't break
@@ -307,7 +306,7 @@ def test_center_audio():
     # Test odd window size
     frame_len = 49
     centered = openl3.core._center_audio(audio, frame_len)
-    assert centered.size == 125
+    assert centered.size == 124
     assert np.all(centered[:24] == 0)
     assert np.array_equal(audio, centered[24:])
 
