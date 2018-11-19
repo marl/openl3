@@ -81,7 +81,7 @@ setup(
         'scipy>=0.19.1',
         'kapre>=0.1.3.1',
         'PySoundFile>=0.9.0.post1',
-        'resampy>=0.2.0,<0.3.0',
+        'resampy>=0.2.1,<0.3.0',
         'h5py>=2.7.0,<3.0.0',
     ],
     extras_require={
