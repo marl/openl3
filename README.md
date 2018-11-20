@@ -10,7 +10,7 @@ Open-source deep audio and image embeddings.
 
 Please refer to the [documentation](https://openl3.readthedocs.io/en/latest/) for detailed instructions and examples.
 
-For details about the embedding models and how they were trained, please see:
+The audio and image embedding models provided here are published as part of [1], and are based on the Look, Listen and Learn approach [2]. For details about the embedding models and how they were trained, please see:
 
 Look, Listen, and Learn More: Design Choices for Deep Audio Embeddings<br/>
 Jason Cramer, Ho-Hsiang Wu, Justin Salamon and Juan Pablo Bello<br/>
@@ -67,3 +67,15 @@ To install the latest version of openl3 from source:
 To help you get started with `openl3`, please see the
 [tutorial](http://openl3.readthedocs.io/en/latest/tutorial.html).
 
+
+# Acknowledging OpenL3
+
+Please cite the following papers when using OpenL3 in your work:
+
+[1] Look, Listen, and Learn More: Design Choices for Deep Audio Embeddings<br/>
+Jason Cramer, Ho-Hsiang Wu, Justin Salamon and Juan Pablo Bello<br/>
+Under review, 2018.
+
+[2] Look, Listen and Learn<br/>
+Relja Arandjelović and Andrew Zisserman<br/>
+IEEE International Conference on Computer Vision (ICCV), Venice, Italy, Oct. 2017.
