@@ -10,7 +10,7 @@ try:
 except ImportError:
     from urllib import urlretrieve
 
-model_dir = os.path.join('openl3', 'models')
+module_dir = 'openl3'
 modalities = ['audio', 'image']
 input_reprs = ['linear', 'mel128', 'mel256']
 content_type = ['music', 'env']
@@ -22,14 +22,12 @@ if len(sys.argv) > 1 and sys.argv[1] == 'sdist':
     # exclude the weight files in sdist
     weight_files = []
 else:
-    if not os.path.exists(model_dir):
-        os.makedirs(model_dir)
     # in all other cases, decompress the weights file if necessary
     for weight_file in weight_files:
-        weight_path = os.path.join(model_dir, weight_file)
+        weight_path = os.path.join(module_dir, weight_file)
         if not os.path.isfile(weight_path):
             compressed_file = weight_file + '.gz'
-            compressed_path = os.path.join(model_dir, compressed_file)
+            compressed_path = os.path.join(module_dir, compressed_file)
             if not os.path.isfile(compressed_file):
                 print('Downloading weight file {} ...'.format(compressed_file))
                 urlretrieve(base_url + compressed_file, compressed_path)
@@ -73,7 +71,8 @@ setup(
     keywords='deep audio embeddings machine listening learning tensorflow keras',
     project_urls={
         'Source': 'https://github.com/marl/openl3',
-        'Tracker': 'https://github.com/marl/openl3/issues'
+        'Tracker': 'https://github.com/marl/openl3/issues',
+        'Documentation': 'https://readthedocs.org/projects/openl3/'
     },
     install_requires=[
         'keras==2.0.9',
@@ -94,7 +93,6 @@ setup(
         'tests': []
     },
     package_data={
-        'openl3': [os.path.join('models', fname)
-                   for fname in weight_files]
+        'openl3': weight_files
     },
 )

@@ -83,7 +83,6 @@ def get_embedding_model_path(input_repr, content_type):
     """
 
     return os.path.join(os.path.dirname(__file__),
-                        'models',
                         'openl3_audio_{}_{}.h5'.format(input_repr, content_type))
 
 
