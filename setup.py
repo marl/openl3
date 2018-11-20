@@ -61,6 +61,8 @@ setup(
     classifiers=[
         'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: MIT License',
+        "Intended Audience :: Developers",
+        "Intended Audience :: Science/Research",
         'Topic :: Multimedia :: Sound/Audio :: Analysis',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
