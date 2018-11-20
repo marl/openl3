@@ -70,7 +70,7 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
-    keywords='tfrecord',
+    keywords='deep audio embeddings machine listening learning tensorflow keras',
     project_urls={
         'Source': 'https://github.com/marl/openl3',
         'Tracker': 'https://github.com/marl/openl3/issues'
