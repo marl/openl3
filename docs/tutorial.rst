@@ -1,11 +1,11 @@
 .. _tutorial:
 
-openl3 tutorial
+OpenL3 tutorial
 ===============
 
 Introduction
 ------------
-Welcome to the ``openl3`` tutorial! In this tutorial, we'll explain how ``openl3`` works
+Welcome to the OpenL3 tutorial! In this tutorial, we'll explain how OpenL3 works
 and show how to use it to compute audio embeddings for your audio files. Note that only audio
 formats supported by `pysoundfile` are supported (e.g. WAV, OGG, FLAC).
 
@@ -51,7 +51,7 @@ You can also change the embedding dimensionality between 6144 and 512 (default 6
     import soundfile as sf
     emb, ts = openl3.get_embedding(audio, sr, embedding_size=512)
 
-By default, ``openl3`` will pad the signal by half of the window size (one second) so that the
+By default, OpenL3 will pad the signal by half of the window size (one second) so that the
 the center of the first window corresponds to the beginning of the signal, and the corresponding
 timestamps correspond to the center of the window. If you wish to disable this centering, you can
 use code like the following:
@@ -153,7 +153,7 @@ dimensionality between 6144 and 512 (default 6144):
 
     $ openl3 /path/to/file.wav --embedding-size 512
 
-By default, ``openl3`` will pad the signal by half of the window size (one second) so that the
+By default, OpenL3 will pad the signal by half of the window size (one second) so that the
 the center of the first window corresponds to the beginning of the signal, and the corresponding
 timestamps correspond to the center of the window. If you wish to disable this centering, you can
 run:
