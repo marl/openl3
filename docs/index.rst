@@ -45,13 +45,13 @@ Acknowledging OpenL3
 
 Please cite the following papers when using OpenL3 in your work:
 
-[1] Look, Listen, and Learn More: Design Choices for Deep Audio Embeddings<br/>
-Jason Cramer, Ho-Hsiang Wu, Justin Salamon and Juan Pablo Bello<br/>
-Under review, 2018.
+[1] Look, Listen, and Learn More: Design Choices for Deep Audio Embeddings |br|
+Jason Cramer, Ho-Hsiang Wu, Justin Salamon and Juan Pablo Bello |br|
+Under review, 2018. |br|
 
-[2] Look, Listen and Learn<br/>
-Relja Arandjelović and Andrew Zisserman<br/>
-IEEE International Conference on Computer Vision (ICCV), Venice, Italy, Oct. 2017.
+[2] Look, Listen and Learn |br|
+Relja Arandjelović and Andrew Zisserman |br|
+IEEE International Conference on Computer Vision (ICCV), Venice, Italy, Oct. 2017. |br|
 
 
 Changes
