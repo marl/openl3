@@ -3,22 +3,22 @@ from openl3.models import get_embedding_model, get_embedding_model_path
 
 def test_get_embedding_model_path():
     embedding_model_path = get_embedding_model_path('linear', 'music')
-    assert '/'.join(embedding_model_path.split('/')[-3:]) == 'openl3/openl3_audio_linear_music.h5'
+    assert '/'.join(embedding_model_path.split('/')[-2:]) == 'openl3/openl3_audio_linear_music.h5'
 
     embedding_model_path = get_embedding_model_path('linear', 'env')
-    assert '/'.join(embedding_model_path.split('/')[-3:]) == 'openl3/openl3_audio_linear_env.h5'
+    assert '/'.join(embedding_model_path.split('/')[-2:]) == 'openl3/openl3_audio_linear_env.h5'
 
     embedding_model_path = get_embedding_model_path('mel128', 'music')
-    assert '/'.join(embedding_model_path.split('/')[-3:]) == 'openl3/openl3_audio_mel128_music.h5'
+    assert '/'.join(embedding_model_path.split('/')[-2:]) == 'openl3/openl3_audio_mel128_music.h5'
 
     embedding_model_path = get_embedding_model_path('mel128', 'env')
-    assert '/'.join(embedding_model_path.split('/')[-3:]) == 'openl3/openl3_audio_mel128_env.h5'
+    assert '/'.join(embedding_model_path.split('/')[-2:]) == 'openl3/openl3_audio_mel128_env.h5'
 
     embedding_model_path = get_embedding_model_path('mel256', 'music')
-    assert '/'.join(embedding_model_path.split('/')[-3:]) == 'openl3/openl3_audio_mel256_music.h5'
+    assert '/'.join(embedding_model_path.split('/')[-2:]) == 'openl3/openl3_audio_mel256_music.h5'
 
     embedding_model_path = get_embedding_model_path('mel256', 'env')
-    assert '/'.join(embedding_model_path.split('/')[-3:]) == 'openl3/openl3_audio_mel256_env.h5'
+    assert '/'.join(embedding_model_path.split('/')[-2:]) == 'openl3/openl3_audio_mel256_env.h5'
 
 
 def test_get_embedding_model():
