@@ -149,8 +149,10 @@ def test_run(capsys):
     data_out = np.load(outfile)
 
     assert sorted(data_out.files) == sorted(data_out.files) == sorted(['embedding', 'timestamps'])
-    assert np.allclose(data_out['timestamps'], data_reg['timestamps'])
-    assert np.allclose(data_out['embedding'], data_reg['embedding'])
+    assert np.allclose(data_out['timestamps'], data_reg['timestamps'],
+                       rtol=1e-05, atol=1e-06, equal_nan=False)
+    assert np.allclose(data_out['embedding'], data_reg['embedding'],
+                       rtol=1e-05, atol=1e-06, equal_nan=False)
 
     # SECOND regression test
     run(CHIRP_44K_PATH, output_dir=tempdir, suffix='linear', input_repr='linear',
@@ -167,8 +169,10 @@ def test_run(capsys):
 
     assert sorted(data_out.files) == sorted(data_out.files) == sorted(
         ['embedding', 'timestamps'])
-    assert np.allclose(data_out['timestamps'], data_reg['timestamps'])
-    assert np.allclose(data_out['embedding'], data_reg['embedding'])
+    assert np.allclose(data_out['timestamps'], data_reg['timestamps'],
+                       rtol=1e-05, atol=1e-06, equal_nan=False)
+    assert np.allclose(data_out['embedding'], data_reg['embedding'],
+                       rtol=1e-05, atol=1e-06, equal_nan=False)
 
     # delete output file and temp folder
     shutil.rmtree(tempdir)
@@ -191,8 +195,10 @@ def test_main():
 
     assert sorted(data_out.files) == sorted(data_out.files) == sorted(
         ['embedding', 'timestamps'])
-    assert np.allclose(data_out['timestamps'], data_reg['timestamps'])
-    assert np.allclose(data_out['embedding'], data_reg['embedding'])
+    assert np.allclose(data_out['timestamps'], data_reg['timestamps'],
+                       rtol=1e-05, atol=1e-06, equal_nan=False)
+    assert np.allclose(data_out['embedding'], data_reg['embedding'],
+                       rtol=1e-05, atol=1e-06, equal_nan=False)
 
 
 def test_script_main():
@@ -212,6 +218,8 @@ def test_script_main():
 
     assert sorted(data_out.files) == sorted(data_out.files) == sorted(
         ['embedding', 'timestamps'])
-    assert np.allclose(data_out['timestamps'], data_reg['timestamps'])
-    assert np.allclose(data_out['embedding'], data_reg['embedding'])
+    assert np.allclose(data_out['timestamps'], data_reg['timestamps'],
+                       rtol=1e-05, atol=1e-06, equal_nan=False)
+    assert np.allclose(data_out['embedding'], data_reg['embedding'],
+                       rtol=1e-05, atol=1e-06, equal_nan=False)
 
