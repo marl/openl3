@@ -14,6 +14,7 @@ module_dir = 'openl3'
 modalities = ['audio', 'image']
 input_reprs = ['linear', 'mel128', 'mel256']
 content_type = ['music', 'env']
+model_version_str = 'v0_1_2'
 weight_files = ['openl3_{}_{}_{}.h5'.format(*tup)
                 for tup in product(modalities, input_reprs, content_type)]
 base_url = 'https://github.com/marl/openl3/raw/models/'
@@ -26,7 +27,8 @@ else:
     for weight_file in weight_files:
         weight_path = os.path.join(module_dir, weight_file)
         if not os.path.isfile(weight_path):
-            compressed_file = weight_file + '.gz'
+            weight_fname = os.path.splitext(weight_file)[0]
+            compressed_file = '{}-{}.h5.gz'.format(weight_fname, model_version_str)
             compressed_path = os.path.join(module_dir, compressed_file)
             if not os.path.isfile(compressed_file):
                 print('Downloading weight file {} ...'.format(compressed_file))
