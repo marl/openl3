@@ -114,7 +114,7 @@ def test_get_embedding():
     assert not np.any(np.isnan(emb1))
 
     # Make sure we can load a model and pass it in
-    model = openl3.get_embedding_model("linear", "env", 6144)
+    model = openl3.models.get_embedding_model("linear", "env", 6144)
     emb1load, ts1load = openl3.get_embedding(audio, sr,
         model=model, center=True, hop_size=hop_size, verbose=1)
     assert np.all(np.abs(emb1load - emb1) < tol)
