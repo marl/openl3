@@ -5,6 +5,7 @@ import soundfile as sf
 import numpy as np
 from numbers import Real
 import warnings
+import keras
 from .models import get_embedding_model
 from .openl3_exceptions import OpenL3Error
 from .openl3_warnings import OpenL3Warning
@@ -33,7 +34,8 @@ def _pad_audio(audio, frame_len, hop_len):
     return audio
 
 
-def get_embedding(audio, sr, input_repr="mel256", content_type="music", embedding_size=6144,
+def get_embedding(audio, sr, model=None, input_repr="mel256",
+                  content_type="music", embedding_size=6144,
                   center=True, hop_size=0.1, verbose=1):
     """
     Computes and returns L3 embedding for given audio data
@@ -44,6 +46,10 @@ def get_embedding(audio, sr, input_repr="mel256", content_type="music", embeddin
         1D numpy array of audio data.
     sr : int
         Sampling rate, if not 48kHz will audio will be resampled.
+    model : keras.models.Model or None
+        Loaded model object. If None, model will be loaded using
+        the provided values of `input_repr`, `content_type` and
+        `embedding_size`.
     input_repr : "linear", "mel128", or "mel256"
         Spectrogram representation used for model.
     content_type : "music" or "env"
@@ -72,6 +78,10 @@ def get_embedding(audio, sr, input_repr="mel256", content_type="music", embeddin
     # Warn user if audio is all zero
     if np.all(audio == 0):
         warnings.warn('Provided audio is all zeros', OpenL3Warning)
+
+    if model is not None and not isinstance(model, keras.models.Model):
+        raise OpenL3Error('Invalid model provided. Must be of type keras.model.Models'
+                          ' but got {}'.format(str(type(model))))
 
     if str(input_repr) not in ("linear", "mel128", "mel256"):
         raise OpenL3Error('Invalid input representation "{}"'.format(input_repr))
@@ -103,7 +113,8 @@ def get_embedding(audio, sr, input_repr="mel256", content_type="music", embeddin
         audio = resampy.resample(audio, sr_orig=sr, sr_new=TARGET_SR, filter='kaiser_best')
 
     # Get embedding model
-    model = get_embedding_model(input_repr, content_type, embedding_size)
+    if model is None:
+        model = get_embedding_model(input_repr, content_type, embedding_size)
 
     audio_len = audio.size
     frame_len = TARGET_SR
@@ -136,7 +147,8 @@ def get_embedding(audio, sr, input_repr="mel256", content_type="music", embeddin
     return embedding, ts
 
 
-def process_file(filepath, output_dir=None, suffix=None, input_repr="mel256", content_type="music",
+def process_file(filepath, output_dir=None, suffix=None, model=None,
+                 input_repr="mel256", content_type="music",
                  embedding_size=6144, center=True, hop_size=0.1, verbose=True):
     """
     Computes and saves L3 embedding for given audio file
@@ -151,6 +163,10 @@ def process_file(filepath, output_dir=None, suffix=None, input_repr="mel256", co
     suffix : str or None
         String to be appended to the output filename, i.e. <base filename>_<suffix>.npz.
         If None, then no suffix will be added, i.e. <base filename>.npz.
+    model : keras.models.Model or None
+        Loaded model object. If None, model will be loaded using
+        the provided values of `input_repr`, `content_type` and
+        `embedding_size`.
     input_repr : "linear", "mel128", or "mel256"
         Spectrogram representation used for model.
     content_type : "music" or "env"
@@ -182,8 +198,10 @@ def process_file(filepath, output_dir=None, suffix=None, input_repr="mel256", co
 
     output_path = get_output_path(filepath, suffix + ".npz", output_dir=output_dir)
 
-    embedding, ts = get_embedding(audio, sr, input_repr=input_repr, content_type=content_type,
-        embedding_size=embedding_size, center=center, hop_size=hop_size, verbose=1 if verbose else 0)
+    embedding, ts = get_embedding(audio, sr, model=model, input_repr=input_repr,
+                                  content_type=content_type,
+                                  embedding_size=embedding_size, center=center,
+                                  hop_size=hop_size, verbose=1 if verbose else 0)
 
     np.savez(output_path, embedding=embedding, timestamps=ts)
     assert os.path.exists(output_path)
