@@ -79,6 +79,15 @@ model verbosity to either 0 or 1:
     import soundfile as sf
     emb, ts = openl3.get_embedding(audio, sr, verbose=0)
 
+By default, the corresponding model file is loaded every time this function is called. If you want to load the model only once when computing multiple embeddings, you can run:
+
+.. code-block:: python
+
+    import openl3
+    import soundfile as sf
+    model = openl3.get_embedding_model(input_repr="mel256", content_type="music", embedding_size=6144)
+    emb, ts = openl3.get_embedding(audio, sr, model=model)
+
 To compute embeddings for an audio file and save them locally, you can use code like the following:
 
 .. code-block:: python
@@ -93,6 +102,26 @@ To compute embeddings for an audio file and save them locally, you can use code 
     openl3.process_file(audio_filepath, output_dir='/different/dir', suffix='suffix')
     # Saves the file to '/path/to/file_suffix.npz'
     openl3.process_file(audio_filepath, suffix='suffix')
+
+    data = np.load('/path/to/file.npz')
+    emb, ts = data['embedding'], data['timestamps']
+
+Like before, you can also load the model before processing the file so that loading the model only happens once:
+
+.. code-block:: python
+
+    import openl3
+    import numpy as np
+
+    model = openl3.get_embedding_model(input_repr="mel256", content_type="music", embedding_size=6144)
+
+    audio_filepath = '/path/to/file.wav'
+    # Saves the file to '/path/to/file.npz'
+    openl3.process_file(audio_filepath, model=model)
+    # Saves the file to `/different/dir/file.npz`
+    openl3.process_file(audio_filepath, output_dir='/different/dir', suffix='suffix' model=model)
+    # Saves the file to '/path/to/file_suffix.npz'
+    openl3.process_file(audio_filepath, suffix='suffix', model=model)
 
     data = np.load('/path/to/file.npz')
     emb, ts = data['embedding'], data['timestamps']
