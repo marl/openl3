@@ -3,6 +3,7 @@ import os
 import sys
 from openl3.openl3_exceptions import OpenL3Error
 from openl3 import process_file
+from openl3.models import get_embedding_model
 from argparse import ArgumentParser, RawDescriptionHelpFormatter, ArgumentTypeError
 from collections import Iterable
 from six import string_types
