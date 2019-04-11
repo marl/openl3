@@ -118,7 +118,7 @@ def test_get_embedding():
     emb1load, ts1load = openl3.get_embedding(audio, sr,
         model=model, center=True, hop_size=hop_size, verbose=1)
     assert np.all(np.abs(emb1load - emb1) < tol)
-    ssert np.all(np.abs(ts1load - ts1) < tol)
+    assert np.all(np.abs(ts1load - ts1) < tol)
 
     # Make sure that the embeddings are approximately the same with mono and stereo
     audio, sr = sf.read(CHIRP_STEREO_PATH)
