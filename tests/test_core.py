@@ -36,6 +36,13 @@ def test_get_embedding():
     assert not np.any(np.isnan(emb1))
 
     emb1, ts1 = openl3.get_embedding(audio, sr,
+        input_repr="mel256", content_type="music", embedding_size=6144,
+        center=True, hop_size=hop_size, verbose=1)
+    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
+    assert emb1.shape[1] == 6144
+    assert not np.any(np.isnan(emb1))
+
+    emb1, ts1 = openl3.get_embedding(audio, sr,
         input_repr="mel128", content_type="music", embedding_size=512,
         center=True, hop_size=hop_size, verbose=1)
     assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
@@ -106,12 +113,12 @@ def test_get_embedding():
     assert emb1.shape[1] == 6144
     assert not np.any(np.isnan(emb1))
 
-    emb1, ts1 = openl3.get_embedding(audio, sr,
-        input_repr="mel256", content_type="music", embedding_size=6144,
-        center=True, hop_size=hop_size, verbose=1)
-    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
-    assert emb1.shape[1] == 6144
-    assert not np.any(np.isnan(emb1))
+    # Make sure we can load a model and pass it in
+    model = openl3.get_embedding_model("linear", "env", 6144)
+    emb1load, ts1load = openl3.get_embedding(audio, sr,
+        model=model, center=True, hop_size=hop_size, verbose=1)
+    assert np.all(np.abs(emb1load - emb1) < tol)
+    ssert np.all(np.abs(ts1load - ts1) < tol)
 
     # Make sure that the embeddings are approximately the same with mono and stereo
     audio, sr = sf.read(CHIRP_STEREO_PATH)
@@ -196,6 +203,8 @@ def test_get_embedding():
         center=True, hop_size=hop_size, verbose=0)
 
     # Make sure invalid arguments don't work
+    pytest.raises(OpenL3Error, openl3.get_embedding, audio, sr,
+        model="invalid", center=True, hop_size=0.1, verbose=1)
     pytest.raises(OpenL3Error, openl3.get_embedding, audio, sr,
         input_repr="invalid", content_type="music", embedding_size=6144,
         center=True, hop_size=0.1, verbose=1)
