@@ -83,6 +83,9 @@ def run(inputs, output_dir=None, suffix=None, input_repr="mel256", content_type=
         print('openl3: No WAV files found in {}. Aborting.'.format(str(inputs)))
         sys.exit(-1)
 
+    # Load model
+    model = get_embedding_model(input_repr, content_type, embedding_size)
+
     # Process all files in the arguments
     for filepath in file_list:
         if verbose:
@@ -90,9 +93,7 @@ def run(inputs, output_dir=None, suffix=None, input_repr="mel256", content_type=
         process_file(filepath,
                      output_dir=output_dir,
                      suffix=suffix,
-                     input_repr=input_repr,
-                     content_type=content_type,
-                     embedding_size=embedding_size,
+                     model=model,
                      center=center,
                      hop_size=hop_size,
                      verbose=verbose)
