@@ -88,6 +88,8 @@ By default, the corresponding model file is loaded every time this function is c
     model = openl3.models.load_embedding_model(input_repr="mel256", content_type="music", embedding_size=6144)
     emb, ts = openl3.get_embedding(audio, sr, model=model)
 
+Note that if a model is provided, then the keyword arguments `input_repr`, `content_type` and `embedding_size` for the function `get_embedding` will be ignored.
+
 To compute embeddings for an audio file and save them locally, you can use code like the following:
 
 .. code-block:: python
@@ -125,6 +127,9 @@ Like before, you can also load the model before processing the file so that load
 
     data = np.load('/path/to/file.npz')
     emb, ts = data['embedding'], data['timestamps']
+
+
+Again, note that if a model is provided, then the keyword arguments `input_repr`, `content_type` and `embedding_size` for the function `process_file` will be ignored.
 
 Using the CLI
 -------------

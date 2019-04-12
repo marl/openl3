@@ -47,15 +47,20 @@ def get_embedding(audio, sr, model=None, input_repr="mel256",
     sr : int
         Sampling rate, if not 48kHz will audio will be resampled.
     model : keras.models.Model or None
-        Loaded model object. If None, model will be loaded using
+        Loaded model object. If a model is provided, then `input_repr`,
+        `content_type`, and `embedding_size` will be ignored.
+        If None is provided, the model will be loaded using
         the provided values of `input_repr`, `content_type` and
         `embedding_size`.
     input_repr : "linear", "mel128", or "mel256"
-        Spectrogram representation used for model.
+        Spectrogram representation used for model. Ignored if `model` is
+        a valid Keras model.
     content_type : "music" or "env"
-        Type of content used to train embedding.
+        Type of content used to train embedding. Ignored if `model` is
+        a valid Keras model.
     embedding_size : 6144 or 512
-        Embedding dimensionality.
+        Embedding dimensionality. Ignored if `model` is a valid
+        Keras model.
     center : boolean
         If True, pads beginning of signal so timestamps correspond
         to center of window.
@@ -164,15 +169,20 @@ def process_file(filepath, output_dir=None, suffix=None, model=None,
         String to be appended to the output filename, i.e. <base filename>_<suffix>.npz.
         If None, then no suffix will be added, i.e. <base filename>.npz.
     model : keras.models.Model or None
-        Loaded model object. If None, model will be loaded using
+        Loaded model object. If a model is provided, then `input_repr`,
+        `content_type`, and `embedding_size` will be ignored.
+        If None is provided, the model will be loaded using
         the provided values of `input_repr`, `content_type` and
         `embedding_size`.
     input_repr : "linear", "mel128", or "mel256"
-        Spectrogram representation used for model.
+        Spectrogram representation used for model. Ignored if `model` is
+        a valid Keras model.
     content_type : "music" or "env"
-        Type of content used to train embedding.
+        Type of content used to train embedding. Ignored if `model` is
+        a valid Keras model.
     embedding_size : 6144 or 512
-        Embedding dimensionality.
+        Embedding dimensionality. Ignored if `model` is a valid
+        Keras model.
     center : boolean
         If True, pads beginning of signal so timestamps correspond
         to center of window.
