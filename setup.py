@@ -79,7 +79,7 @@ setup(
         'Documentation': 'https://readthedocs.org/projects/openl3/'
     },
     install_requires=[
-        'keras==2.0.9',
+        'keras>=2.0.9',
         'numpy>=1.13.0',
         'scipy>=0.19.1',
         'kapre>=0.1.4',
