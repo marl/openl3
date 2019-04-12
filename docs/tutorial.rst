@@ -85,7 +85,7 @@ By default, the corresponding model file is loaded every time this function is c
 
     import openl3
     import soundfile as sf
-    model = openl3.models.get_embedding_model(input_repr="mel256", content_type="music", embedding_size=6144)
+    model = openl3.models.load_embedding_model(input_repr="mel256", content_type="music", embedding_size=6144)
     emb, ts = openl3.get_embedding(audio, sr, model=model)
 
 To compute embeddings for an audio file and save them locally, you can use code like the following:
@@ -113,7 +113,7 @@ Like before, you can also load the model before processing the file so that load
     import openl3
     import numpy as np
 
-    model = openl3.models.get_embedding_model(input_repr="mel256", content_type="music", embedding_size=6144)
+    model = openl3.models.load_embedding_model(input_repr="mel256", content_type="music", embedding_size=6144)
 
     audio_filepath = '/path/to/file.wav'
     # Saves the file to '/path/to/file.npz'

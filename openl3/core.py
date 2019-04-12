@@ -6,7 +6,7 @@ import numpy as np
 from numbers import Real
 import warnings
 import keras
-from .models import get_embedding_model
+from .models import load_embedding_model
 from .openl3_exceptions import OpenL3Error
 from .openl3_warnings import OpenL3Warning
 
@@ -114,7 +114,7 @@ def get_embedding(audio, sr, model=None, input_repr="mel256",
 
     # Get embedding model
     if model is None:
-        model = get_embedding_model(input_repr, content_type, embedding_size)
+        model = load_embedding_model(input_repr, content_type, embedding_size)
 
     audio_len = audio.size
     frame_len = TARGET_SR

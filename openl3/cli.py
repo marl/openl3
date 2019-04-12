@@ -3,7 +3,7 @@ import os
 import sys
 from openl3.openl3_exceptions import OpenL3Error
 from openl3 import process_file
-from openl3.models import get_embedding_model
+from openl3.models import load_embedding_model
 from argparse import ArgumentParser, RawDescriptionHelpFormatter, ArgumentTypeError
 from collections import Iterable
 from six import string_types
@@ -85,7 +85,7 @@ def run(inputs, output_dir=None, suffix=None, input_repr="mel256", content_type=
         sys.exit(-1)
 
     # Load model
-    model = get_embedding_model(input_repr, content_type, embedding_size)
+    model = load_embedding_model(input_repr, content_type, embedding_size)
 
     # Process all files in the arguments
     for filepath in file_list:
