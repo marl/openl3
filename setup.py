@@ -14,7 +14,7 @@ module_dir = 'openl3'
 modalities = ['audio', 'image']
 input_reprs = ['linear', 'mel128', 'mel256']
 content_type = ['music', 'env']
-model_version_str = 'v0_1_2'
+model_version_str = 'v0_2_0'
 weight_files = ['openl3_{}_{}_{}.h5'.format(*tup)
                 for tup in product(modalities, input_reprs, content_type)]
 base_url = 'https://github.com/marl/openl3/raw/models/'
@@ -79,7 +79,7 @@ setup(
         'Documentation': 'https://readthedocs.org/projects/openl3/'
     },
     install_requires=[
-        'keras==2.0.9',
+        'keras>=2.0.9',
         'numpy>=1.13.0',
         'scipy>=0.19.1',
         'kapre>=0.1.4',

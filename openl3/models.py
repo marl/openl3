@@ -29,7 +29,7 @@ POOLINGS = {
 }
 
 
-def get_embedding_model(input_repr, content_type, embedding_size):
+def load_embedding_model(input_repr, content_type, embedding_size):
     """
     Returns a model with the given characteristics. Loads the model
     if the model has not been loaded yet.
@@ -54,7 +54,7 @@ def get_embedding_model(input_repr, content_type, embedding_size):
         warnings.simplefilter("ignore")
         m = MODELS[input_repr]()
 
-    m.load_weights(get_embedding_model_path(input_repr, content_type))
+    m.load_weights(load_embedding_model_path(input_repr, content_type))
 
     # Pooling for final output embedding size
     pool_size = POOLINGS[input_repr][embedding_size]
@@ -64,7 +64,7 @@ def get_embedding_model(input_repr, content_type, embedding_size):
     return m
 
 
-def get_embedding_model_path(input_repr, content_type):
+def load_embedding_model_path(input_repr, content_type):
     """
     Returns the local path to the model weights file for the model
     with the given characteristics
