@@ -24,8 +24,6 @@ The audio and image embedding models provided here are published as part of [1],
 Jason Cramer, Ho-Hsiang Wu, Justin Salamon, and Juan Pablo Bello. |br|
 IEEE Int. Conf. on Acoustics, Speech and Signal Processing (ICASSP), pages 3852-3856, Brighton, UK, May 2019. |br|
 
-If you use this library in your work, please consider citing our paper.
-
 
 API Reference
 =============
@@ -47,9 +45,9 @@ Acknowledging OpenL3
 
 Please cite the following papers when using OpenL3 in your work:
 
-[1] Look, Listen, and Learn More: Design Choices for Deep Audio Embeddings |br|
-Jason Cramer, Ho-Hsiang Wu, Justin Salamon and Juan Pablo Bello |br|
-Under review, 2018. |br|
+[1] Look, Listen and Learn More: Design Choices for Deep Audio Embeddings |br|
+Jason Cramer, Ho-Hsiang Wu, Justin Salamon, and Juan Pablo Bello. |br|
+IEEE Int. Conf. on Acoustics, Speech and Signal Processing (ICASSP), pages 3852-3856, Brighton, UK, May 2019. |br|
 
 [2] Look, Listen and Learn |br|
 Relja Arandjelović and Andrew Zisserman |br|
