@@ -109,7 +109,7 @@ class OpenL3Linear:
     @property
     def pool_size_embedding(self):
         '''Calculate the pooling size for the final layer to get the desired embedding shape.'''
-        shp_f, shp_t = self.input_shape[:2]
+        shp_f, shp_t = self.spec_input_shape[:2]
 
         # calculate the size after pooling (assuming padding is 'same')
         pooling_layers = [self.pool_size_a_1, self.pool_size_a_2, self.pool_size_a_3]
