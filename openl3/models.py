@@ -18,7 +18,7 @@ _get_factors = lambda x: (
     (i, int(x/i)) for i in range(int(x**0.5), 0, -1) if not x % i)
 
 
-class OpenL3Linear:
+class OpenL3LinearAudioModel:
     # INPUTS
     precomputed = False
     n_dft = 512
@@ -229,7 +229,7 @@ class OpenL3Linear:
         return y_a
 
 
-class OpenL3Mel128(OpenL3Linear):
+class OpenL3Mel128AudioModel(OpenL3LinearAudioModel):
     n_dft = 2048
     n_mels = 128
     embedding_size = 512
@@ -249,7 +249,7 @@ class OpenL3Mel128(OpenL3Linear):
                               return_decibel_melgram=True, padding='same')(x_a)
 
 
-class OpenL3Mel256(OpenL3Mel128):
+class OpenL3Mel256AudioModel(OpenL3Mel128AudioModel):
     n_dft = 2048
     n_mels = 256
     embedding_size = 512
@@ -345,7 +345,7 @@ def _construct_linear_audio_network():
         Model object.
     """
 
-    return OpenL3Linear().build_network()
+    return OpenL3LinearAudioModel().build_network()
 
 
 def _construct_mel128_audio_network():
@@ -360,7 +360,7 @@ def _construct_mel128_audio_network():
     """
 
 
-    return OpenL3Mel128().build_network()
+    return OpenL3Mel128AudioModel().build_network()
 
 
 def _construct_mel256_audio_network():
@@ -375,12 +375,12 @@ def _construct_mel256_audio_network():
     """
 
 
-    return OpenL3Mel256().build_network()
+    return OpenL3Mel256AudioModel().build_network()
 
 MODEL_CLASSES = {
-    'linear': OpenL3Linear,
-    'mel128': OpenL3Mel128,
-    'mel256': OpenL3Mel256
+    'linear': OpenL3LinearAudioModel,
+    'mel128': OpenL3Mel128AudioModel,
+    'mel256': OpenL3Mel256AudioModel
 }
 
 MODELS = {
