@@ -33,11 +33,11 @@ to the center of each analysis window by default).
 
 By default, OpenL3 extracts embeddings with a model that:
 
-* Is trained on AudioSet videos containing mostly musical performances.
+* Is trained on AudioSet videos containing mostly musical performances
 * Uses a mel-spectrogram time-frequency representation with 128 bands
-* Returns an embedding of dimensionality 6144
+* Returns an embedding of dimensionality 6144 for each embedding frame
 
-These options defaults can be changed via the following optional parameters:
+These defaults can be changed via the following optional parameters:
 
 * content_type: "env", "music" (default)
 * input_repr: "linear", "mel128" (default), "mel256"
@@ -80,7 +80,8 @@ processing multiple files with the same model, you can load it manually and pass
 
     model = openl3.models.load_embedding_model(input_repr="mel256", content_type="music",
                                                embedding_size=512)
-    emb, ts = openl3.get_embedding(audio, sr, model=model)
+    emb1, ts1 = openl3.get_embedding(audio1, sr1, model=model)
+    emb2, ts2 = openl3.get_embedding(audio2, sr2, model=model)
 
 Note that when a model is provided via the ``model`` parameter any values passed to the ``input_repr``, ``content_type`` and
 ``embedding_size`` parameters of ``get_embedding`` will be ignored.
@@ -112,7 +113,7 @@ The embddings can be loaded from disk using numpy:
     data = np.load('/path/to/file.npz')
     emb, ts = data['embedding'], data['timestamps']
 
-As with ``get_embedding`, you can load the model manually and pass it to ``process_file`` to avoid loading the model multiple times:
+As with ``get_embedding``, you can load the model manually and pass it to ``process_file`` to avoid loading the model multiple times:
 
 .. code-block:: python
 
@@ -183,13 +184,13 @@ which will create the output file ``/path/to/file_somesuffix.npz``.
 
 Arguments can also be provided to change the model used to extract the embedding including the
 content type used for training (music or env), input representation (linear, mel128, mel256),
-and output dimensionality (512 or 6144):
+and output dimensionality (512 or 6144), for example:
 
 .. code-block:: shell
 
     $ openl3 /path/to/file.wav --content-type env --input-repr mel128 --embedding-size 512
 
-The default value for ``--content-type`` is ``music``, for ``--input-repr`` is ``mel128`` and for ``--embedding-size`` is 512.
+The default value for --content-type is music, for --input-repr is mel128 and for --embedding-size is 512.
 
 By default, OpenL3 will pad the beginning of the input audio signal by 0.5 seconds (half of the window size) so that the
 the center of the first window corresponds to the beginning of the signal, and the timestamps correspond to the center of each window.
