@@ -26,17 +26,19 @@ You can easily compute audio embeddings out of the box, like so:
     emb, ts = openl3.get_embedding(audio, sr)
 
 ``get_embedding`` returns two objects. The first object ``emb`` is a T-by-D numpy array,
-where T is the number of analysis frames used to compute embeddings, and D is the dimensionality
+where T is the number of embedding frames and D is the dimensionality
 of the embedding (which can be either 6144 or 512, details below). The second object ``ts`` is a length-T
-numpy array containing timestamps corresponding to each embedding (to the center of the analysis
-window, by default).
+numpy array containing timestamps corresponding to each embedding frame (each timestamp corresponds
+to the center of each analysis window by default).
 
 By default, OpenL3 extracts embeddings with a model that:
+
 * Is trained on AudioSet videos containing mostly musical performances.
 * Uses a mel-spectrogram time-frequency representation with 128 bands
 * Returns an embedding of dimensionality 6144
 
 These options defaults can be changed via the following optional parameters:
+
 * content_type: "env", "music" (default)
 * input_repr: "linear", "mel128" (default), "mel256"
 * embedding_size: 512, 6144 (default)
@@ -71,12 +73,13 @@ Finally, you can silence the Keras printout during inference (verbosity) by chan
     emb, ts = openl3.get_embedding(audio, sr, verbose=0)
 
 By default, the model file is loaded from disk every time ``get_embedding`` is called. To avoid unnecessary I/O when
-processing multiple files with the same model, you can loading it manually and pass it to the function via the
+processing multiple files with the same model, you can load it manually and pass it to the function via the
 ``model`` parameter:
 
 .. code-block:: python
 
-    model = openl3.models.load_embedding_model(input_repr="mel256", content_type="music", embedding_size=6144)
+    model = openl3.models.load_embedding_model(input_repr="mel256", content_type="music",
+                                               embedding_size=512)
     emb, ts = openl3.get_embedding(audio, sr, model=model)
 
 Note that when a model is provided via the ``model`` parameter any values passed to the ``input_repr``, ``content_type`` and
@@ -90,11 +93,14 @@ To compute embeddings for an audio file and directly save them to disk you can u
     import numpy as np
 
     audio_filepath = '/path/to/file.wav'
-    # Save the file to '/path/to/file.npz'
+
+    # Save the embedding to '/path/to/file.npz'
     openl3.process_file(audio_filepath)
-    # Save the file to `/path/to/file_suffix.npz`
+
+    # Save the embedding to `/path/to/file_suffix.npz`
     openl3.process_file(audio_filepath, suffix='suffix')
-    # Save the file to '/different/dir/file_suffix.npz'
+
+    # Save the embedding to '/different/dir/file_suffix.npz'
     openl3.process_file(audio_filepath, suffix='suffix', output_dir='/different/dir')
 
 The embddings can be loaded from disk using numpy:
@@ -102,33 +108,38 @@ The embddings can be loaded from disk using numpy:
 .. code-block:: python
 
     import numpy as np
+
     data = np.load('/path/to/file.npz')
     emb, ts = data['embedding'], data['timestamps']
 
-As before, you can load the model manually and pass it to ``process_file`` to avoid loading the model multiple times:
+As with ``get_embedding`, you can load the model manually and pass it to ``process_file`` to avoid loading the model multiple times:
 
 .. code-block:: python
 
     import openl3
     import numpy as np
 
-    model = openl3.models.load_embedding_model(input_repr="mel256", content_type="music", embedding_size=6144)
+    model = openl3.models.load_embedding_model(input_repr="mel256", content_type="music",
+                                               embedding_size=512)
 
     audio_filepath = '/path/to/file.wav'
+
     # Save the file to '/path/to/file.npz'
     openl3.process_file(audio_filepath, model=model)
+
     # Save the file to `/path/to/file_suffix.npz`
     openl3.process_file(audio_filepath, model=model, suffix='suffix')
+
     # Save the file to '/different/dir/file_suffix.npz'
     openl3.process_file(audio_filepath, model=model, suffix='suffix', output_dir='/different/dir')
 
-Again, note that if a model is provided, then any values passed to the ``input_repr``, ``content_type`` and ``embedding_size``
+Again, note that if a model is provided via the ``model`` parameter, then any values passed to the ``input_repr``, ``content_type`` and ``embedding_size``
 parameters of ``process_file`` will be ignored.
 
 Using the Command Line Interface (CLI)
 --------------------------------------
 
-To compute embeddings for a single file from the command line you can run:
+To compute embeddings for a single file via the command line run:
 
 .. code-block:: shell
 
@@ -136,7 +147,7 @@ To compute embeddings for a single file from the command line you can run:
 
 This will create an output file at ``/path/to/file.npz``.
 
-You can change the output directory like as follows:
+You can change the output directory as follows:
 
 .. code-block:: shell
 
@@ -162,7 +173,7 @@ You can also provide one (or more) directories to process:
 This will process all supported audio files in the directory, though it will not recursively traverse the
 directory (i.e. audio files in subfolders will not be processed).
 
-You can append a suffix to the output files as follows:
+You can append a suffix to the output file as follows:
 
 .. code-block:: shell
 
@@ -178,7 +189,7 @@ and output dimensionality (512 or 6144):
 
     $ openl3 /path/to/file.wav --content-type env --input-repr mel128 --embedding-size 512
 
-The default value for ``--content-type`` is ``music``, ``--input-repr`` is ``mel128`` and ``--embedding-size`` is 512.
+The default value for ``--content-type`` is ``music``, for ``--input-repr`` is ``mel128`` and for ``--embedding-size`` is 512.
 
 By default, OpenL3 will pad the beginning of the input audio signal by 0.5 seconds (half of the window size) so that the
 the center of the first window corresponds to the beginning of the signal, and the timestamps correspond to the center of each window.
