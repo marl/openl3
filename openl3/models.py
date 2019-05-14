@@ -1,5 +1,6 @@
 import os
 import warnings
+import sklearn
 
 with warnings.catch_warnings():
     # Suppress TF and Keras warnings when importing
