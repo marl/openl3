@@ -1,3 +1,4 @@
+import keras
 import os
 import resampy
 import traceback
@@ -5,7 +6,6 @@ import soundfile as sf
 import numpy as np
 from numbers import Real
 import warnings
-import keras
 from .models import load_embedding_model
 from .openl3_exceptions import OpenL3Error
 from .openl3_warnings import OpenL3Warning
