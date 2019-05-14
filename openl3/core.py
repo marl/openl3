@@ -1,5 +1,5 @@
-import keras
 import os
+import keras
 import resampy
 import traceback
 import soundfile as sf

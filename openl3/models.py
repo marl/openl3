@@ -4,13 +4,13 @@ import warnings
 with warnings.catch_warnings():
     # Suppress TF and Keras warnings when importing
     warnings.simplefilter("ignore")
-    from kapre.time_frequency import Spectrogram, Melspectrogram
+    from keras.models import Model
     from keras.layers import (
         Input, Conv2D, BatchNormalization, MaxPooling2D,
         Flatten, Activation, Lambda
     )
-    from keras.models import Model
     import keras.regularizers as regularizers
+    from kapre.time_frequency import Spectrogram, Melspectrogram
 
 
 POOLINGS = {
