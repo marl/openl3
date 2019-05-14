@@ -1,6 +1,6 @@
 import os
 import warnings
-import sklearn
+import sklearn.decomposition
 
 with warnings.catch_warnings():
     # Suppress TF and Keras warnings when importing

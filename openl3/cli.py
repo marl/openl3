@@ -1,7 +1,7 @@
 from __future__ import print_function
 import os
 import sys
-import sklearn
+import sklearn.decomposition
 from openl3 import process_file
 from openl3.models import load_embedding_model
 from openl3.openl3_exceptions import OpenL3Error

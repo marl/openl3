@@ -1,5 +1,5 @@
 import os
-import sklearn
+import sklearn.decomposition
 import keras
 import resampy
 import traceback
