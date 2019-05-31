@@ -2,8 +2,8 @@ from __future__ import print_function
 import os
 import sys
 import sklearn.decomposition
-from openl3 import process_file
-from openl3.models import load_embedding_model
+from openl3 import process_audio_file
+from openl3.models import load_audio_embedding_model
 from openl3.openl3_exceptions import OpenL3Error
 from argparse import ArgumentParser, RawDescriptionHelpFormatter, ArgumentTypeError
 from collections import Iterable
@@ -60,7 +60,7 @@ def run(inputs, output_dir=None, suffix=None, input_repr="mel256", content_type=
         Spectrogram representation used for model.
     content_type : "music" or "env"
         Type of content used to train embedding.
-    embedding_size : 6144 or 512
+    embedding_size : 8192, 6144 or 512
         Embedding dimensionality.
     center : boolean
         If True, pads beginning of signal so timestamps correspond
@@ -86,19 +86,20 @@ def run(inputs, output_dir=None, suffix=None, input_repr="mel256", content_type=
         sys.exit(-1)
 
     # Load model
-    model = load_embedding_model(input_repr, content_type, embedding_size)
+    model = load_audio_embedding_model(input_repr, content_type, embedding_size)
 
     # Process all files in the arguments
     for filepath in file_list:
         if verbose:
             print('openl3: Processing: {}'.format(filepath))
-        process_file(filepath,
-                     output_dir=output_dir,
-                     suffix=suffix,
-                     model=model,
-                     center=center,
-                     hop_size=hop_size,
-                     verbose=verbose)
+        process_audio_file(filepath,
+                           output_dir=output_dir,
+                           suffix=suffix,
+                           model=model,
+                           center=center,
+                           hop_size=hop_size,
+                           verbose=verbose)
+
     if verbose:
         print('openl3: Done!')
 
@@ -124,7 +125,7 @@ def parse_args(args):
     parser.add_argument('--input-repr', '-i', default='mel256',
                         choices=['linear', 'mel128', 'mel256'],
                         help='String specifying the time-frequency input '
-                             'representation for the embedding model.')
+                             'representation for the audio embedding model.')
 
     parser.add_argument('--content-type', '-c', default='music',
                         choices=['music', 'env'],
