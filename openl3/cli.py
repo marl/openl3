@@ -41,7 +41,7 @@ def get_file_list(input_list):
     return file_list
 
 
-def run(inputs, output_dir=None, suffix=None, input_repr="mel256", content_type="music",
+def run(inputs, output_dir=None, suffix=None, modality='audio', input_repr="mel256", content_type="music",
         embedding_size=6144, center=True, hop_size=0.1, verbose=False):
     """
     Computes and saves L3 embedding for given inputs.
@@ -56,6 +56,8 @@ def run(inputs, output_dir=None, suffix=None, input_repr="mel256", content_type=
     suffix : str or None
         String to be appended to the output filename, i.e. <base filename>_<suffix>.npy.
         If None, then no suffix will be added, i.e. <base filename>.npy.
+    modality : str
+        String to specify the modality to the embedding model, audio or image.
     input_repr : "linear", "mel128", or "mel256"
         Spectrogram representation used for model.
     content_type : "music" or "env"
@@ -82,23 +84,39 @@ def run(inputs, output_dir=None, suffix=None, input_repr="mel256", content_type=
         raise OpenL3Error('Invalid input: {}'.format(str(inputs)))
 
     if len(file_list) == 0:
-        print('openl3: No WAV files found in {}. Aborting.'.format(str(inputs)))
+        print('openl3: No files found in {}. Aborting.'.format(str(inputs)))
         sys.exit(-1)
 
     # Load model
-    model = load_audio_embedding_model(input_repr, content_type, embedding_size)
+    if modality == 'audio':
+        model = load_audio_embedding_model(input_repr, content_type, embedding_size, modality=modality)
 
-    # Process all files in the arguments
-    for filepath in file_list:
-        if verbose:
-            print('openl3: Processing: {}'.format(filepath))
-        process_audio_file(filepath,
-                           output_dir=output_dir,
-                           suffix=suffix,
-                           model=model,
-                           center=center,
-                           hop_size=hop_size,
-                           verbose=verbose)
+        # Process all files in the arguments
+        for filepath in file_list:
+            if verbose:
+                print('openl3: Processing: {}'.format(filepath))
+            process_audio_file(filepath,
+                               output_dir=output_dir,
+                               suffix=suffix,
+                               model=model,
+                               center=center,
+                               hop_size=hop_size,
+                               verbose=verbose)
+    elif modality == 'image':
+        model = load_image_embedding_model(input_repr, content_type, embedding_size, modality=modality)
+
+        # Process all files in the arguments
+        for filepath in file_list:
+            if verbose:
+                print('openl3: Processing: {}'.format(filepath))
+            process_image_file(filepath,
+                               output_dir=output_dir,
+                               suffix=suffix,
+                               model=model,
+                               center=center,
+                               hop_size=hop_size,
+                               verbose=verbose)
+
 
     if verbose:
         print('openl3: Done!')
@@ -121,6 +139,11 @@ def parse_args(args):
     parser.add_argument('--suffix', '-x', default=None,
                         help='String to append to the output filenames.'
                              'If not provided, no suffix is added.')
+
+    parser.add_argument('--modality', '-m', default='audio',
+                        choices=['audio', 'image', 'video'],
+                        help='String to specify the modality to the '
+                             'embedding model, audio, image, or video.')
 
     parser.add_argument('--input-repr', '-i', default='mel256',
                         choices=['linear', 'mel128', 'mel256'],
@@ -156,6 +179,7 @@ def main():
     run(args.inputs,
         output_dir=args.output_dir,
         suffix=args.suffix,
+        modality=args.modality,
         input_repr=args.input_repr,
         content_type=args.content_type,
         embedding_size=args.embedding_size,

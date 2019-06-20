@@ -30,6 +30,11 @@ AUDIO_POOLING_SIZES = {
     }
 }
 
+IMAGE_POOLING_SIZES = {
+    8192: (7, 7),
+    512: (28, 28),
+}
+
 
 def load_audio_embedding_model(input_repr, content_type, embedding_size):
     """
@@ -77,8 +82,6 @@ def get_audio_embedding_model_path(input_repr, content_type):
         Spectrogram representation used for model.
     content_type : "music" or "env"
         Type of content used to train embedding.
-    modality : 'audio' or 'image'
-        The modality used as input to the embedding model
 
     Returns
     -------
@@ -420,6 +423,94 @@ def _construct_mel256_audio_network():
                  kernel_regularizer=regularizers.l2(weight_decay))(y_a)
 
     m = Model(inputs=x_a, outputs=y_a)
+    return m
+
+
+def _construct_image_network():
+    """
+    Returns an uninitialized model object for a image network.
+
+    Returns
+    -------
+    model : keras.models.Model
+        Model object.
+    """
+
+    im_height = 224
+    im_width = 224
+    num_channels = 3
+
+    x_i = Input(shape=(im_height, im_width, num_channels), dtype='float32')
+    y_i = BatchNormalization()(x_i)
+
+    # CONV BLOCK 1
+    n_filter_i_1 = 64
+    filt_size_i_1 = (3, 3)
+    pool_size_i_1 = (2, 2)
+    y_i = Conv2D(n_filter_i_1, filt_size_i_1, padding='same',
+                 kernel_initializer='he_normal',
+                 kernel_regularizer=regularizers.l2(weight_decay))(y_i)
+    y_i = BatchNormalization()(y_i)
+    y_i = Activation('relu')(y_i)
+    y_i = Conv2D(n_filter_i_1, filt_size_i_1, padding='same',
+                 kernel_initializer='he_normal',
+                 kernel_regularizer=regularizers.l2(weight_decay))(y_i)
+    y_i = Activation('relu')(y_i)
+    y_i = BatchNormalization()(y_i)
+    y_i = MaxPooling2D(pool_size=pool_size_i_1, strides=2, padding='same')(y_i)
+
+    # CONV BLOCK 2
+    n_filter_i_2 = 128
+    filt_size_i_2 = (3, 3)
+    pool_size_i_2 = (2, 2)
+    y_i = Conv2D(n_filter_i_2, filt_size_i_2, padding='same',
+                 kernel_initializer='he_normal',
+                 kernel_regularizer=regularizers.l2(weight_decay))(y_i)
+    y_i = BatchNormalization()(y_i)
+    y_i = Activation('relu')(y_i)
+    y_i = Conv2D(n_filter_i_2, filt_size_i_2, padding='same',
+                 kernel_initializer='he_normal',
+                 kernel_regularizer=regularizers.l2(weight_decay))(y_i)
+    y_i = BatchNormalization()(y_i)
+    y_i = Activation('relu')(y_i)
+    y_i = MaxPooling2D(pool_size=pool_size_i_2, strides=2, padding='same')(y_i)
+
+    # CONV BLOCK 3
+    n_filter_i_3 = 256
+    filt_size_i_3 = (3, 3)
+    pool_size_i_3 = (2, 2)
+    y_i = Conv2D(n_filter_i_3, filt_size_i_3, padding='same',
+                 kernel_initializer='he_normal',
+                 kernel_regularizer=regularizers.l2(weight_decay))(y_i)
+    y_i = BatchNormalization()(y_i)
+    y_i = Activation('relu')(y_i)
+    y_i = Conv2D(n_filter_i_3, filt_size_i_3, padding='same',
+                 kernel_initializer='he_normal',
+                 kernel_regularizer=regularizers.l2(weight_decay))(y_i)
+    y_i = BatchNormalization()(y_i)
+    y_i = Activation('relu')(y_i)
+    y_i = MaxPooling2D(pool_size=pool_size_i_3, strides=2, padding='same')(y_i)
+
+    # CONV BLOCK 4
+    n_filter_i_4 = 512
+    filt_size_i_4 = (3, 3)
+    pool_size_i_4 = (28, 28)
+    y_i = Conv2D(n_filter_i_4, filt_size_i_4, padding='same',
+                 kernel_initializer='he_normal',
+                 kernel_regularizer=regularizers.l2(weight_decay))(y_i)
+    y_i = BatchNormalization()(y_i)
+    y_i = Activation('relu')(y_i)
+    y_i = Conv2D(n_filter_i_4, filt_size_i_4,
+                 name='vision_embedding_layer', padding='same',
+                 kernel_initializer='he_normal',
+                 kernel_regularizer=regularizers.l2(weight_decay))(y_i)
+    y_i = BatchNormalization()(y_i)
+    y_i = Activation('relu')(y_i)
+    y_i = MaxPooling2D(pool_size=pool_size_i_4, padding='same')(y_i)
+    y_i = Flatten()(y_i)
+
+    m = Model(inputs=x_i, outputs=y_i)
+
     return m
 
 
