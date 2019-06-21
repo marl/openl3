@@ -222,6 +222,54 @@ def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
     assert os.path.exists(output_path)
 
 
+def _preprocess_image_batch(image):
+    """
+    Preprocesses an image array so that they are rescaled and cropped to the
+    appropriate dimensions required by the embedding model.
+
+    Parameters
+    ----------
+    image : np.ndarray [shape=(H, W, C) or (N, H, W, C)]
+        3D or 4D numpy array of image data. If the images are not 224x224,
+        the images are resized so that the smallest size is 256 and then
+        the center 224x224 patch is extracted from the images.
+
+    Returns
+    -------
+    batch : np.ndarray [shape=(N, H, W, C)]
+        4d numpy array of image data.
+    """
+    if image.ndim == 3:
+        # Add a batch dimension dimension
+        image = image[np.newaxis, ...]
+
+    if min(image.shape[1], image.shape[2]) < 224:
+        err_msg = 'Image(s) must be at at least as large as 224x224 px. ' \
+                  'Got image(s) of size {}x{} px'
+        raise OpenL3Error(err_msg.format(image.shape[1], image.shape[2]))
+
+    if image.shape[1] != 224 or image.shape[2] != 224:
+        # If image is not 224x224, rescale to 256x256, and take center
+        # 224x224 image patch, corresponding to what was done in L3
+        scaling = 256.0 / min(image.shape[1], image.shape[2])
+        batch = np.zeros((image.shape[0], 224, 224, 3))
+        for idx, frame in enumerate(image):
+            # Only reshape if image is larger than 256x256
+            if min(frame.shape[0], frame.shape[1]) > 256:
+                frame = imresize(frame, scaling, interp='bilinear')
+            x1, x2 = frame.shape[:-1]
+            startx1 = x1//2-(224//2)
+            startx2 = x2//2-(224//2)
+            batch[idx] = frame[startx1:startx1+224,startx2:startx2+224]
+    else:
+        batch = image
+
+    # Make sure image is in [-1, 1]
+    batch = 2 * skimage.img_as_float32(skimage.img_as_ubyte(x)) - 1
+
+    return batch
+
+
 def get_image_embedding(image, frame_rate=None, model=None,
                          input_repr="mel256", content_type="music",
                          embedding_size=8192, verbose=1):
@@ -295,30 +343,11 @@ def get_image_embedding(image, frame_rate=None, model=None,
     if model is None:
         model = load_image_embedding_model(input_repr, content_type, embedding_size)
 
-    if image.ndim == 3:
-        # Add a batch dimension dimension
-        image = image[np.newaxis, ...]
-
     if image.shape[-1] != 3:
         raise OpenL3Error('Need 3 channel images corresponding to RGB.')
 
-    if image.shape[1] != 224 or image.shape[2] != 224:
-        # If image is not 224x224, rescale to 256x256, and take center
-        # 224x224 image patch, corresponding to what was done in L3
-        scaling = 256.0 / min(image.shape[1], image.shape[2])
-        x = np.zeros((image.shape[0], 224, 224, 3))
-        for idx, frame in enumerate(image):
-            if frame.shape != (256,256):
-                frame = imresize(frame, scaling, interp='bilinear')
-            x1, x2 = frame.shape[:-1]
-            startx1 = x1//2-(224//2)
-            startx2 = x2//2-(224//2)
-            x[idx] = frame[startx1:startx1+224,startx2:startx2+224]
-    else:
-        x = image
-
-    # Make sure image is in [-1, 1]
-    x = 2 * skimage.img_as_float32(skimage.img_as_ubyte(x)) - 1
+    # Preprocess image to scale appropriate scale
+    x = _preprocess_image_batch(image)
 
     # Get embedding and timestamps
     embedding = model.predict(x, verbose=verbose)
