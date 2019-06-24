@@ -8,7 +8,7 @@ import numpy as np
 from numbers import Real
 from math import ceil
 import warnings
-from scipy.misc import imresize, imread
+from scipy.misc import imread
 from .models import load_audio_embedding_model, load_image_embedding_model
 from .openl3_exceptions import OpenL3Error
 from .openl3_warnings import OpenL3Warning
@@ -259,7 +259,7 @@ def _preprocess_image_batch(image):
         for idx, frame in enumerate(image):
             # Only reshape if image is larger than 256x256
             if min(frame.shape[0], frame.shape[1]) > 256:
-                frame = imresize(frame, scaling, interp='bilinear')
+                frame = skimage.transform.rescale(frame, scaling)
             x1, x2 = frame.shape[:-1]
             startx1 = x1//2-(224//2)
             startx2 = x2//2-(224//2)
