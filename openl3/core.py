@@ -8,7 +8,6 @@ import numpy as np
 from numbers import Real
 from math import ceil
 import warnings
-from scipy.misc import imread
 from .models import load_audio_embedding_model, load_image_embedding_model
 from .openl3_exceptions import OpenL3Error
 from .openl3_warnings import OpenL3Warning
@@ -407,7 +406,11 @@ def process_image_file(filepath, output_dir=None, suffix=None, model=None,
         raise OpenL3Error('File "{}" could not be found.'.format(filepath))
 
     try:
-        image = imread(filepath, mode='RGB')
+        image = skimage.io.imread(filepath)
+        # Get rid of alpha dimension
+        if image.shape[-1] == 4:
+            image = image[..., :3]
+
     except Exception:
         raise OpenL3Error('Could not open file "{}":\n{}'.format(filepath, traceback.format_exc()))
 

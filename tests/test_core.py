@@ -5,7 +5,7 @@ import numpy as np
 import os
 import shutil
 import soundfile as sf
-from scipy.misc import imread
+from skimage.io import imread
 from openl3.openl3_exceptions import OpenL3Error
 from openl3.openl3_warnings import OpenL3Warning
 
