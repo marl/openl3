@@ -102,6 +102,9 @@ def get_audio_embedding(audio, sr, model=None, input_repr="mel256",
     if embedding_size not in (6144, 512):
         raise OpenL3Error('Invalid content type "{}"'.format(embedding_size))
 
+    if (sr is not None) and (not isinstance(sr, Real) or sr <= 0):
+        raise OpenL3Error('Invalid sample rate {}'.format(sr))
+
     if not isinstance(hop_size, Real) or hop_size <= 0:
         raise OpenL3Error('Invalid hop size {}'.format(hop_size))
 
@@ -265,7 +268,7 @@ def _preprocess_image_batch(image):
         batch = image
 
     # Make sure image is in [-1, 1]
-    batch = 2 * skimage.img_as_float32(skimage.img_as_ubyte(x)) - 1
+    batch = 2 * skimage.img_as_float32(skimage.img_as_ubyte(batch)) - 1
 
     return batch
 
@@ -335,6 +338,9 @@ def get_image_embedding(image, frame_rate=None, model=None,
     if verbose not in (0, 1):
         raise OpenL3Error('Invalid verbosity level {}'.format(verbose))
 
+    if (frame_rate is not None) and (not isinstance(frame_rate, Real) or sr <= 0):
+        raise OpenL3Error('Invalid frame rate {}'.format(frame_rate))
+
     # Check image array dimension
     if image.ndim not in (3, 4):
         raise OpenL3Error('RGB image array can only be 3D or 4D (sequence of videos)')
@@ -390,11 +396,6 @@ def process_image_file(filepath, output_dir=None, suffix=None, model=None,
     embedding_size : 8192 or 512
         Embedding dimensionality. Ignored if `model` is a valid
         Keras model.
-    center : boolean
-        If True, pads beginning of signal so timestamps correspond
-        to center of window.
-    hop_size : float
-        Hop size in seconds.
     verbose : 0 or 1
         Keras verbosity.
 
@@ -437,7 +438,7 @@ def process_video_file(filepath, output_dir=None, suffix=None,
     Parameters
     ----------
     filepath : str
-        Path to WAV file to be processed.
+        Path to video file to be processed.
     output_dir : str or None
         Path to directory for saving output files. If None, output files will
         be saved to the directory containing the input file.
