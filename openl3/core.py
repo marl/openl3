@@ -516,8 +516,8 @@ def process_video_file(filepath, output_dir=None, suffix=None,
 
     if not suffix:
         suffix = ""
-    audio_output_path = get_output_path(filepath, '_'.join('audio', suffix) + ".npz", output_dir=output_dir)
-    image_output_path = get_output_path(filepath, '_'.join('image', suffix) + ".npz", output_dir=output_dir)
+    audio_output_path = get_output_path(filepath, '_'.join(['audio', suffix]) + ".npz", output_dir=output_dir)
+    image_output_path = get_output_path(filepath, '_'.join(['image', suffix]) + ".npz", output_dir=output_dir)
 
     audio_embedding, audio_ts = get_audio_embedding(
         audio, TARGET_SR, model=audio_model, input_repr=input_repr,

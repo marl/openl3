@@ -505,10 +505,6 @@ def _construct_image_network():
                  name='vision_embedding_layer', padding='same',
                  kernel_initializer='he_normal',
                  kernel_regularizer=regularizers.l2(weight_decay))(y_i)
-    y_i = BatchNormalization()(y_i)
-    y_i = Activation('relu')(y_i)
-    y_i = MaxPooling2D(pool_size=pool_size_i_4, padding='same')(y_i)
-    y_i = Flatten()(y_i)
 
     m = Model(inputs=x_i, outputs=y_i)
 
