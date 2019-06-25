@@ -21,8 +21,6 @@ except RuntimeError:
     warnings.warn(err_msg, OpenL3Warning)
 
 
-
-
 TARGET_SR = 48000
 
 
