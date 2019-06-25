@@ -436,6 +436,7 @@ def _construct_image_network():
         Model object.
     """
 
+    weight_decay = 1e-5
     im_height = 224
     im_width = 224
     num_channels = 3

@@ -624,7 +624,7 @@ def test_preprocess_image_batch():
     assert batch.ndim == 4
     assert batch.shape[1:] == (224, 224, 3)
     assert batch.shape[0] == 1
-    assert isinstance(batch, np.float32)
+    assert batch.dtype == np.float32
     assert (batch <= 1).all() and (batch >= -1).all()
 
     # Test a batch of large images
@@ -633,7 +633,7 @@ def test_preprocess_image_batch():
     assert batch.ndim == 4
     assert batch.shape[1:] == (224, 224, 3)
     assert batch.shape[0] == batch_big_img_arr.shape[0]
-    assert isinstance(batch, np.float32)
+    assert batch.dtype == np.float32
     assert (batch <= 1).all() and (batch >= -1).all()
 
     # Test a single image that is smaller than 256x256 but greater than 224x224
@@ -642,7 +642,7 @@ def test_preprocess_image_batch():
     assert batch.ndim == 4
     assert batch.shape[1:] == (224, 224, 3)
     assert batch.shape[0] == 1
-    assert isinstance(batch, np.float32)
+    assert batch.dtype == np.float32
     assert (batch <= 1).all() and (batch >= -1).all()
     assert np.allclose(batch[0], single_img_arr[8:-8, 8:-8, :])
 
@@ -653,7 +653,7 @@ def test_preprocess_image_batch():
     assert batch.ndim == 4
     assert batch.shape[1:] == (224, 224, 3)
     assert batch.shape[0] == 1
-    assert isinstance(batch, np.float32)
+    assert batch.dtype == np.float32
     assert (batch <= 1).all() and (batch >= -1).all()
     assert np.allclose(batch[0], single_img_arr)
 
@@ -664,4 +664,4 @@ def test_preprocess_image_batch():
     assert batch.shape[1:] == (224, 224, 3)
     assert batch.shape[0] == 1
     assert (batch <= 1).all() and (batch >= -1).all()
-    assert isinstance(batch, np.float32)
+    assert batch.dtype == np.float32

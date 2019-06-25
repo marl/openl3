@@ -140,7 +140,7 @@ def test_run(capsys):
 
     # make sure it printed a message
     captured = capsys.readouterr()
-    expected_message = 'openl3: No WAV files found in {}. Aborting.\n'.format(str([tempdir]))
+    expected_message = 'openl3: No files found in {}. Aborting.\n'.format(str([tempdir]))
     assert captured.out == expected_message
 
     # detele tempdir
