@@ -249,10 +249,6 @@ def test_get_image_embedding():
     frame_rate = 24
     tol = 1e-5
 
-    DAISY_PATH = os.path.join(TEST_IMAGE_DIR, 'daisy.jpg')
-    BLANK_PATH = os.path.join(TEST_IMAGE_DIR, 'blank.jpg')
-    SMALL_PATH = os.path.join(TEST_IMAGE_DIR, 'smol.jpg')
-
     image = imread(DAISY_PATH)
     image_tile = np.tile(image, (10, 1, 1, 1))
 
