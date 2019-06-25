@@ -13,7 +13,7 @@ from .openl3_exceptions import OpenL3Error
 from .openl3_warnings import OpenL3Warning
 import skimage
 try:
-    from moviepy.video.io import VideoFileClip
+    from moviepy.video.io.VideoFileClip import VideoFileClip
 except RuntimeError:
     err_msg = 'Could not find ffmpeg. openl3 can still be used to extract ' \
               'audio embeddings but will not work for extracting ' \
@@ -240,7 +240,9 @@ def _preprocess_image_batch(image):
     image : np.ndarray [shape=(H, W, C) or (N, H, W, C)]
         3D or 4D numpy array of image data. If the images are not 224x224,
         the images are resized so that the smallest size is 256 and then
-        the center 224x224 patch is extracted from the images.
+        the center 224x224 patch is extracted from the images. Any type
+        is accepted, and will be converted to np.float32 in the range [-1,1].
+        Signed data-types are assumed to take on negative values.
 
     Returns
     -------
@@ -272,8 +274,17 @@ def _preprocess_image_batch(image):
     else:
         batch = image
 
-    # Make sure image is in [-1, 1]
-    batch = 2 * skimage.img_as_float32(skimage.img_as_ubyte(batch)) - 1
+    # Make sure image correct type
+    if batch.dtype in (np.float16, np.float32, np.float64, np.int8,
+                       np.int16, np.int32, np.int64):
+        batch = skimage.img_as_float32(batch)
+    elif batch.dtype in (np.uint8, np.uint16, np.uint32, np.uint64):
+        # If unsigned int, convert to range [-1, 1]
+        batch = 2 * skimage.img_as_float32(batch) - 1
+
+    # Make sure maximum magnitude is in the range [-1, 1]
+    if np.max(np.abs(batch)) > 1:
+        batch /= np.max(np.abs(batch))
 
     return batch
 
@@ -289,7 +300,9 @@ def get_image_embedding(image, frame_rate=None, model=None,
     image : np.ndarray [shape=(H, W, C) or (N, H, W, C)]
         3D or 4D numpy array of image data. If the images are not 224x224,
         the images are resized so that the smallest size is 256 and then
-        the center 224x224 patch is extracted from the images.
+        the center 224x224 patch is extracted from the images. Any type
+        is accepted, and will be converted to np.float32 in the range [-1,1].
+        Signed data-types are assumed to take on negative values.
     frame_rate : int or None
         Video frame rate (if applicable), which if provided results in
         a timestamp array being returned. If None, no timestamp array is
@@ -343,7 +356,7 @@ def get_image_embedding(image, frame_rate=None, model=None,
     if verbose not in (0, 1):
         raise OpenL3Error('Invalid verbosity level {}'.format(verbose))
 
-    if (frame_rate is not None) and (not isinstance(frame_rate, Real) or sr <= 0):
+    if (frame_rate is not None) and (not isinstance(frame_rate, Real) or frame_rate <= 0):
         raise OpenL3Error('Invalid frame rate {}'.format(frame_rate))
 
     # Check image array dimension

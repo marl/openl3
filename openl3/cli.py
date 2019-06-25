@@ -176,7 +176,7 @@ def parse_args(args):
                         choices=['music', 'env'],
                         help='Content type used to train embedding model.')
 
-    parser.add_argument('--audio-embedding-size', '-s', type=int, default=6144,
+    parser.add_argument('--audio-embedding-size', '-as', type=int, default=6144,
                         choices=[6144, 512],
                         help='Audio embedding dimensionality.')
 
@@ -190,7 +190,7 @@ def parse_args(args):
                         help='Used for audio embeddings. '
                              'Hop size in seconds for processing audio files.')
 
-    parser.add_argument('--image-embedding-size', '-s', type=int, default=8192,
+    parser.add_argument('--image-embedding-size', '-is', type=int, default=8192,
                         choices=[8192, 512],
                         help='Image embedding dimensionality.')
 

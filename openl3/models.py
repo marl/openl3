@@ -145,7 +145,7 @@ def get_image_embedding_model_path(input_repr, content_type):
         Path to given model object
     """
     return os.path.join(os.path.dirname(__file__),
-                        'openl3_image_{}_{}.h5'.format(modality, input_repr, content_type))
+                        'openl3_image_{}_{}.h5'.format(input_repr, content_type))
 
 
 def _construct_linear_audio_network():

@@ -133,7 +133,7 @@ def test_run(capsys):
     # test empty input folder
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         tempdir = tempfile.mkdtemp()
-        run([tempdir])
+        run(['audio', tempdir])
 
     # make sure it exited
     assert pytest_wrapped_e.type == SystemExit
