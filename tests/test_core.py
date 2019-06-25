@@ -254,7 +254,7 @@ def test_get_image_embedding():
     SMALL_PATH = os.path.join(TEST_IMAGE_DIR, 'smol.jpg')
 
     image = imread(DAISY_PATH)
-    image_tile = np.tile(image, (100, 1, 1, 1))
+    image_tile = np.tile(image, (10, 1, 1, 1))
 
     # Make sure we get correct timestamps if we pass in a sequence and a frame
     # rate
