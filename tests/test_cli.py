@@ -15,6 +15,7 @@ except ImportError:
 
 TEST_DIR = os.path.dirname(__file__)
 TEST_AUDIO_DIR = os.path.join(TEST_DIR, 'data', 'audio')
+TEST_IMAGE_DIR = os.path.join(TEST_DIR, 'data', 'image')
 
 # Test audio file paths
 CHIRP_MONO_PATH = os.path.join(TEST_AUDIO_DIR, 'chirp_mono.wav')
