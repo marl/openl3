@@ -438,13 +438,13 @@ def process_image_file(filepath, output_dir=None, suffix=None, model=None,
 
     output_path = get_output_path(filepath, suffix + ".npz", output_dir=output_dir)
 
-    embedding, ts = get_image_embedding(image, model=model,
-                                        input_repr=input_repr,
-                                        content_type=content_type,
-                                        embedding_size=embedding_size,
-                                        verbose=1 if verbose else 0)
+    embedding = get_image_embedding(image, model=model,
+                                    input_repr=input_repr,
+                                    content_type=content_type,
+                                    embedding_size=embedding_size,
+                                    verbose=1 if verbose else 0)
 
-    np.savez(output_path, embedding=embedding, timestamps=ts)
+    np.savez(output_path, embedding=embedding)
     assert os.path.exists(output_path)
 
 
