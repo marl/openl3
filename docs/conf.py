@@ -191,7 +191,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'OpenL3', 'OpenL3 Documentation',
-     author, 'OpenL3', 'One line description of project.',
+     author, 'OpenL3', 'Open-source deep audio and image embeddings.',
      'Miscellaneous'),
 ]
 
