@@ -36,6 +36,12 @@ BENTO_PATH = os.path.join(TEST_IMAGE_DIR, 'bento.mp4')
 TEST_REG_DIR = os.path.join(TEST_DIR, 'data', 'regression')
 REG_CHIRP_44K_PATH = os.path.join(TEST_REG_DIR, 'chirp_44k.npz')
 REG_CHIRP_44K_LINEAR_PATH = os.path.join(TEST_REG_DIR, 'chirp_44k_linear.npz')
+REG_DAISY_PATH = os.path.join(TEST_REG_DIR, 'daisy.npz')
+REG_DAISY_LINEAR_PATH = os.path.join(TEST_REG_DIR, 'daisy_linear.npz')
+REG_BENTO_AUDIO_PATH = os.path.join(TEST_REG_DIR, 'bento_audio.npz')
+REG_BENTO_AUDIO_LINEAR_PATH = os.path.join(TEST_REG_DIR, 'bento_audio_linear.npz')
+REG_BENTO_IMAGE_PATH = os.path.join(TEST_REG_DIR, 'bento_image.npz')
+REG_BENTO_IMAGE_LINEAR_PATH = os.path.join(TEST_REG_DIR, 'bento_image_linear.npz')
 
 
 def test_positive_float():
@@ -144,25 +150,39 @@ def test_run(capsys):
     expected_message = 'openl3: No files found in {}. Aborting.\n'.format(str([tempdir]))
     assert captured.out == expected_message
 
-    # detele tempdir
+    # delete tempdir
     os.rmdir(tempdir)
 
-    # test correct execution on test file (regression)
+    # test correct execution on test audio file (regression)
     tempdir = tempfile.mkdtemp()
     run('audio', CHIRP_44K_PATH, output_dir=tempdir, verbose=True)
 
     # check output file created
-    outfile = os.path.join(tempdir, 'chirp_44k.npz')
-    assert os.path.isfile(outfile)
+    audio_outfile = os.path.join(tempdir, 'chirp_44k.npz')
+    assert os.path.isfile(audio_outfile)
+
+    # test correct execution on test image file (regression)
+    run('image', DAISY_PATH, output_dir=tempdir, verbose=True)
+
+    # check output file created
+    image_outfile = os.path.join(tempdir, 'daisy.npz')
+    assert os.path.isfile(image_outfile)
 
     # regression test
-    data_reg = np.load(REG_CHIRP_44K_PATH)
-    data_out = np.load(outfile)
+    audio_data_reg = np.load(REG_CHIRP_44K_PATH)
+    audio_data_out = np.load(audio_outfile)
+    image_data_reg = np.load(REG_DAISY_PATH)
+    image_data_out = np.load(image_outfile)
 
-    assert sorted(data_out.files) == sorted(data_out.files) == sorted(['embedding', 'timestamps'])
-    assert np.allclose(data_out['timestamps'], data_reg['timestamps'],
+    assert sorted(audio_data_out.files) == sorted(audio_data_out.files) == sorted(
+        ['embedding', 'timestamps'])
+    assert np.allclose(audio_data_out['timestamps'], audio_data_reg['timestamps'],
                        rtol=1e-05, atol=1e-05, equal_nan=False)
-    assert np.allclose(data_out['embedding'], data_reg['embedding'],
+    assert np.allclose(audio_data_out['embedding'], audio_data_reg['embedding'],
+                       rtol=1e-05, atol=1e-05, equal_nan=False)
+
+    assert sorted(image_data_out.files) == sorted(image_data_out.files) == ['embedding']
+    assert np.allclose(image_data_out['embedding'], image_data_reg['embedding'],
                        rtol=1e-05, atol=1e-05, equal_nan=False)
 
     # SECOND regression test
@@ -171,18 +191,92 @@ def test_run(capsys):
         verbose=False)
 
     # check output file created
-    outfile = os.path.join(tempdir, 'chirp_44k_linear.npz')
-    assert os.path.isfile(outfile)
+    audio_outfile = os.path.join(tempdir, 'chirp_44k_linear.npz')
+    assert os.path.isfile(audio_outfile)
+
+    run('image', DAISY_PATH, output_dir=tempdir, suffix='linear', input_repr='linear',
+        content_type='env', image_embedding_size=512, verbose=False)
+
+    # check output file created
+    image_outfile = os.path.join(tempdir, 'daisy_linear.npz')
+    assert os.path.isfile(image_outfile)
 
     # regression test
-    data_reg = np.load(REG_CHIRP_44K_LINEAR_PATH)
-    data_out = np.load(outfile)
+    audio_data_reg = np.load(REG_CHIRP_44K_LINEAR_PATH)
+    audio_data_out = np.load(audio_outfile)
+    image_data_reg = np.load(REG_DAISY_LINEAR_PATH)
+    image_data_out = np.load(image_outfile)
 
-    assert sorted(data_out.files) == sorted(data_out.files) == sorted(
+    assert sorted(audio_data_out.files) == sorted(audio_data_out.files) == sorted(
         ['embedding', 'timestamps'])
-    assert np.allclose(data_out['timestamps'], data_reg['timestamps'],
+    assert np.allclose(audio_data_out['timestamps'], audio_data_reg['timestamps'],
                        rtol=1e-05, atol=1e-05, equal_nan=False)
-    assert np.allclose(data_out['embedding'], data_reg['embedding'],
+    assert np.allclose(audio_data_out['embedding'], audio_data_reg['embedding'],
+                       rtol=1e-05, atol=1e-05, equal_nan=False)
+
+    assert sorted(image_data_out.files) == sorted(image_data_out.files) == ['embedding']
+    assert np.allclose(image_data_out['embedding'], image_data_reg['embedding'],
+                       rtol=1e-05, atol=1e-05, equal_nan=False)
+
+
+    ## Video processing regression tests
+    run('video', BENTO_PATH, output_dir=tempdir, verbose=True)
+
+    # check output files created
+    audio_outfile = os.path.join(tempdir, 'bento_audio.npz')
+    assert os.path.isfile(audio_outfile)
+    image_outfile = os.path.join(tempdir, 'bento_image.npz')
+    assert os.path.isfile(image_outfile)
+
+    # regression test
+    audio_data_reg = np.load(REG_BENTO_AUDIO_PATH)
+    audio_data_out = np.load(audio_outfile)
+    image_data_reg = np.load(REG_BENTO_IMAGE_PATH)
+    image_data_out = np.load(image_outfile)
+
+    assert sorted(audio_data_out.files) == sorted(audio_data_out.files) == sorted(
+        ['embedding', 'timestamps'])
+    assert np.allclose(audio_data_out['timestamps'], audio_data_reg['timestamps'],
+                       rtol=1e-05, atol=1e-05, equal_nan=False)
+    assert np.allclose(audio_data_out['embedding'], audio_data_reg['embedding'],
+                       rtol=1e-05, atol=1e-05, equal_nan=False)
+
+    assert sorted(image_data_out.files) == sorted(image_data_out.files) == sorted(
+        ['embedding', 'timestamps'])
+    assert np.allclose(image_data_out['timestamps'], image_data_reg['timestamps'],
+                       rtol=1e-05, atol=1e-05, equal_nan=False)
+    assert np.allclose(image_data_out['embedding'], image_data_reg['embedding'],
+                       rtol=1e-05, atol=1e-05, equal_nan=False)
+
+    # SECOND regression test
+    run('video', CHIRP_44K_PATH, output_dir=tempdir, suffix='linear', input_repr='linear',
+        content_type='env', audio_embedding_size=512, image_embedding_size=512,
+        audio_center=False, audio_hop_size=0.5, verbose=False)
+
+    # check output files created
+    audio_outfile = os.path.join(tempdir, 'bento_audio_linear.npz')
+    assert os.path.isfile(audio_outfile)
+    image_outfile = os.path.join(tempdir, 'bento_image_linear.npz')
+    assert os.path.isfile(image_outfile)
+
+    # regression test
+    audio_data_reg = np.load(REG_BENTO_AUDIO_LINEAR_PATH)
+    audio_data_out = np.load(audio_outfile)
+    image_data_reg = np.load(REG_BENTO_IMAGE_LINEAR_PATH)
+    image_data_out = np.load(image_outfile)
+
+    assert sorted(audio_data_out.files) == sorted(audio_data_out.files) == sorted(
+        ['embedding', 'timestamps'])
+    assert np.allclose(audio_data_out['timestamps'], audio_data_reg['timestamps'],
+                       rtol=1e-05, atol=1e-05, equal_nan=False)
+    assert np.allclose(audio_data_out['embedding'], audio_data_reg['embedding'],
+                       rtol=1e-05, atol=1e-05, equal_nan=False)
+
+    assert sorted(image_data_out.files) == sorted(image_data_out.files) == sorted(
+        ['embedding', 'timestamps'])
+    assert np.allclose(image_data_out['timestamps'], image_data_reg['timestamps'],
+                       rtol=1e-05, atol=1e-05, equal_nan=False)
+    assert np.allclose(image_data_out['embedding'], image_data_reg['embedding'],
                        rtol=1e-05, atol=1e-05, equal_nan=False)
 
     # delete output file and temp folder
@@ -191,7 +285,7 @@ def test_run(capsys):
 
 def test_main():
 
-    # Duplicate regression test from test_run just to hit coverage
+    # Duplicate audio regression test from test_run just to hit coverage
     tempdir = tempfile.mkdtemp()
     with patch('sys.argv', ['openl3', 'audio', CHIRP_44K_PATH, '--output-dir', tempdir]):
         main()
@@ -214,7 +308,7 @@ def test_main():
 
 def test_script_main():
 
-    # Duplicate regression test from test_run just to hit coverage
+    # Duplicate audio regression test from test_run just to hit coverage
     tempdir = tempfile.mkdtemp()
     with patch('sys.argv', ['openl3', 'audio', CHIRP_44K_PATH, '--output-dir', tempdir]):
         import openl3.__main__
