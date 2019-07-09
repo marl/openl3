@@ -10,7 +10,7 @@ python:
 
 before_install:
     - pip install python-coveralls
-    - pip install pytest-faulthandler
+    - pip install "pytest-faulthandler>=1.5.0,<2.0.0"
     - pip install pytest-cov
     - sudo add-apt-repository -y ppa:mc3man/trusty-media
     - sudo apt-get update
@@ -18,7 +18,8 @@ before_install:
     - ffmpeg -hwaccels
 
 install:
-    - pip install tensorflow pytest
+    - pip install "tensorflow>=1.12.0,<1.14.0"
+    - pip install pytest
     - pip install -e .[tests]
 
 #before_script:
