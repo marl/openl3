@@ -341,7 +341,7 @@ def test_get_image_embedding():
 
     # Make sure blank image is handled
     image = imread(BLANK_PATH)
-    pytest.warns(OpenL3Error, openl3.get_image_embedding, image,
+    pytest.warns(OpenL3Warning, openl3.get_image_embedding, image,
                  input_repr="mel256", content_type="music",
                  embedding_size=8192, verbose=1)
 

@@ -515,9 +515,15 @@ def process_video_file(filepath, output_dir=None, suffix=None,
         raise OpenL3Error('Could not open file "{}":\n{}'.format(filepath, traceback.format_exc()))
 
     if not suffix:
-        suffix = ""
-    audio_output_path = get_output_path(filepath, '_'.join(['audio', suffix]) + ".npz", output_dir=output_dir)
-    image_output_path = get_output_path(filepath, '_'.join(['image', suffix]) + ".npz", output_dir=output_dir)
+        audio_suffix = "audio"
+        image_suffix = "image"
+    else:
+        audio_suffix = "audio_" + suffix
+        image_suffix = "image_" + suffix
+    audio_output_path = get_output_path(filepath, audio_suffix + ".npz",
+                                        output_dir=output_dir)
+    image_output_path = get_output_path(filepath, image_suffix + ".npz",
+                                        output_dir=output_dir)
 
     audio_embedding, audio_ts = get_audio_embedding(
         audio, TARGET_SR, model=audio_model, input_repr=input_repr,
