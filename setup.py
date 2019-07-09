@@ -81,7 +81,7 @@ setup(
     install_requires=[
         'keras>=2.0.9',
         'numpy>=1.13.0',
-        'scipy>=0.19.1',
+        'scipy>=0.19.1,<1.3.0',
         'kapre>=0.1.4',
         'PySoundFile>=0.9.0.post1',
         'resampy>=0.2.1,<0.3.0',
