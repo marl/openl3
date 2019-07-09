@@ -2,8 +2,8 @@ from __future__ import print_function
 import os
 import sys
 import sklearn.decomposition
-from openl3 import process_audio_file
-from openl3.models import load_audio_embedding_model
+from openl3 import process_audio_file, process_image_file, process_video_file
+from openl3.models import load_audio_embedding_model, load_image_embedding_model
 from openl3.openl3_exceptions import OpenL3Error
 from argparse import ArgumentParser, RawDescriptionHelpFormatter, ArgumentTypeError
 from collections import Iterable
@@ -73,8 +73,8 @@ def run(modality, inputs, output_dir=None, suffix=None,
         Hop size in seconds.
     image_embedding_size : 8192 or 512
         Embedding dimensionality.
-    quiet : boolean
-        If True, suppress all non-error output to stdout
+    verbose : boolean
+        If True, print verbose messages.
 
     Returns
     -------
@@ -121,8 +121,10 @@ def run(modality, inputs, output_dir=None, suffix=None,
                                model=model,
                                verbose=verbose)
     elif modality == 'video':
-        audio_model = load_audio_embedding_model(input_repr, content_type, embedding_size)
-        image_model = load_image_embedding_model(input_repr, content_type, embedding_size)
+        audio_model = load_audio_embedding_model(input_repr, content_type,
+                                                 audio_embedding_size)
+        image_model = load_image_embedding_model(input_repr, content_type,
+                                                 image_embedding_size)
 
         # Process all files in the arguments
         for filepath in file_list:
@@ -138,7 +140,6 @@ def run(modality, inputs, output_dir=None, suffix=None,
                                audio_hop_size=audio_hop_size,
                                image_embedding_size=image_embedding_size,
                                verbose=verbose)
-
 
     if verbose:
         print('openl3: Done!')
