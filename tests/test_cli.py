@@ -29,7 +29,7 @@ SILENCE_PATH = os.path.join(TEST_AUDIO_DIR, 'silence.wav')
 # Test image file paths
 DAISY_PATH = os.path.join(TEST_IMAGE_DIR, 'daisy.jpg')
 BLANK_PATH = os.path.join(TEST_IMAGE_DIR, 'blank.png')
-SMALL_PATH = os.path.join(TEST_IMAGE_DIR, 'smol.jpg')
+SMALL_PATH = os.path.join(TEST_IMAGE_DIR, 'smol.png')
 BENTO_PATH = os.path.join(TEST_IMAGE_DIR, 'bento.mp4')
 
 # Regression file paths
