@@ -10,7 +10,7 @@ python:
 
 before_install:
     - pip install python-coveralls
-    - pip install pytest-faulthandler
+    - pip install pytest-faulthandler<2.0.0
     - pip install pytest-cov
 #    - pip install numpydoc
 
