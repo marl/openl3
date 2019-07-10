@@ -87,7 +87,7 @@ setup(
         'resampy>=0.2.1,<0.3.0',
         'h5py>=2.7.0,<3.0.0',
         'moviepy>=1.0.0',
-        'scikit-image>=0.14.3'
+        'scikit-image>=0.14.3,<0.15.0'
     ],
     extras_require={
         'docs': [
