@@ -174,14 +174,14 @@ def test_run(capsys):
     image_data_reg = np.load(REG_DAISY_PATH)
     image_data_out = np.load(image_outfile)
 
-    assert sorted(audio_data_out.files) == sorted(audio_data_out.files) == sorted(
+    assert sorted(audio_data_out.files) == sorted(audio_data_reg.files) == sorted(
         ['embedding', 'timestamps'])
     assert np.allclose(audio_data_out['timestamps'], audio_data_reg['timestamps'],
                        rtol=1e-05, atol=1e-05, equal_nan=False)
     assert np.allclose(audio_data_out['embedding'], audio_data_reg['embedding'],
                        rtol=1e-05, atol=1e-05, equal_nan=False)
 
-    assert sorted(image_data_out.files) == sorted(image_data_out.files) == ['embedding']
+    assert sorted(image_data_out.files) == sorted(image_data_reg.files) == ['embedding']
     assert np.allclose(image_data_out['embedding'], image_data_reg['embedding'],
                        rtol=1e-05, atol=1e-05, equal_nan=False)
 
@@ -207,14 +207,14 @@ def test_run(capsys):
     image_data_reg = np.load(REG_DAISY_LINEAR_PATH)
     image_data_out = np.load(image_outfile)
 
-    assert sorted(audio_data_out.files) == sorted(audio_data_out.files) == sorted(
+    assert sorted(audio_data_out.files) == sorted(audio_data_reg.files) == sorted(
         ['embedding', 'timestamps'])
     assert np.allclose(audio_data_out['timestamps'], audio_data_reg['timestamps'],
                        rtol=1e-05, atol=1e-05, equal_nan=False)
     assert np.allclose(audio_data_out['embedding'], audio_data_reg['embedding'],
                        rtol=1e-05, atol=1e-05, equal_nan=False)
 
-    assert sorted(image_data_out.files) == sorted(image_data_out.files) == ['embedding']
+    assert sorted(image_data_out.files) == sorted(image_data_reg.files) == ['embedding']
     assert np.allclose(image_data_out['embedding'], image_data_reg['embedding'],
                        rtol=1e-05, atol=1e-05, equal_nan=False)
 
@@ -234,14 +234,14 @@ def test_run(capsys):
     image_data_reg = np.load(REG_BENTO_IMAGE_PATH)
     image_data_out = np.load(image_outfile)
 
-    assert sorted(audio_data_out.files) == sorted(audio_data_out.files) == sorted(
+    assert sorted(audio_data_out.files) == sorted(audio_data_reg.files) == sorted(
         ['embedding', 'timestamps'])
     assert np.allclose(audio_data_out['timestamps'], audio_data_reg['timestamps'],
                        rtol=1e-05, atol=1e-05, equal_nan=False)
     assert np.allclose(audio_data_out['embedding'], audio_data_reg['embedding'],
                        rtol=1e-05, atol=1e-05, equal_nan=False)
 
-    assert sorted(image_data_out.files) == sorted(image_data_out.files) == sorted(
+    assert sorted(image_data_out.files) == sorted(image_data_reg.files) == sorted(
         ['embedding', 'timestamps'])
     assert np.allclose(image_data_out['timestamps'], image_data_reg['timestamps'],
                        rtol=1e-05, atol=1e-05, equal_nan=False)
@@ -265,14 +265,14 @@ def test_run(capsys):
     image_data_reg = np.load(REG_BENTO_IMAGE_LINEAR_PATH)
     image_data_out = np.load(image_outfile)
 
-    assert sorted(audio_data_out.files) == sorted(audio_data_out.files) == sorted(
+    assert sorted(audio_data_out.files) == sorted(audio_data_reg.files) == sorted(
         ['embedding', 'timestamps'])
     assert np.allclose(audio_data_out['timestamps'], audio_data_reg['timestamps'],
                        rtol=1e-05, atol=1e-05, equal_nan=False)
     assert np.allclose(audio_data_out['embedding'], audio_data_reg['embedding'],
                        rtol=1e-05, atol=1e-05, equal_nan=False)
 
-    assert sorted(image_data_out.files) == sorted(image_data_out.files) == sorted(
+    assert sorted(image_data_out.files) == sorted(image_data_reg.files) == sorted(
         ['embedding', 'timestamps'])
     assert np.allclose(image_data_out['timestamps'], image_data_reg['timestamps'],
                        rtol=1e-05, atol=1e-05, equal_nan=False)

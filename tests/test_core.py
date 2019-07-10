@@ -354,6 +354,7 @@ def test_get_image_embedding():
                  embedding_size=8192, verbose=1)
 
     # Make sure changing verbosity doesn't break
+    image = imread(DAISY_PATH)
     openl3.get_image_embedding(image,
                                input_repr="mel256", content_type="music",
                                embedding_size=8192, verbose=0)
