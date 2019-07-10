@@ -249,7 +249,7 @@ def test_run(capsys):
                        rtol=1e-05, atol=1e-05, equal_nan=False)
 
     # SECOND regression test
-    run('video', CHIRP_44K_PATH, output_dir=tempdir, suffix='linear', input_repr='linear',
+    run('video', BENTO_PATH, output_dir=tempdir, suffix='linear', input_repr='linear',
         content_type='env', audio_embedding_size=512, image_embedding_size=512,
         audio_center=False, audio_hop_size=0.5, verbose=False)
 
