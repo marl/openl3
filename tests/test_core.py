@@ -379,10 +379,13 @@ def test_get_image_embedding():
                   embedding_size="invalid", verbose=1)
     pytest.raises(OpenL3Error, openl3.get_image_embedding, image,
                   input_repr="mel256", content_type="music",
-                  embedding_size=8192, verbose=1)
+                  embedding_size=8192, verbose="invalid")
     pytest.raises(OpenL3Error, openl3.get_image_embedding, image,
                   input_repr="mel256", content_type="music",
                   embedding_size=8192, verbose=-1)
+    pytest.raises(OpenL3Error, openl3.get_image_embedding,
+                  np.ones((10,)), input_repr="mel256",
+                  content_type="music", embedding_size=8192, verbose=1)
     pytest.raises(OpenL3Error, openl3.get_image_embedding,
                   np.ones((10, 10)), input_repr="mel256",
                   content_type="music", embedding_size=8192, verbose=1)
