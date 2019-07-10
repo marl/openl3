@@ -347,6 +347,8 @@ def test_get_image_embedding():
 
     # Make sure user is warned when image is too small
     image = imread(SMALL_PATH)
+    # Get rid of alpha dimension
+    image = image[..., :3]
     pytest.warns(OpenL3Warning, openl3.get_image_embedding, image,
                  input_repr="mel256", content_type="music",
                  embedding_size=8192, verbose=1)
