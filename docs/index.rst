@@ -16,7 +16,7 @@ OpenL3
    tutorial
 
 
-OpenL3 is an open-source Python library for computing deep audio and (eventually) image embeddings.
+OpenL3 is an open-source Python library for computing deep audio and image embeddings.
 
 The audio and image embedding models provided here are published as part of [1], and are based on the Look, Listen and Learn approach [2]. For details about the embedding models and how they were trained, please see:
 

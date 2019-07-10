@@ -72,7 +72,7 @@ def run(modality, inputs, output_dir=None, suffix=None,
     audio_hop_size : float
         Hop size in seconds.
     image_embedding_size : 8192 or 512
-        Embedding dimensionality.
+        Image embedding dimensionality.
     verbose : boolean
         If True, print verbose messages.
 
