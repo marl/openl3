@@ -12,14 +12,7 @@ from .models import load_audio_embedding_model, load_image_embedding_model
 from .openl3_exceptions import OpenL3Error
 from .openl3_warnings import OpenL3Warning
 import skimage
-try:
-    from moviepy.video.io.VideoFileClip import VideoFileClip
-except RuntimeError:
-    err_msg = 'Could not find ffmpeg. openl3 can still be used to extract ' \
-              'audio embeddings but will not work for extracting ' \
-              'image embeddings.'
-    warnings.warn(err_msg, OpenL3Warning)
-
+from moviepy.video.io.VideoFileClip import VideoFileClip
 
 TARGET_SR = 48000
 
