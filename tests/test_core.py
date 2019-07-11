@@ -1,4 +1,3 @@
-import openl3
 import pytest
 import tempfile
 import numpy as np
@@ -6,6 +5,7 @@ import os
 import shutil
 import soundfile as sf
 from skimage.io import imread
+import openl3
 from openl3.openl3_exceptions import OpenL3Error
 from openl3.openl3_warnings import OpenL3Warning
 
@@ -384,6 +384,12 @@ def test_get_image_embedding():
                   input_repr="mel256", content_type="music",
                   embedding_size=8192, verbose=-1)
     pytest.raises(OpenL3Error, openl3.get_image_embedding,
+                  np.ones((0, 0, 0)), input_repr="mel256",
+                  content_type="music", embedding_size=8192, verbose=1)
+    pytest.raises(OpenL3Error, openl3.get_image_embedding,
+                  np.ones((0, 0, 0, 0)), input_repr="mel256",
+                  content_type="music", embedding_size=8192, verbose=1)
+    pytest.raises(OpenL3Error, openl3.get_image_embedding,
                   np.ones((10,)), input_repr="mel256",
                   content_type="music", embedding_size=8192, verbose=1)
     pytest.raises(OpenL3Error, openl3.get_image_embedding,
@@ -510,6 +516,8 @@ def test_process_image_file():
 
     # Make sure we fail when file cannot be opened
     pytest.raises(OpenL3Error, openl3.process_image_file, '/fake/directory/asdf.jpg')
+    # Use file with alpha channel to hit coverage
+    pytest.raises(OpenL3Error, openl3.process_image_file, SMALL_PATH)
 
 
 def test_process_video_file():
