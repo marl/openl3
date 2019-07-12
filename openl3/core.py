@@ -274,6 +274,11 @@ def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
     if not suffix:
         suffix = ""
 
+    # Load model
+    if not model:
+        model = load_audio_embedding_model(input_repr, content_type,
+                                           embedding_size)
+
     audio_list = []
     sr_list = []
     batch_filepath_list = []
@@ -580,6 +585,11 @@ def process_image_file(filepath, output_dir=None, suffix=None, model=None,
         err_msg = 'filepath should be type str or list[str], but got {}.'
         raise OpenL3Error(err_msg.format(filepath))
 
+    # Load model
+    if not model:
+        model = load_image_embedding_model(input_repr, content_type,
+                                           embedding_size)
+
     if not suffix:
         suffix = ""
 
@@ -690,6 +700,14 @@ def process_video_file(filepath, output_dir=None, suffix=None,
     else:
         err_msg = 'filepath should be type str or list[str], but got {}.'
         raise OpenL3Error(err_msg.format(filepath))
+
+    # Load models
+    if not audio_model:
+        audio_model = load_image_embedding_model(input_repr, content_type,
+                                                 audio_embedding_size)
+    if not image_model:
+        image_model = load_image_embedding_model(input_repr, content_type,
+                                                 image_embedding_size)
 
     if not suffix:
         audio_suffix = "audio"
