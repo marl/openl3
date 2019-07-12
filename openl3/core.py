@@ -95,7 +95,7 @@ def _preprocess_audio_batch(audio, sr, center=True, hop_size=0.1):
 def get_audio_embedding(audio, sr, model=None, input_repr="mel256",
                         content_type="music", embedding_size=6144,
                         center=True, hop_size=0.1, batch_size=32,
-                        verbose=1):
+                        verbose=True):
     """
     Computes and returns L3 embedding for given audio data
 
@@ -129,8 +129,8 @@ def get_audio_embedding(audio, sr, model=None, input_repr="mel256",
         Hop size in seconds.
     batch_size : int
         Batch size used for input to embedding model
-    verbose : 0 or 1
-        Keras verbosity.
+    verbose : bool
+        If True, prints verbose messages.
 
     Returns
     -------
@@ -199,7 +199,7 @@ def get_audio_embedding(audio, sr, model=None, input_repr="mel256",
 
     batch = np.vstack(batch)
     # Compute embeddings
-    batch_embedding = model.predict(batch, verbose=verbose,
+    batch_embedding = model.predict(batch, verbose=1 if verbose else 0,
                                     batch_size=batch_size)
     start_idx = 0
     for file_batch_size in file_batch_size_list:
@@ -256,8 +256,8 @@ def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
         Hop size in seconds.
     batch_size : int
         Batch size used for input to embedding model
-    verbose : 0 or 1
-        Keras verbosity.
+    verbose : bool
+        If True, prints verbose messages.
 
     Returns
     -------
@@ -281,6 +281,9 @@ def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
     for file_idx, filepath in enumerate(filepath_list):
         if not os.path.exists(filepath):
             raise OpenL3Error('File "{}" could not be found.'.format(filepath))
+
+        if verbose:
+            print("openl3: Processing {}".format(filepath))
 
         try:
             audio, sr = sf.read(filepath)
@@ -309,7 +312,7 @@ def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
                                       center=center,
                                       hop_size=hop_size,
                                       batch_size=batch_size,
-                                      verbose=1 if verbose else 0)
+                                      verbose=verbose)
             for fpath, embedding, ts in zip(batch_filepath_list,
                                             embedding_list,
                                             ts_list):
@@ -400,7 +403,7 @@ def _preprocess_image_batch(image):
 
 def get_image_embedding(image, frame_rate=None, model=None,
                         input_repr="mel256", content_type="music",
-                        embedding_size=8192, batch_size=32, verbose=1):
+                        embedding_size=8192, batch_size=32, verbose=True):
     """
     Computes and returns L3 embedding for given video frame (image) data
 
@@ -434,8 +437,8 @@ def get_image_embedding(image, frame_rate=None, model=None,
         Keras model.
     batch_size : int
         Batch size used for input to embedding model
-    verbose : 0 or 1
-        Keras verbosity.
+    verbose : bool
+        If True, prints verbose messages.
 
     Returns
     -------
@@ -501,7 +504,8 @@ def get_image_embedding(image, frame_rate=None, model=None,
 
     batch = np.vstack(batch)
     # Compute embeddings
-    batch_embedding = model.predict(batch, verbose=verbose)
+    batch_embedding = model.predict(batch, verbose=1 if verbose else 0,
+                                    batch_size=batch_size)
 
     embedding_list = []
     ts_list = []
@@ -561,8 +565,8 @@ def process_image_file(filepath, output_dir=None, suffix=None, model=None,
         Keras model.
     batch_size : int
         Batch size used for input to embedding model
-    verbose : 0 or 1
-        Keras verbosity.
+    verbose : bool
+        If True, prints verbose messages.
 
     Returns
     -------
@@ -587,6 +591,9 @@ def process_image_file(filepath, output_dir=None, suffix=None, model=None,
         if not os.path.exists(filepath):
             raise OpenL3Error('File "{}" could not be found.'.format(filepath))
 
+        if verbose:
+            print("openl3: Processing {}".format(filepath))
+
         try:
             image = skimage.io.imread(filepath)
             # Get rid of alpha dimension
@@ -604,7 +611,7 @@ def process_image_file(filepath, output_dir=None, suffix=None, model=None,
                                       input_repr=input_repr,
                                       content_type=content_type,
                                       embedding_size=embedding_size,
-                                      verbose=1 if verbose else 0)
+                                      verbose=verbose)
             for fpath, embedding in zip(batch_filepath_list, embedding_list):
                 output_path = get_output_path(filepath, suffix + ".npz",
                                               output_dir=output_dir)
@@ -669,8 +676,8 @@ def process_video_file(filepath, output_dir=None, suffix=None,
         Batch size used for input to audio embedding model
     image_batch_size : int
         Batch size used for input to image embedding model
-    verbose : 0 or 1
-        Keras verbosity.
+    verbose : bool
+        If True, prints verbose messages.
 
     Returns
     -------
@@ -706,6 +713,9 @@ def process_video_file(filepath, output_dir=None, suffix=None,
         if not os.path.exists(filepath):
             raise OpenL3Error('File "{}" could not be found.'.format(filepath))
 
+        if verbose:
+            print("openl3: Processing {}".format(filepath))
+
         try:
             clip = VideoFileClip(filepath, target_resolution=(256, 256),
                                  audio_fps=TARGET_SR)
@@ -736,7 +746,7 @@ def process_video_file(filepath, output_dir=None, suffix=None,
                                       center=audio_center,
                                       hop_size=audio_hop_size,
                                       batch_size=audio_batch_size,
-                                      verbose=1 if verbose else 0)
+                                      verbose=verbose)
             for fpath, embedding, ts in zip(audio_batch_filepath_list,
                                             embedding_list,
                                             ts_list):
@@ -758,7 +768,7 @@ def process_video_file(filepath, output_dir=None, suffix=None,
                                       content_type=content_type,
                                       embedding_size=image_embedding_size,
                                       batch_size=image_batch_size,
-                                      verbose=1 if verbose else 0)
+                                      verbose=verbose)
             for fpath, embedding, ts in zip(image_batch_filepath_list,
                                             embedding_list,
                                             ts_list):

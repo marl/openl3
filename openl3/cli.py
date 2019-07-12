@@ -97,29 +97,23 @@ def run(modality, inputs, output_dir=None, suffix=None,
                                            audio_embedding_size)
 
         # Process all files in the arguments
-        for filepath in file_list:
-            if verbose:
-                print('openl3: Processing: {}'.format(filepath))
-            process_audio_file(filepath,
-                               output_dir=output_dir,
-                               suffix=suffix,
-                               model=model,
-                               center=audio_center,
-                               hop_size=audio_hop_size,
-                               verbose=verbose)
+        process_audio_file(file_list,
+                           output_dir=output_dir,
+                           suffix=suffix,
+                           model=model,
+                           center=audio_center,
+                           hop_size=audio_hop_size,
+                           verbose=verbose)
     elif modality == 'image':
         model = load_image_embedding_model(input_repr, content_type,
                                            image_embedding_size)
 
         # Process all files in the arguments
-        for filepath in file_list:
-            if verbose:
-                print('openl3: Processing: {}'.format(filepath))
-            process_image_file(filepath,
-                               output_dir=output_dir,
-                               suffix=suffix,
-                               model=model,
-                               verbose=verbose)
+        process_image_file(file_list,
+                           output_dir=output_dir,
+                           suffix=suffix,
+                           model=model,
+                           verbose=verbose)
     elif modality == 'video':
         audio_model = load_audio_embedding_model(input_repr, content_type,
                                                  audio_embedding_size)
@@ -127,19 +121,16 @@ def run(modality, inputs, output_dir=None, suffix=None,
                                                  image_embedding_size)
 
         # Process all files in the arguments
-        for filepath in file_list:
-            if verbose:
-                print('openl3: Processing: {}'.format(filepath))
-            process_video_file(filepath,
-                               output_dir=output_dir,
-                               suffix=suffix,
-                               audio_model=audio_model,
-                               image_model=image_model,
-                               audio_embedding_size=audio_embedding_size,
-                               audio_center=audio_center,
-                               audio_hop_size=audio_hop_size,
-                               image_embedding_size=image_embedding_size,
-                               verbose=verbose)
+        process_video_file(file_list,
+                           output_dir=output_dir,
+                           suffix=suffix,
+                           audio_model=audio_model,
+                           image_model=image_model,
+                           audio_embedding_size=audio_embedding_size,
+                           audio_center=audio_center,
+                           audio_hop_size=audio_hop_size,
+                           image_embedding_size=image_embedding_size,
+                           verbose=verbose)
 
     if verbose:
         print('openl3: Done!')
