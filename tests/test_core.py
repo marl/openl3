@@ -261,6 +261,9 @@ def test_get_audio_embedding():
     pytest.raises(OpenL3Error, openl3.get_audio_embedding, audio, "invalid",
                   input_repr="mel256", content_type="music", embedding_size=6144,
                   center=True, hop_size=0.1, verbose=True)
+    pytest.raises(OpenL3Error, openl3.get_audio_embedding, audio, -1,
+                  input_repr="mel256", content_type="music", embedding_size=6144,
+                  center=True, hop_size=0.1, verbose=True)
     pytest.raises(OpenL3Error, openl3.get_audio_embedding, audio, sr,
                   input_repr="invalid", content_type="music", embedding_size=6144,
                   center=True, hop_size=0.1, verbose=True)
@@ -447,6 +450,9 @@ def test_get_image_embedding():
                   frame_rate="invalid", input_repr="mel256",
                   content_type="music", embedding_size=8192, verbose=True)
     pytest.raises(OpenL3Error, openl3.get_image_embedding, image,
+                  frame_rate=-1, input_repr="mel256",
+                  content_type="music", embedding_size=8192, verbose=True)
+    pytest.raises(OpenL3Error, openl3.get_image_embedding, image,
                   input_repr="invalid", content_type="music",
                   embedding_size=8192, verbose=True)
     pytest.raises(OpenL3Error, openl3.get_image_embedding, image,
@@ -552,6 +558,11 @@ def test_process_audio_file():
         assert embedding.ndim == 2
         assert timestamps.ndim == 1
 
+        # Test loading model in function
+        openl3.process_audio_file(CHIRP_MONO_PATH, output_dir=test_output_dir,
+                                  input_repr="mel256",
+                                  content_type="music", embedding_size=512)
+
     finally:
         shutil.rmtree(test_output_dir)
 
@@ -641,6 +652,11 @@ def test_process_image_file():
 
         # Quick sanity check on data
         assert embedding.ndim == 2
+
+        # Test loading model in function
+        openl3.process_image_file(DAISY_PATH, output_dir=test_output_dir,
+                                  input_repr="mel256",
+                                  content_type="music", embedding_size=512)
 
         # Make sure that suffices work
     finally:
@@ -754,6 +770,13 @@ def test_process_video_file():
         # Quick sanity check on data
         assert image_embedding.ndim == 2
         assert image_timestamps.ndim == 1
+
+        # Test loading model in function
+        openl3.process_video_file(BENTO_PATH, output_dir=test_output_dir,
+                                  input_repr="mel256",
+                                  content_type="music",
+                                  audio_embedding_size=512,
+                                  image_embedding_size=512)
 
     finally:
         shutil.rmtree(test_output_dir)
