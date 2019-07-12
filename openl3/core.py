@@ -39,6 +39,7 @@ def _pad_audio(audio, frame_len, hop_len):
 
 
 def _preprocess_audio_batch(audio, sr, center=True, hop_size=0.1):
+    """Process audio into batch format suitable for input to embedding model """
     if audio.size == 0:
         raise OpenL3Error('Got empty audio')
 

@@ -210,9 +210,52 @@ def test_get_audio_embedding():
                                input_repr="mel256", content_type="music", embedding_size=6144,
                                center=True, hop_size=hop_size, verbose=0)
 
+    # Check batch processing with multiple files with a single sample rate
+    emb_list, ts_list = openl3.get_audio_embedding([audio, audio], sr,
+                               input_repr="mel256", content_type="music", embedding_size=6144,
+                               center=True, hop_size=hop_size)
+    n_frames = 1 + int((audio.shape[0] - sr) / float(int(hop_size*sr)))
+    assert len(emb_list) == 2
+    assert len(ts_list) == 2
+    assert emb_list[0].shape[0] == n_frames
+    assert np.allclose(emb_list[0], emb_list[1])
+    assert np.allclose(ts_list[0], ts_list[1])
+
+    # Check batch processing with multiple files with individually given sample rates
+    emb_list, ts_list = openl3.get_audio_embedding([audio, audio], [sr, sr],
+                                                   input_repr="mel256", content_type="music", embedding_size=6144,
+                                                   center=True, hop_size=hop_size)
+    n_frames = 1 + int((audio.shape[0] - sr) / float(int(hop_size*sr)))
+    assert type(emb_list) == list
+    assert type(ts_list) == list
+    assert len(emb_list) == 2
+    assert len(ts_list) == 2
+    assert emb_list[0].shape[0] == n_frames
+    assert np.allclose(emb_list[0], emb_list[1])
+    assert np.allclose(ts_list[0], ts_list[1])
+
+    # Check batch processing with multiple files with different sample rates
+    emb_list, ts_list = openl3.get_audio_embedding([audio, audio], [sr, sr/2],
+                                                   input_repr="mel256", content_type="music", embedding_size=6144,
+                                                   center=True, hop_size=hop_size)
+    n_frames = 1 + int((audio.shape[0] - sr) / float(int(hop_size*sr)))
+    n_frames_2 = 1 + int((audio.shape[0] - sr/2) / float(int(hop_size*sr/2)))
+    assert type(emb_list) == list
+    assert type(ts_list) == list
+    assert len(emb_list) == 2
+    assert len(ts_list) == 2
+    assert emb_list[0].shape[0] == n_frames
+    assert emb_list[1].shape[0] == n_frames_2
+
     # Make sure invalid arguments don't work
+    pytest.raises(OpenL3Error, openl3.get_audio_embedding, "invalid", sr,
+                  input_repr="mel256", content_type="music", embedding_size=6144,
+                  center=True, hop_size=0.1, verbose=1)
     pytest.raises(OpenL3Error, openl3.get_audio_embedding, audio, sr,
                   model="invalid", center=True, hop_size=0.1, verbose=1)
+    pytest.raises(OpenL3Error, openl3.get_audio_embedding, audio, [sr, sr],
+                  input_repr="mel256", content_type="music", embedding_size=6144,
+                  center=True, hop_size=0.1, verbose=1)
     pytest.raises(OpenL3Error, openl3.get_audio_embedding, audio, "invalid",
                   input_repr="mel256", content_type="music", embedding_size=6144,
                   center=True, hop_size=0.1, verbose=1)
@@ -359,9 +402,45 @@ def test_get_image_embedding():
                                input_repr="mel256", content_type="music",
                                embedding_size=8192, verbose=0)
 
+    # Check batch processing with multiple files
+    emb_list = openl3.get_image_embedding([image, image],
+                                          input_repr="mel256", content_type="music",
+                                          embedding_size=8192, verbose=1)
+    assert type(emb_list) == list
+    assert len(emb_list) == 2
+    assert type(emb_list) == list
+    assert np.allclose(emb_list[0], emb_list[1])
+
+    # Check batch processing with multiple files and one frame rate
+    emb_list, ts_list = openl3.get_image_embedding([image, image], frame_rate=1,
+                                          input_repr="mel256", content_type="music",
+                                          embedding_size=8192, verbose=1)
+    assert type(emb_list) == list
+    assert len(emb_list) == 2
+    assert type(emb_list) == list
+    assert np.allclose(emb_list[0], emb_list[1])
+    assert np.allclose(ts_list[0], ts_list[1])
+
+    # Check batch processing with multiple files and different frame rates
+    emb_list, ts_list = openl3.get_image_embedding([image, image], frame_rate=[1,2],
+                                                   input_repr="mel256", content_type="music",
+                                                   embedding_size=8192, verbose=1)
+    assert type(emb_list) == list
+    assert type(ts_list) == list
+    assert len(emb_list) == 2
+    assert len(ts_list) == 2
+    assert np.allclose(emb_list[0], emb_list[1])
+    assert np.allclose(ts_list[0], 2*ts_list[1])
+
     # Make sure invalid arguments don't work
+    pytest.raises(OpenL3Error, openl3.get_image_embedding, "invalid",
+                  input_repr="mel256", content_type="music",
+                  embedding_size=8192, verbose=1)
     pytest.raises(OpenL3Error, openl3.get_image_embedding, image,
                   model="invalid", verbose=1)
+    pytest.raises(OpenL3Error, openl3.get_image_embedding, image,
+                  frame_rate=[1,2], input_repr="mel256",
+                  content_type="music", embedding_size=8192, verbose=1)
     pytest.raises(OpenL3Error, openl3.get_image_embedding, image,
                   frame_rate="invalid", input_repr="mel256",
                   content_type="music", embedding_size=8192, verbose=1)
@@ -465,12 +544,49 @@ def test_process_audio_file():
         assert embedding.ndim == 2
         assert timestamps.ndim == 1
 
-        # Make sure that suffices work
+    finally:
+        shutil.rmtree(test_output_dir)
+
+    ## Test providing multiple files
+    test_output_dir = tempfile.mkdtemp()
+    test_subdir = os.path.join(test_output_dir, "subdir")
+    os.makedirs(test_subdir)
+    path1 = os.path.join(test_subdir, "chirp_1.wav")
+    path2 = os.path.join(test_subdir, "chirp_2.wav")
+    shutil.copy(CHIRP_MONO_PATH, path1)
+    shutil.copy(CHIRP_MONO_PATH, path2)
+
+    try:
+        openl3.process_audio_file([path1, path2], output_dir=test_output_dir)
+        exp_output_path1 = os.path.join(test_output_dir, "chirp_1.npz")
+        exp_output_path2 = os.path.join(test_output_dir, "chirp_2.npz")
+        assert os.path.exists(exp_output_path1)
+        assert os.path.exists(exp_output_path2)
+
+        data1 = np.load(exp_output_path1)
+        data2 = np.load(exp_output_path2)
+        assert 'embedding' in data1
+        assert 'timestamps' in data1
+        assert 'embedding' in data2
+        assert 'timestamps' in data2
+
+        embedding1 = data1['embedding']
+        timestamps1 = data1['timestamps']
+        embedding2 = data2['embedding']
+        timestamps2 = data2['timestamps']
+
+        # Quick sanity check on data
+        assert embedding1.ndim == 2
+        assert timestamps1.ndim == 1
+        assert embedding2.ndim == 2
+        assert timestamps2.ndim == 2
+
     finally:
         shutil.rmtree(test_output_dir)
 
     # Make sure we fail when file cannot be opened
     pytest.raises(OpenL3Error, openl3.process_audio_file, '/fake/directory/asdf.wav')
+    pytest.raises(OpenL3Error, openl3.process_audio_file, None)
 
 
 def test_process_image_file():
@@ -514,10 +630,42 @@ def test_process_image_file():
     finally:
         shutil.rmtree(test_output_dir)
 
+    ## Test providing multiple files
+    test_output_dir = tempfile.mkdtemp()
+    test_subdir = os.path.join(test_output_dir, "subdir")
+    os.makedirs(test_subdir)
+    path1 = os.path.join(test_subdir, "daisy_1.jpg")
+    path2 = os.path.join(test_subdir, "daisy_2.jpg")
+    shutil.copy(DAISY_PATH, path1)
+    shutil.copy(DAISY_PATH, path2)
+
+    try:
+        openl3.process_image_file([path1, path2], output_dir=test_output_dir)
+        exp_output_path1 = os.path.join(test_output_dir, "daisy_1.npz")
+        exp_output_path2 = os.path.join(test_output_dir, "daisy_2.npz")
+        assert os.path.exists(exp_output_path1)
+        assert os.path.exists(exp_output_path2)
+
+        data1 = np.load(exp_output_path1)
+        data2 = np.load(exp_output_path2)
+        assert 'embedding' in data1
+        assert 'embedding' in data2
+
+        embedding1 = data1['embedding']
+        embedding2 = data2['embedding']
+
+        # Quick sanity check on data
+        assert embedding1.ndim == 2
+        assert embedding2.ndim == 2
+
+    finally:
+        shutil.rmtree(test_output_dir)
+
     # Make sure we fail when file cannot be opened
     pytest.raises(OpenL3Error, openl3.process_image_file, '/fake/directory/asdf.jpg')
     # Use file with alpha channel to hit coverage
     pytest.raises(OpenL3Error, openl3.process_image_file, SMALL_PATH)
+    pytest.raises(OpenL3Error, openl3.process_image_file, None)
 
 
 def test_process_video_file():
@@ -560,24 +708,84 @@ def test_process_video_file():
         assert 'timestamps' in audio_data
 
         audio_embedding = audio_data['embedding']
+        audio_timestamps = audio_data['timestamps']
 
         # Quick sanity check on data
         assert audio_embedding.ndim == 2
+        assert audio_timestamps.ndim == 1
 
         image_data = np.load(exp_image_output_path1)
         assert 'embedding' in image_data
         assert 'timestamps' in image_data
 
         image_embedding = image_data['embedding']
+        image_timestamps = image_data['timestamps']
 
         # Quick sanity check on data
         assert image_embedding.ndim == 2
+        assert image_timestamps.ndim == 1
+
+    finally:
+        shutil.rmtree(test_output_dir)
+
+    ## Test providing multiple files
+    test_output_dir = tempfile.mkdtemp()
+    test_subdir = os.path.join(test_output_dir, "subdir")
+    os.makedirs(test_subdir)
+    path1 = os.path.join(test_subdir, "bento_1.wav")
+    path2 = os.path.join(test_subdir, "bento_2.wav")
+    shutil.copy(BENTO_PATH, path1)
+    shutil.copy(BENTO_PATH, path2)
+
+    try:
+        openl3.process_video_file([path1, path2], output_dir=test_output_dir)
+        exp_output_audio_path1 = os.path.join(test_output_dir, "bento_1_audio.npz")
+        exp_output_audio_path2 = os.path.join(test_output_dir, "bento_2_audio.npz")
+        exp_output_image_path1 = os.path.join(test_output_dir, "bento_1_image.npz")
+        exp_output_image_path2 = os.path.join(test_output_dir, "bento_2_image.npz")
+        assert os.path.exists(exp_output_audio_path1)
+        assert os.path.exists(exp_output_audio_path2)
+        assert os.path.exists(exp_output_image_path1)
+        assert os.path.exists(exp_output_image_path2)
+
+        audio_data1 = np.load(exp_output_audio_path1)
+        audio_data2 = np.load(exp_output_audio_path2)
+        image_data1 = np.load(exp_output_image_path1)
+        image_data2 = np.load(exp_output_image_path2)
+        assert 'embedding' in audio_data1
+        assert 'timestamps' in audio_data1
+        assert 'embedding' in audio_data2
+        assert 'timestamps' in audio_data2
+        assert 'embedding' in image_data1
+        assert 'timestamps' in image_data1
+        assert 'embedding' in image_data2
+        assert 'timestamps' in image_data2
+
+        audio_embedding1 = audio_data1['embedding']
+        audio_timestamps1 = audio_data1['timestamps']
+        audio_embedding2 = audio_data2['embedding']
+        audio_timestamps2 = audio_data2['timestamps']
+        image_embedding1 = image_data1['embedding']
+        image_timestamps1 = image_data1['timestamps']
+        image_embedding2 = image_data2['embedding']
+        image_timestamps2 = image_data2['timestamps']
+
+        # Quick sanity check on data
+        assert audio_embedding1.ndim == 2
+        assert audio_timestamps1.ndim == 1
+        assert audio_embedding2.ndim == 2
+        assert audio_timestamps2.ndim == 2
+        assert image_embedding1.ndim == 2
+        assert image_timestamps1.ndim == 1
+        assert image_embedding2.ndim == 2
+        assert image_timestamps2.ndim == 2
 
     finally:
         shutil.rmtree(test_output_dir)
 
     # Make sure we fail when file cannot be opened
     pytest.raises(OpenL3Error, openl3.process_video_file, '/fake/directory/asdf.mp4')
+    pytest.raises(OpenL3Error, openl3.process_video_file, None)
 
 
 def test_center_audio():
