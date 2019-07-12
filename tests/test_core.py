@@ -807,11 +807,11 @@ def test_process_video_file():
         assert audio_embedding1.ndim == 2
         assert audio_timestamps1.ndim == 1
         assert audio_embedding2.ndim == 2
-        assert audio_timestamps2.ndim == 2
+        assert audio_timestamps2.ndim == 1
         assert image_embedding1.ndim == 2
         assert image_timestamps1.ndim == 1
         assert image_embedding2.ndim == 2
-        assert image_timestamps2.ndim == 2
+        assert image_timestamps2.ndim == 1
 
     finally:
         shutil.rmtree(test_output_dir)
