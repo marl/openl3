@@ -30,7 +30,6 @@ SMALL_PATH = os.path.join(TEST_IMAGE_DIR, 'smol.png')
 BENTO_PATH = os.path.join(TEST_IMAGE_DIR, 'bento.mp4')
 
 
-pytest.mark.skip("Skipping temporarily.")
 def test_get_audio_embedding():
     hop_size = 0.1
     tol = 1e-5
@@ -293,7 +292,6 @@ def test_get_audio_embedding():
                   center=True, hop_size=0.1, verbose=True)
 
 
-pytest.mark.skip("Skipping temporarily.")
 def test_get_image_embedding():
     frame_rate = 24
     tol = 1e-5
@@ -491,7 +489,6 @@ def test_get_image_embedding():
                   content_type="music", embedding_size=8192, verbose=True)
 
 
-pytest.mark.skip("Skipping temporarily.")
 def test_get_output_path():
     test_filepath = '/path/to/the/test/file/audio.wav'
     suffix = 'embedding.npz'

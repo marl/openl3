@@ -44,7 +44,6 @@ REG_BENTO_IMAGE_PATH = os.path.join(TEST_REG_DIR, 'bento_image.npz')
 REG_BENTO_IMAGE_LINEAR_PATH = os.path.join(TEST_REG_DIR, 'bento_image_linear.npz')
 
 
-pytest.mark.skip("Skipping temporarily.")
 def test_positive_float():
 
     # test that returned value is float
@@ -63,7 +62,6 @@ def test_positive_float():
         pytest.raises(ArgumentTypeError, positive_float, i)
 
 
-pytest.mark.skip("Skipping temporarily.")
 def test_get_file_list():
 
     # test for invalid input (must be iterable, e.g. list)
@@ -95,7 +93,6 @@ def test_get_file_list():
     pytest.raises(OpenL3Error, get_file_list, ['/fake/path/to/file'])
 
 
-pytest.mark.skip("Skipping temporarily.")
 def test_parse_args():
 
     # test for all the defaults
@@ -132,7 +129,6 @@ def test_parse_args():
     assert args.quiet is True
 
 
-pytest.mark.skip("Skipping temporarily.")
 def test_run(capsys):
 
     # test invalid input
@@ -287,7 +283,6 @@ def test_run(capsys):
     shutil.rmtree(tempdir)
 
 
-pytest.mark.skip("Skipping temporarily.")
 def test_main():
 
     # Duplicate audio regression test from test_run just to hit coverage
@@ -311,7 +306,6 @@ def test_main():
                        rtol=1e-05, atol=1e-05, equal_nan=False)
 
 
-pytest.mark.skip("Skipping temporarily.")
 def test_script_main():
 
     # Duplicate audio regression test from test_run just to hit coverage
