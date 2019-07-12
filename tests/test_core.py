@@ -4,6 +4,7 @@ import numpy as np
 import os
 import shutil
 import soundfile as sf
+import keras.backend as K
 from skimage.io import imread
 import openl3
 import openl3.models
@@ -43,6 +44,7 @@ def test_get_audio_embedding():
     assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
     assert emb1.shape[1] == 512
     assert not np.any(np.isnan(emb1))
+    K.clear_session()
 
     emb1, ts1 = openl3.get_audio_embedding(audio, sr,
                                            input_repr="mel256", content_type="music", embedding_size=6144,
@@ -50,6 +52,7 @@ def test_get_audio_embedding():
     assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
     assert emb1.shape[1] == 6144
     assert not np.any(np.isnan(emb1))
+    K.clear_session()
 
     emb1, ts1 = openl3.get_audio_embedding(audio, sr,
                                            input_repr="mel128", content_type="music", embedding_size=512,
@@ -57,6 +60,7 @@ def test_get_audio_embedding():
     assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
     assert emb1.shape[1] == 512
     assert not np.any(np.isnan(emb1))
+    K.clear_session()
 
     emb1, ts1 = openl3.get_audio_embedding(audio, sr,
                                            input_repr="mel128", content_type="music", embedding_size=6144,
@@ -64,6 +68,7 @@ def test_get_audio_embedding():
     assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
     assert emb1.shape[1] == 6144
     assert not np.any(np.isnan(emb1))
+    K.clear_session()
 
     emb1, ts1 = openl3.get_audio_embedding(audio, sr,
                                            input_repr="linear", content_type="music", embedding_size=512,
@@ -71,6 +76,7 @@ def test_get_audio_embedding():
     assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
     assert emb1.shape[1] == 512
     assert not np.any(np.isnan(emb1))
+    K.clear_session()
 
     audio, sr = sf.read(CHIRP_MONO_PATH)
     emb1, ts1 = openl3.get_audio_embedding(audio, sr,
@@ -79,6 +85,7 @@ def test_get_audio_embedding():
     assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
     assert emb1.shape[1] == 6144
     assert not np.any(np.isnan(emb1))
+    K.clear_session()
 
     emb1, ts1 = openl3.get_audio_embedding(audio, sr,
                                            input_repr="mel256", content_type="env", embedding_size=512,
@@ -86,6 +93,7 @@ def test_get_audio_embedding():
     assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
     assert emb1.shape[1] == 512
     assert not np.any(np.isnan(emb1))
+    K.clear_session()
 
     emb1, ts1 = openl3.get_audio_embedding(audio, sr,
                                            input_repr="mel256", content_type="env", embedding_size=6144,
@@ -93,6 +101,7 @@ def test_get_audio_embedding():
     assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
     assert emb1.shape[1] == 6144
     assert not np.any(np.isnan(emb1))
+    K.clear_session()
 
     emb1, ts1 = openl3.get_audio_embedding(audio, sr,
                                            input_repr="mel128", content_type="env", embedding_size=512,
@@ -100,6 +109,7 @@ def test_get_audio_embedding():
     assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
     assert emb1.shape[1] == 512
     assert not np.any(np.isnan(emb1))
+    K.clear_session()
 
     emb1, ts1 = openl3.get_audio_embedding(audio, sr,
                                            input_repr="mel128", content_type="env", embedding_size=6144,
@@ -107,6 +117,7 @@ def test_get_audio_embedding():
     assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
     assert emb1.shape[1] == 6144
     assert not np.any(np.isnan(emb1))
+    K.clear_session()
 
     emb1, ts1 = openl3.get_audio_embedding(audio, sr,
                                            input_repr="linear", content_type="env", embedding_size=512,
@@ -114,6 +125,7 @@ def test_get_audio_embedding():
     assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
     assert emb1.shape[1] == 512
     assert not np.any(np.isnan(emb1))
+    K.clear_session()
 
     emb1, ts1 = openl3.get_audio_embedding(audio, sr,
                                            input_repr="linear", content_type="env", embedding_size=6144,
@@ -121,18 +133,20 @@ def test_get_audio_embedding():
     assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
     assert emb1.shape[1] == 6144
     assert not np.any(np.isnan(emb1))
+    K.clear_session()
 
     # Make sure we can load a model and pass it in
-    model = openl3.models.load_audio_embedding_model("linear", "env", 6144)
-    emb1load, ts1load = openl3.get_audio_embedding(audio, sr,
-                                                   model=model, center=True, hop_size=hop_size, verbose=True)
+    model = openl3.models.load_audio_embedding_model("linear", "env", 512)
+    emb1load, ts1load = openl3.get_audio_embedding(audio, sr, model=model,
+                                                   center=True,
+                                                   hop_size=hop_size,
+                                                   verbose=True)
     assert np.all(np.abs(emb1load - emb1) < tol)
     assert np.all(np.abs(ts1load - ts1) < tol)
 
     # Make sure that the embeddings are approximately the same with mono and stereo
     audio, sr = sf.read(CHIRP_STEREO_PATH)
-    emb2, ts2 = openl3.get_audio_embedding(audio, sr,
-                                           input_repr="mel256", content_type="music", embedding_size=6144,
+    emb2, ts2 = openl3.get_audio_embedding(audio, sr, model=model,
                                            center=True, hop_size=0.1, verbose=True)
 
     # assert np.all(np.abs(emb1 - emb2) < tol)
@@ -141,8 +155,7 @@ def test_get_audio_embedding():
 
     # Make sure that the embeddings are approximately the same if we resample the audio
     audio, sr = sf.read(CHIRP_44K_PATH)
-    emb3, ts3 = openl3.get_audio_embedding(audio, sr,
-                                           input_repr="mel256", content_type="music", embedding_size=6144,
+    emb3, ts3 = openl3.get_audio_embedding(audio, sr, model=model,
                                            center=True, hop_size=0.1, verbose=True)
 
     # assert np.all(np.abs(emb1 - emb3) < tol)
@@ -151,19 +164,16 @@ def test_get_audio_embedding():
 
     # Make sure empty audio is handled
     audio, sr = sf.read(EMPTY_PATH)
-    pytest.raises(OpenL3Error, openl3.get_audio_embedding, audio, sr,
-                  input_repr="mel256", content_type="music", embedding_size=6144,
+    pytest.raises(OpenL3Error, openl3.get_audio_embedding, audio, sr, model=model,
                   center=True, hop_size=0.1, verbose=True)
 
     # Make sure user is warned when audio is too short
     audio, sr = sf.read(SHORT_PATH)
     pytest.warns(OpenL3Warning, openl3.get_audio_embedding, audio, sr,
-                 input_repr="mel256", content_type="music", embedding_size=6144,
-                 center=False, hop_size=0.1, verbose=True)
+                 model=model, center=False, hop_size=0.1, verbose=True)
 
     # Make sure short audio can be handled
-    emb4, ts4 = openl3.get_audio_embedding(audio, sr,
-                                           input_repr="mel256", content_type="music", embedding_size=6144,
+    emb4, ts4 = openl3.get_audio_embedding(audio, sr, model=model,
                                            center=False, hop_size=0.1, verbose=True)
 
     assert emb4.shape[0] == 1
@@ -175,11 +185,9 @@ def test_get_audio_embedding():
     # Make sure silence is handled
     audio, sr = sf.read(SILENCE_PATH)
     pytest.warns(OpenL3Warning, openl3.get_audio_embedding, audio, sr,
-                 input_repr="mel256", content_type="music", embedding_size=6144,
-                 center=True, hop_size=0.1, verbose=True)
+                 model=model, center=True, hop_size=0.1, verbose=True)
 
-    emb5, ts5 = openl3.get_audio_embedding(audio, sr,
-                                           input_repr="mel256", content_type="music", embedding_size=6144,
+    emb5, ts5 = openl3.get_audio_embedding(audio, sr, model=model,
                                            center=True, hop_size=0.1, verbose=True)
     assert emb5.shape[1] == 6144
     assert not np.any(np.isnan(emb5))
@@ -248,6 +256,7 @@ def test_get_audio_embedding():
     assert len(ts_list) == 2
     assert emb_list[0].shape[0] == n_frames
     assert emb_list[1].shape[0] == n_frames_2
+    K.clear_session()
 
     # Make sure invalid arguments don't work
     pytest.raises(OpenL3Error, openl3.get_audio_embedding, "invalid", sr,
@@ -308,6 +317,7 @@ def test_get_image_embedding():
     assert emb1.shape[1] == 512
     assert np.all(np.abs(np.diff(ts1) - 1.0/frame_rate) < tol)
     assert not np.any(np.isnan(emb1))
+    K.clear_session()
 
     # Make sure all embedding types work fine
     emb1 = openl3.get_image_embedding(image,
@@ -315,97 +325,105 @@ def test_get_image_embedding():
                                       embedding_size=512, verbose=True)
     assert emb1.shape[1] == 512
     assert not np.any(np.isnan(emb1))
+    K.clear_session()
 
     emb1 = openl3.get_image_embedding(image,
                                       input_repr="mel256", content_type="music",
                                       embedding_size=8192, verbose=True)
     assert emb1.shape[1] == 8192
     assert not np.any(np.isnan(emb1))
+    K.clear_session()
 
     emb1 = openl3.get_image_embedding(image,
                                       input_repr="mel128", content_type="music",
                                       embedding_size=512, verbose=True)
     assert emb1.shape[1] == 512
     assert not np.any(np.isnan(emb1))
+    K.clear_session()
 
     emb1 = openl3.get_image_embedding(image,
                                       input_repr="mel128", content_type="music",
                                       embedding_size=8192, verbose=True)
     assert emb1.shape[1] == 8192
     assert not np.any(np.isnan(emb1))
+    K.clear_session()
 
     emb1 = openl3.get_image_embedding(image,
                                       input_repr="linear", content_type="music",
                                       embedding_size=512, verbose=True)
     assert emb1.shape[1] == 512
     assert not np.any(np.isnan(emb1))
+    K.clear_session()
 
     emb1 = openl3.get_image_embedding(image,
                                       input_repr="linear", content_type="music",
                                       embedding_size=8192, verbose=True)
     assert emb1.shape[1] == 8192
     assert not np.any(np.isnan(emb1))
+    K.clear_session()
 
     emb1 = openl3.get_image_embedding(image,
                                       input_repr="mel256", content_type="env",
                                       embedding_size=512, verbose=True)
     assert emb1.shape[1] == 512
     assert not np.any(np.isnan(emb1))
+    K.clear_session()
 
     emb1 = openl3.get_image_embedding(image,
                                       input_repr="mel256", content_type="env",
                                       embedding_size=8192, verbose=True)
     assert emb1.shape[1] == 8192
     assert not np.any(np.isnan(emb1))
+    K.clear_session()
 
     emb1 = openl3.get_image_embedding(image,
                                       input_repr="mel128", content_type="env",
                                       embedding_size=512, verbose=True)
     assert emb1.shape[1] == 512
     assert not np.any(np.isnan(emb1))
+    K.clear_session()
 
     emb1 = openl3.get_image_embedding(image,
                                       input_repr="mel128", content_type="env",
                                       embedding_size=8192, verbose=True)
     assert emb1.shape[1] == 8192
     assert not np.any(np.isnan(emb1))
+    K.clear_session()
 
     emb1 = openl3.get_image_embedding(image,
                                       input_repr="linear", content_type="env",
                                       embedding_size=512, verbose=True)
     assert emb1.shape[1] == 512
     assert not np.any(np.isnan(emb1))
+    K.clear_session()
 
     emb1 = openl3.get_image_embedding(image,
                                       input_repr="linear", content_type="env",
                                       embedding_size=8192, verbose=True)
     assert emb1.shape[1] == 8192
     assert not np.any(np.isnan(emb1))
+    K.clear_session()
 
     # Make sure we can load a model and pass it in
-    model = openl3.models.load_image_embedding_model("linear", "env", 8192)
+    model = openl3.models.load_image_embedding_model("linear", "env", 512)
     emb1load = openl3.get_image_embedding(image, model=model, verbose=True)
     assert np.all(np.abs(emb1load - emb1) < tol)
 
     # Make sure blank image is handled
     image = imread(BLANK_PATH)
     pytest.warns(OpenL3Warning, openl3.get_image_embedding, image,
-                 input_repr="mel256", content_type="music",
-                 embedding_size=8192, verbose=True)
+                 model=model, verbose=True)
 
     # Make sure user is warned when image is too small
     image = imread(SMALL_PATH)
     # Get rid of alpha dimension
     image = image[..., :3]
     pytest.raises(OpenL3Error, openl3.get_image_embedding, image,
-                 input_repr="mel256", content_type="music",
-                 embedding_size=8192, verbose=True)
+                  model=model, verbose=True)
 
     # Make sure changing verbosity doesn't break
     image = imread(DAISY_PATH)
-    openl3.get_image_embedding(image,
-                               input_repr="mel256", content_type="music",
-                               embedding_size=8192, verbose=False)
+    openl3.get_image_embedding(image, model=model, verbose=False)
 
     # Check batch processing with multiple files
     emb_list = openl3.get_image_embedding([image, image], model=model,
@@ -436,6 +454,7 @@ def test_get_image_embedding():
     assert len(ts_list) == 2
     assert np.allclose(emb_list[0], emb_list[1])
     assert np.allclose(ts_list[0], 2*ts_list[1])
+    K.clear_session()
 
     # Make sure invalid arguments don't work
     pytest.raises(OpenL3Error, openl3.get_image_embedding, "invalid",
@@ -491,6 +510,7 @@ def test_get_image_embedding():
     pytest.raises(OpenL3Error, openl3.get_image_embedding,
                   np.ones((10, 10, 10, 10, 10)), input_repr="mel256",
                   content_type="music", embedding_size=8192, verbose=True)
+    K.clear_session()
 
 
 def test_get_output_path():
@@ -518,7 +538,7 @@ def test_process_audio_file():
     os.makedirs(test_subdir)
 
     # Load a model and pass it in
-    model = openl3.models.load_audio_embedding_model("mel256", "music", 6144)
+    model = openl3.models.load_audio_embedding_model("mel256", "music", 512)
 
     # Make a copy of the file so we can test the case where we save to the same directory
     input_path_alt = os.path.join(test_subdir, "chirp_mono.wav")
@@ -537,6 +557,7 @@ def test_process_audio_file():
         openl3.process_audio_file(CHIRP_MONO_PATH, output_dir=test_output_dir,
                                   suffix='suffix', model=model)
         openl3.process_audio_file(input_path_alt, model=model)
+        K.clear_session()
 
         # Make sure we fail when invalid files are provided
         pytest.raises(OpenL3Error, openl3.process_audio_file,
@@ -562,9 +583,13 @@ def test_process_audio_file():
         openl3.process_audio_file(CHIRP_MONO_PATH, output_dir=test_output_dir,
                                   input_repr="mel256",
                                   content_type="music", embedding_size=512)
+        K.clear_session()
 
     finally:
         shutil.rmtree(test_output_dir)
+
+    # Load a model and pass it in
+    model = openl3.models.load_audio_embedding_model("mel256", "music", 512)
 
     ## Test providing multiple files
     test_output_dir = tempfile.mkdtemp()
@@ -608,6 +633,7 @@ def test_process_audio_file():
     pytest.raises(OpenL3Error, openl3.process_audio_file,
                   '/fake/directory/asdf.wav', model=model)
     pytest.raises(OpenL3Error, openl3.process_audio_file, None, model=model)
+    K.clear_session()
 
 
 def test_process_image_file():
@@ -616,7 +642,7 @@ def test_process_image_file():
     os.makedirs(test_subdir)
 
     # Load a model and pass it in
-    model = openl3.models.load_image_embedding_model("mel256", "music", 8192)
+    model = openl3.models.load_image_embedding_model("mel256", "music", 512)
 
     # Make a copy of the file so we can test the case where we save to the same directory
     input_path_alt = os.path.join(test_subdir, "daisy.jpg")
@@ -635,6 +661,7 @@ def test_process_image_file():
         openl3.process_image_file(DAISY_PATH, output_dir=test_output_dir,
                                   suffix='suffix', model=model)
         openl3.process_image_file(input_path_alt, model=model)
+        K.clear_session()
 
         # Make sure we fail when invalid files are provided
         pytest.raises(OpenL3Error, openl3.process_image_file,
@@ -657,10 +684,14 @@ def test_process_image_file():
         openl3.process_image_file(DAISY_PATH, output_dir=test_output_dir,
                                   input_repr="mel256",
                                   content_type="music", embedding_size=512)
+        K.clear_session()
 
         # Make sure that suffices work
     finally:
         shutil.rmtree(test_output_dir)
+
+    # Load a model and pass it in
+    model = openl3.models.load_image_embedding_model("mel256", "music", 512)
 
     ## Test providing multiple files
     test_output_dir = tempfile.mkdtemp()
@@ -701,6 +732,7 @@ def test_process_image_file():
     pytest.raises(OpenL3Error, openl3.process_image_file,
                   SMALL_PATH, model=model)
     pytest.raises(OpenL3Error, openl3.process_image_file, None, model=model)
+    K.clear_session()
 
 
 def test_process_video_file():
@@ -709,8 +741,8 @@ def test_process_video_file():
     os.makedirs(test_subdir)
 
     # Load models
-    audio_model = openl3.models.load_audio_embedding_model("mel256", "music", 6144)
-    image_model = openl3.models.load_image_embedding_model("mel256", "music", 8192)
+    audio_model = openl3.models.load_audio_embedding_model("mel256", "music", 512)
+    image_model = openl3.models.load_image_embedding_model("mel256", "music", 512)
 
     # Make a copy of the file so we can test the case where we save to the same directory
     input_path_alt = os.path.join(test_subdir, "bento.mp4")
@@ -740,6 +772,7 @@ def test_process_video_file():
         # Make sure we fail when invalid files are provided
         pytest.raises(OpenL3Error, openl3.process_video_file, invalid_file_path,
                       audio_model=audio_model, image_model=image_model)
+        K.clear_session()
 
         # Make sure paths all exist
         assert os.path.exists(exp_audio_output_path1)
@@ -777,9 +810,14 @@ def test_process_video_file():
                                   content_type="music",
                                   audio_embedding_size=512,
                                   image_embedding_size=512)
+        K.clear_session()
 
     finally:
         shutil.rmtree(test_output_dir)
+
+    # Load models
+    audio_model = openl3.models.load_audio_embedding_model("mel256", "music", 512)
+    image_model = openl3.models.load_image_embedding_model("mel256", "music", 512)
 
     ## Test providing multiple files
     test_output_dir = tempfile.mkdtemp()
@@ -845,6 +883,7 @@ def test_process_video_file():
                   image_model=image_model)
     pytest.raises(OpenL3Error, openl3.process_video_file, None,
                   audio_model=audio_model, image_model=image_model)
+    K.clear_session()
 
 
 def test_center_audio():
