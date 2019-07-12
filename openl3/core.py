@@ -97,7 +97,9 @@ def get_audio_embedding(audio, sr, model=None, input_repr="mel256",
                         center=True, hop_size=0.1, batch_size=32,
                         verbose=True):
     """
-    Computes and returns L3 embedding for given audio data
+    Computes and returns L3 embedding for given audio data.
+
+    Embeddings are computed for 1-second windows of audio.
 
     Parameters
     ----------
@@ -410,7 +412,9 @@ def get_image_embedding(image, frame_rate=None, model=None,
                         input_repr="mel256", content_type="music",
                         embedding_size=8192, batch_size=32, verbose=True):
     """
-    Computes and returns L3 embedding for given video frame (image) data
+    Computes and returns L3 embedding for given video frame (image) data.
+
+    Embeddings are computed for every image in the input.
 
     Parameters
     ----------
@@ -643,6 +647,8 @@ def process_video_file(filepath, output_dir=None, suffix=None,
     """
     Computes and saves L3 audio and video frame embeddings for given video file
 
+    Note that image embeddings are computed for every frame of the video.
+
     Parameters
     ----------
     filepath : str or list[str]
@@ -803,6 +809,7 @@ def process_video_file(filepath, output_dir=None, suffix=None,
 
 def get_output_path(filepath, suffix, output_dir=None):
     """
+    Returns path to output file corresponding to the given input file.
 
     Parameters
     ----------
