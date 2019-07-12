@@ -260,24 +260,24 @@ def test_get_audio_embedding():
 
     # Make sure invalid arguments don't work
     pytest.raises(OpenL3Error, openl3.get_audio_embedding, "invalid", sr,
-                  input_repr="mel256", content_type="music", embedding_size=6144,
+                  input_repr="mel256", content_type="music", embedding_size=512,
                   center=True, hop_size=0.1, verbose=True)
     pytest.raises(OpenL3Error, openl3.get_audio_embedding, audio, sr,
                   model="invalid", center=True, hop_size=0.1, verbose=True)
     pytest.raises(OpenL3Error, openl3.get_audio_embedding, audio, [sr, sr],
-                  input_repr="mel256", content_type="music", embedding_size=6144,
+                  input_repr="mel256", content_type="music", embedding_size=512,
                   center=True, hop_size=0.1, verbose=True)
     pytest.raises(OpenL3Error, openl3.get_audio_embedding, audio, "invalid",
-                  input_repr="mel256", content_type="music", embedding_size=6144,
+                  input_repr="mel256", content_type="music", embedding_size=512,
                   center=True, hop_size=0.1, verbose=True)
     pytest.raises(OpenL3Error, openl3.get_audio_embedding, audio, -1,
-                  input_repr="mel256", content_type="music", embedding_size=6144,
+                  input_repr="mel256", content_type="music", embedding_size=512,
                   center=True, hop_size=0.1, verbose=True)
     pytest.raises(OpenL3Error, openl3.get_audio_embedding, audio, sr,
-                  input_repr="invalid", content_type="music", embedding_size=6144,
+                  input_repr="invalid", content_type="music", embedding_size=512,
                   center=True, hop_size=0.1, verbose=True)
     pytest.raises(OpenL3Error, openl3.get_audio_embedding, audio, sr,
-                  input_repr="mel256", content_type="invalid", embedding_size=6144,
+                  input_repr="mel256", content_type="invalid", embedding_size=512,
                   center=True, hop_size=0.1, verbose=True)
     pytest.raises(OpenL3Error, openl3.get_audio_embedding, audio, sr,
                   input_repr="mel256", content_type="invalid", embedding_size=42,
@@ -286,19 +286,19 @@ def test_get_audio_embedding():
                   input_repr="mel256", content_type="music", embedding_size="invalid",
                   center=True, hop_size=0.1, verbose=True)
     pytest.raises(OpenL3Error, openl3.get_audio_embedding, audio, sr,
-                  input_repr="mel256", content_type="music", embedding_size=6144,
+                  input_repr="mel256", content_type="music", embedding_size=512,
                   center=True, hop_size=0, verbose=True)
     pytest.raises(OpenL3Error, openl3.get_audio_embedding, audio, sr,
-                  input_repr="mel256", content_type="music", embedding_size=6144,
+                  input_repr="mel256", content_type="music", embedding_size=512,
                   center=True, hop_size=-1, verbose=True)
     pytest.raises(OpenL3Error, openl3.get_audio_embedding, audio, sr,
-                  input_repr="mel256", content_type="music", embedding_size=6144,
+                  input_repr="mel256", content_type="music", embedding_size=512,
                   center=True, hop_size=0.1, verbose=-1)
     pytest.raises(OpenL3Error, openl3.get_audio_embedding, audio, sr,
-                  input_repr="mel256", content_type="music", embedding_size=6144,
+                  input_repr="mel256", content_type="music", embedding_size=512,
                   center='invalid', hop_size=0.1, verbose=True)
     pytest.raises(OpenL3Error, openl3.get_audio_embedding, np.ones((10, 10, 10)), sr,
-                  input_repr="mel256", content_type="music", embedding_size=6144,
+                  input_repr="mel256", content_type="music", embedding_size=512,
                   center=True, hop_size=0.1, verbose=True)
 
 
@@ -459,24 +459,24 @@ def test_get_image_embedding():
     # Make sure invalid arguments don't work
     pytest.raises(OpenL3Error, openl3.get_image_embedding, "invalid",
                   input_repr="mel256", content_type="music",
-                  embedding_size=8192, verbose=True)
+                  embedding_size=512, verbose=True)
     pytest.raises(OpenL3Error, openl3.get_image_embedding, image,
                   model="invalid", verbose=True)
     pytest.raises(OpenL3Error, openl3.get_image_embedding, image,
                   frame_rate=[1,2], input_repr="mel256",
-                  content_type="music", embedding_size=8192, verbose=True)
+                  content_type="music", embedding_size=512, verbose=True)
     pytest.raises(OpenL3Error, openl3.get_image_embedding, image,
                   frame_rate="invalid", input_repr="mel256",
-                  content_type="music", embedding_size=8192, verbose=True)
+                  content_type="music", embedding_size=512, verbose=True)
     pytest.raises(OpenL3Error, openl3.get_image_embedding, image,
                   frame_rate=-1, input_repr="mel256",
-                  content_type="music", embedding_size=8192, verbose=True)
+                  content_type="music", embedding_size=512, verbose=True)
     pytest.raises(OpenL3Error, openl3.get_image_embedding, image,
                   input_repr="invalid", content_type="music",
-                  embedding_size=8192, verbose=True)
+                  embedding_size=512, verbose=True)
     pytest.raises(OpenL3Error, openl3.get_image_embedding, image,
                   input_repr="mel256", content_type="invalid",
-                  embedding_size=8192, verbose=True)
+                  embedding_size=512, verbose=True)
     pytest.raises(OpenL3Error, openl3.get_image_embedding, image,
                   input_repr="mel256", content_type="invalid",
                   embedding_size=42, verbose=True)
@@ -485,31 +485,31 @@ def test_get_image_embedding():
                   embedding_size="invalid", verbose=True)
     pytest.raises(OpenL3Error, openl3.get_image_embedding, image,
                   input_repr="mel256", content_type="music",
-                  embedding_size=8192, verbose="invalid")
+                  embedding_size=512, verbose="invalid")
     pytest.raises(OpenL3Error, openl3.get_image_embedding, image,
                   input_repr="mel256", content_type="music",
-                  embedding_size=8192, verbose=-1)
+                  embedding_size=512, verbose=-1)
     pytest.raises(OpenL3Error, openl3.get_image_embedding,
                   np.ones((0, 0, 0)), input_repr="mel256",
-                  content_type="music", embedding_size=8192, verbose=True)
+                  content_type="music", embedding_size=512, verbose=True)
     pytest.raises(OpenL3Error, openl3.get_image_embedding,
                   np.ones((0, 0, 0, 0)), input_repr="mel256",
-                  content_type="music", embedding_size=8192, verbose=True)
+                  content_type="music", embedding_size=512, verbose=True)
     pytest.raises(OpenL3Error, openl3.get_image_embedding,
                   np.ones((10,)), input_repr="mel256",
-                  content_type="music", embedding_size=8192, verbose=True)
+                  content_type="music", embedding_size=512, verbose=True)
     pytest.raises(OpenL3Error, openl3.get_image_embedding,
                   np.ones((10, 10)), input_repr="mel256",
-                  content_type="music", embedding_size=8192, verbose=True)
+                  content_type="music", embedding_size=512, verbose=True)
     pytest.raises(OpenL3Error, openl3.get_image_embedding,
                   np.ones((10, 10, 10)), input_repr="mel256",
-                  content_type="music", embedding_size=8192, verbose=True)
+                  content_type="music", embedding_size=512, verbose=True)
     pytest.raises(OpenL3Error, openl3.get_image_embedding,
                   np.ones((10, 10, 10, 10)), input_repr="mel256",
-                  content_type="music", embedding_size=8192, verbose=True)
+                  content_type="music", embedding_size=512, verbose=True)
     pytest.raises(OpenL3Error, openl3.get_image_embedding,
                   np.ones((10, 10, 10, 10, 10)), input_repr="mel256",
-                  content_type="music", embedding_size=8192, verbose=True)
+                  content_type="music", embedding_size=512, verbose=True)
     K.clear_session()
 
 
