@@ -198,7 +198,6 @@ def get_audio_embedding(audio, sr, model=None, input_repr="mel256",
         file_batch_size_list.append(x.shape[0])
 
     batch = np.vstack(batch)
-
     # Compute embeddings
     batch_embedding = model.predict(batch, verbose=verbose,
                                     batch_size=batch_size)
@@ -213,7 +212,7 @@ def get_audio_embedding(audio, sr, model=None, input_repr="mel256",
         start_idx = end_idx
 
     if not list_input:
-        return embedding_list[0], ts_list[1]
+        return embedding_list[0], ts_list[0]
     else:
         return embedding_list, ts_list
 
@@ -279,7 +278,7 @@ def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
     total_batch_size = 0
 
     num_files = len(filepath_list)
-    for file_idx, filepath in filepath_list:
+    for file_idx, filepath in enumerate(filepath_list):
         if not os.path.exists(filepath):
             raise OpenL3Error('File "{}" could not be found.'.format(filepath))
 
@@ -446,9 +445,6 @@ def get_image_embedding(image, frame_rate=None, model=None,
             Array of timestamps for each frame. If `frame_rate` is None,
             this is not returned.
     """
-    if (frame_rate is not None) and (not isinstance(frame_rate, Real) or frame_rate <= 0):
-        raise OpenL3Error('Invalid frame rate {}'.format(frame_rate))
-
     if model is not None and not isinstance(model, keras.models.Model):
         raise OpenL3Error('Invalid model provided. Must be of type keras.model.Models'
                           ' but got {}'.format(str(type(model))))
@@ -495,11 +491,16 @@ def get_image_embedding(image, frame_rate=None, model=None,
     batch = []
     file_batch_size_list = []
     for image, frame_rate in zip(image_list, frame_rate_list):
+        if (frame_rate is not None) and (not isinstance(frame_rate, Real) or frame_rate <= 0):
+            raise OpenL3Error('Invalid frame rate {}'.format(frame_rate))
+
         # Preprocess image to scale appropriate scale
         x = _preprocess_image_batch(image)
+        batch.append(x)
         file_batch_size_list.append(x.shape[0])
 
     batch = np.vstack(batch)
+    # Compute embeddings
     batch_embedding = model.predict(batch, verbose=verbose)
 
     embedding_list = []
