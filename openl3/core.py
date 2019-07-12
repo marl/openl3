@@ -271,6 +271,9 @@ def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
         err_msg = 'filepath should be type str or list[str], but got {}.'
         raise OpenL3Error(err_msg.format(filepath))
 
+    if not suffix:
+        suffix = ""
+
     audio_list = []
     sr_list = []
     batch_filepath_list = []
@@ -297,11 +300,8 @@ def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
 
         audio_len = ceil(audio.shape[0] / float(TARGET_SR / sr))
         hop_length = int(hop_size * TARGET_SR)
-        num_windows = 1 + max(ceil((audio_len - TARGET_SR)/hop_length), 0)
+        num_windows = 1 + max(ceil((audio_len - TARGET_SR)/float(hop_length)), 0)
         total_batch_size += num_windows
-
-        if not suffix:
-            suffix = ""
 
         if total_batch_size >= batch_size or file_idx == (num_files - 1):
             embedding_list, ts_list \
@@ -316,7 +316,7 @@ def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
             for fpath, embedding, ts in zip(batch_filepath_list,
                                             embedding_list,
                                             ts_list):
-                output_path = get_output_path(filepath, suffix + ".npz",
+                output_path = get_output_path(fpath, suffix + ".npz",
                                               output_dir=output_dir)
 
                 np.savez(output_path, embedding=embedding, timestamps=ts)
@@ -613,7 +613,7 @@ def process_image_file(filepath, output_dir=None, suffix=None, model=None,
                                       embedding_size=embedding_size,
                                       verbose=verbose)
             for fpath, embedding in zip(batch_filepath_list, embedding_list):
-                output_path = get_output_path(filepath, suffix + ".npz",
+                output_path = get_output_path(fpath, suffix + ".npz",
                                               output_dir=output_dir)
 
                 np.savez(output_path, embedding=embedding)
@@ -730,7 +730,7 @@ def process_video_file(filepath, output_dir=None, suffix=None,
         audio_batch_filepath_list.append(filepath)
         audio_len = audio.shape[0]
         audio_hop_length = int(audio_hop_size * TARGET_SR)
-        num_windows = 1 + max(ceil((audio_len - TARGET_SR)/audio_hop_length), 0)
+        num_windows = 1 + max(ceil((audio_len - TARGET_SR)/float(audio_hop_length)), 0)
         total_audio_batch_size += num_windows
 
         image_list.append(images)
@@ -750,7 +750,7 @@ def process_video_file(filepath, output_dir=None, suffix=None,
             for fpath, embedding, ts in zip(audio_batch_filepath_list,
                                             embedding_list,
                                             ts_list):
-                output_path = get_output_path(filepath, audio_suffix + ".npz",
+                output_path = get_output_path(fpath, audio_suffix + ".npz",
                                               output_dir=output_dir)
 
                 np.savez(output_path, embedding=embedding, timestamps=ts)
@@ -772,10 +772,10 @@ def process_video_file(filepath, output_dir=None, suffix=None,
             for fpath, embedding, ts in zip(image_batch_filepath_list,
                                             embedding_list,
                                             ts_list):
-                output_path = get_output_path(filepath, image_suffix + ".npz",
+                output_path = get_output_path(fpath, image_suffix + ".npz",
                                               output_dir=output_dir)
 
-                np.savez(output_path, embedding=embedding, ts=ts)
+                np.savez(output_path, embedding=embedding, timestamps=ts)
                 assert os.path.exists(output_path)
 
             image_list = []
