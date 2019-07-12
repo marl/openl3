@@ -120,18 +120,18 @@ def test_get_audio_embedding():
     K.clear_session()
 
     emb1, ts1 = openl3.get_audio_embedding(audio, sr,
-                                           input_repr="linear", content_type="env", embedding_size=512,
-                                           center=True, hop_size=hop_size, verbose=True)
-    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
-    assert emb1.shape[1] == 512
-    assert not np.any(np.isnan(emb1))
-    K.clear_session()
-
-    emb1, ts1 = openl3.get_audio_embedding(audio, sr,
                                            input_repr="linear", content_type="env", embedding_size=6144,
                                            center=True, hop_size=hop_size, verbose=True)
     assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
     assert emb1.shape[1] == 6144
+    assert not np.any(np.isnan(emb1))
+    K.clear_session()
+
+    emb1, ts1 = openl3.get_audio_embedding(audio, sr,
+                                           input_repr="linear", content_type="env", embedding_size=512,
+                                           center=True, hop_size=hop_size, verbose=True)
+    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
+    assert emb1.shape[1] == 512
     assert not np.any(np.isnan(emb1))
     K.clear_session()
 
@@ -177,7 +177,7 @@ def test_get_audio_embedding():
                                            center=False, hop_size=0.1, verbose=True)
 
     assert emb4.shape[0] == 1
-    assert emb4.shape[1] == 6144
+    assert emb4.shape[1] == 512
     assert len(ts4) == 1
     assert ts4[0] == 0
     assert not np.any(np.isnan(emb4))
@@ -189,7 +189,7 @@ def test_get_audio_embedding():
 
     emb5, ts5 = openl3.get_audio_embedding(audio, sr, model=model,
                                            center=True, hop_size=0.1, verbose=True)
-    assert emb5.shape[1] == 6144
+    assert emb5.shape[1] == 512
     assert not np.any(np.isnan(emb5))
 
     # Check for centering
@@ -392,15 +392,15 @@ def test_get_image_embedding():
 
     emb1 = openl3.get_image_embedding(image,
                                       input_repr="linear", content_type="env",
-                                      embedding_size=512, verbose=True)
-    assert emb1.shape[1] == 512
+                                      embedding_size=8192, verbose=True)
+    assert emb1.shape[1] == 8192
     assert not np.any(np.isnan(emb1))
     K.clear_session()
 
     emb1 = openl3.get_image_embedding(image,
                                       input_repr="linear", content_type="env",
-                                      embedding_size=8192, verbose=True)
-    assert emb1.shape[1] == 8192
+                                      embedding_size=512, verbose=True)
+    assert emb1.shape[1] == 512
     assert not np.any(np.isnan(emb1))
     K.clear_session()
 
