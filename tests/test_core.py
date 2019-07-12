@@ -6,6 +6,7 @@ import shutil
 import soundfile as sf
 from skimage.io import imread
 import openl3
+import openl3.models
 from openl3.openl3_exceptions import OpenL3Error
 from openl3.openl3_warnings import OpenL3Warning
 
@@ -185,37 +186,34 @@ def test_get_audio_embedding():
 
     # Check for centering
     audio, sr = sf.read(CHIRP_1S_PATH)
-    emb6, ts6 = openl3.get_audio_embedding(audio, sr,
-                                           input_repr="mel256", content_type="music", embedding_size=6144,
+    emb6, ts6 = openl3.get_audio_embedding(audio, sr, model=model,
                                            center=True, hop_size=hop_size, verbose=True)
     n_frames = 1 + int((audio.shape[0] + sr//2 - sr) / float(int(hop_size*sr)))
     assert emb6.shape[0] == n_frames
 
-    emb7, ts7 = openl3.get_audio_embedding(audio, sr,
-                                           input_repr="mel256", content_type="music", embedding_size=6144,
+    emb7, ts7 = openl3.get_audio_embedding(audio, sr, model=model,
                                            center=False, hop_size=hop_size, verbose=True)
     n_frames = 1 + int((audio.shape[0] - sr) / float(int(hop_size*sr)))
     assert emb7.shape[0] == n_frames
 
     # Check for hop size
     hop_size = 0.2
-    emb8, ts8 = openl3.get_audio_embedding(audio, sr,
-                                           input_repr="mel256", content_type="music", embedding_size=6144,
+    emb8, ts8 = openl3.get_audio_embedding(audio, sr, model=model,
                                            center=False, hop_size=hop_size, verbose=True)
     n_frames = 1 + int((audio.shape[0] - sr) / float(int(hop_size*sr)))
     assert emb8.shape[0] == n_frames
 
     # Make sure changing verbosity doesn't break
-    openl3.get_audio_embedding(audio, sr,
-                               input_repr="mel256", content_type="music", embedding_size=6144,
+    openl3.get_audio_embedding(audio, sr, model=model,
                                center=True, hop_size=hop_size, verbose=False)
 
     # Check batch processing with multiple files with a single sample rate
     audio, sr = sf.read(CHIRP_MONO_PATH)
     hop_size = 0.1
     emb_list, ts_list = openl3.get_audio_embedding([audio, audio], sr,
-                               input_repr="mel256", content_type="music", embedding_size=6144,
-                               center=True, hop_size=hop_size, batch_size=4)
+                                                   model=model, center=True,
+                                                   hop_size=hop_size,
+                                                   batch_size=4)
     n_frames = 1 + int((audio.shape[0] + sr//2 - sr) / float(int(hop_size*sr)))
     assert len(emb_list) == 2
     assert len(ts_list) == 2
@@ -225,7 +223,7 @@ def test_get_audio_embedding():
 
     # Check batch processing with multiple files with individually given sample rates
     emb_list, ts_list = openl3.get_audio_embedding([audio, audio], [sr, sr],
-                                                   input_repr="mel256", content_type="music", embedding_size=6144,
+                                                   model=model,
                                                    center=True, hop_size=hop_size,
                                                    batch_size=4)
     n_frames = 1 + int((audio.shape[0] + sr//2 - sr) / float(int(hop_size*sr)))
@@ -239,7 +237,7 @@ def test_get_audio_embedding():
 
     # Check batch processing with multiple files with different sample rates
     emb_list, ts_list = openl3.get_audio_embedding([audio, audio], [sr, sr/2],
-                                                   input_repr="mel256", content_type="music", embedding_size=6144,
+                                                   model=model,
                                                    center=True, hop_size=hop_size,
                                                    batch_size=4)
     n_frames = 1 + int((audio.shape[0] + sr//2 - sr) / float(int(hop_size*sr)))
@@ -407,9 +405,8 @@ def test_get_image_embedding():
                                embedding_size=8192, verbose=False)
 
     # Check batch processing with multiple files
-    emb_list = openl3.get_image_embedding([image, image],
-                                          input_repr="mel256", content_type="music",
-                                          embedding_size=8192, batch_size=4, verbose=True)
+    emb_list = openl3.get_image_embedding([image, image], model=model,
+                                          batch_size=4, verbose=True)
     assert type(emb_list) == list
     assert len(emb_list) == 2
     assert type(emb_list) == list
@@ -417,8 +414,8 @@ def test_get_image_embedding():
 
     # Check batch processing with multiple files and one frame rate
     emb_list, ts_list = openl3.get_image_embedding([image, image], frame_rate=1,
-                                          input_repr="mel256", content_type="music",
-                                          embedding_size=8192, batch_size=4, verbose=True)
+                                                   model=model, batch_size=4,
+                                                   verbose=True)
     assert type(emb_list) == list
     assert len(emb_list) == 2
     assert type(emb_list) == list
@@ -426,9 +423,10 @@ def test_get_image_embedding():
     assert np.allclose(ts_list[0], ts_list[1])
 
     # Check batch processing with multiple files and different frame rates
-    emb_list, ts_list = openl3.get_image_embedding([image, image], frame_rate=[1,2],
-                                                   input_repr="mel256", content_type="music",
-                                                   embedding_size=8192, batch_size=4, verbose=True)
+    emb_list, ts_list = openl3.get_image_embedding([image, image],
+                                                   frame_rate=[1,2],
+                                                   model=model, batch_size=4,
+                                                   verbose=True)
     assert type(emb_list) == list
     assert type(ts_list) == list
     assert len(emb_list) == 2
@@ -513,6 +511,9 @@ def test_process_audio_file():
     test_subdir = os.path.join(test_output_dir, "subdir")
     os.makedirs(test_subdir)
 
+    # Load a model and pass it in
+    model = openl3.models.load_audio_embedding_model("mel256", "music", 6144)
+
     # Make a copy of the file so we can test the case where we save to the same directory
     input_path_alt = os.path.join(test_subdir, "chirp_mono.wav")
     shutil.copy(CHIRP_MONO_PATH, test_subdir)
@@ -525,12 +526,15 @@ def test_process_audio_file():
     exp_output_path2 = os.path.join(test_output_dir, "chirp_mono_suffix.npz")
     exp_output_path3 = os.path.join(test_subdir, "chirp_mono.npz")
     try:
-        openl3.process_audio_file(CHIRP_MONO_PATH, output_dir=test_output_dir)
-        openl3.process_audio_file(CHIRP_MONO_PATH, output_dir=test_output_dir, suffix='suffix')
-        openl3.process_audio_file(input_path_alt)
+        openl3.process_audio_file(CHIRP_MONO_PATH, output_dir=test_output_dir,
+                                  model=model)
+        openl3.process_audio_file(CHIRP_MONO_PATH, output_dir=test_output_dir,
+                                  suffix='suffix', model=model)
+        openl3.process_audio_file(input_path_alt, model=model)
 
         # Make sure we fail when invalid files are provided
-        pytest.raises(OpenL3Error, openl3.process_audio_file, invalid_file_path)
+        pytest.raises(OpenL3Error, openl3.process_audio_file,
+                      invalid_file_path, model=model)
 
         # Make sure paths all exist
         assert os.path.exists(exp_output_path1)
@@ -561,7 +565,8 @@ def test_process_audio_file():
     shutil.copy(CHIRP_MONO_PATH, path2)
 
     try:
-        openl3.process_audio_file([path1, path2], output_dir=test_output_dir, batch_size=4)
+        openl3.process_audio_file([path1, path2], output_dir=test_output_dir,
+                                  batch_size=4, model=model)
         exp_output_path1 = os.path.join(test_output_dir, "chirp_1.npz")
         exp_output_path2 = os.path.join(test_output_dir, "chirp_2.npz")
         assert os.path.exists(exp_output_path1)
@@ -589,14 +594,18 @@ def test_process_audio_file():
         shutil.rmtree(test_output_dir)
 
     # Make sure we fail when file cannot be opened
-    pytest.raises(OpenL3Error, openl3.process_audio_file, '/fake/directory/asdf.wav')
-    pytest.raises(OpenL3Error, openl3.process_audio_file, None)
+    pytest.raises(OpenL3Error, openl3.process_audio_file,
+                  '/fake/directory/asdf.wav', model=model)
+    pytest.raises(OpenL3Error, openl3.process_audio_file, None, model=model)
 
 
 def test_process_image_file():
     test_output_dir = tempfile.mkdtemp()
     test_subdir = os.path.join(test_output_dir, "subdir")
     os.makedirs(test_subdir)
+
+    # Load a model and pass it in
+    model = openl3.models.load_image_embedding_model("mel256", "music", 6144)
 
     # Make a copy of the file so we can test the case where we save to the same directory
     input_path_alt = os.path.join(test_subdir, "daisy.jpg")
@@ -610,12 +619,15 @@ def test_process_image_file():
     exp_output_path2 = os.path.join(test_output_dir, "daisy_suffix.npz")
     exp_output_path3 = os.path.join(test_subdir, "daisy.npz")
     try:
-        openl3.process_image_file(DAISY_PATH, output_dir=test_output_dir)
-        openl3.process_image_file(DAISY_PATH, output_dir=test_output_dir, suffix='suffix')
-        openl3.process_image_file(input_path_alt)
+        openl3.process_image_file(DAISY_PATH, output_dir=test_output_dir,
+                                  model=model)
+        openl3.process_image_file(DAISY_PATH, output_dir=test_output_dir,
+                                  suffix='suffix', model=model)
+        openl3.process_image_file(input_path_alt, model=model)
 
         # Make sure we fail when invalid files are provided
-        pytest.raises(OpenL3Error, openl3.process_image_file, invalid_file_path)
+        pytest.raises(OpenL3Error, openl3.process_image_file,
+                      invalid_file_path, model=model)
 
         # Make sure paths all exist
         assert os.path.exists(exp_output_path1)
@@ -644,7 +656,8 @@ def test_process_image_file():
     shutil.copy(DAISY_PATH, path2)
 
     try:
-        openl3.process_image_file([path1, path2], output_dir=test_output_dir, batch_size=4)
+        openl3.process_image_file([path1, path2], output_dir=test_output_dir,
+                                  batch_size=4, model=model)
         exp_output_path1 = os.path.join(test_output_dir, "daisy_1.npz")
         exp_output_path2 = os.path.join(test_output_dir, "daisy_2.npz")
         assert os.path.exists(exp_output_path1)
@@ -666,16 +679,22 @@ def test_process_image_file():
         shutil.rmtree(test_output_dir)
 
     # Make sure we fail when file cannot be opened
-    pytest.raises(OpenL3Error, openl3.process_image_file, '/fake/directory/asdf.jpg')
+    pytest.raises(OpenL3Error, openl3.process_image_file,
+                  '/fake/directory/asdf.jpg', model=model)
     # Use file with alpha channel to hit coverage
-    pytest.raises(OpenL3Error, openl3.process_image_file, SMALL_PATH)
-    pytest.raises(OpenL3Error, openl3.process_image_file, None)
+    pytest.raises(OpenL3Error, openl3.process_image_file,
+                  SMALL_PATH, model=model)
+    pytest.raises(OpenL3Error, openl3.process_image_file, None, model=model)
 
 
 def test_process_video_file():
     test_output_dir = tempfile.mkdtemp()
     test_subdir = os.path.join(test_output_dir, "subdir")
     os.makedirs(test_subdir)
+
+    # Load models
+    audio_model = openl3.models.load_audio_embedding_model("mel256", "music", 6144)
+    image_model = openl3.models.load_image_embedding_model("mel256", "music", 6144)
 
     # Make a copy of the file so we can test the case where we save to the same directory
     input_path_alt = os.path.join(test_subdir, "bento.mp4")
@@ -692,12 +711,19 @@ def test_process_video_file():
     exp_image_output_path2 = os.path.join(test_output_dir, "bento_image_suffix.npz")
     exp_image_output_path3 = os.path.join(test_subdir, "bento_image.npz")
     try:
-        openl3.process_video_file(BENTO_PATH, output_dir=test_output_dir)
-        openl3.process_video_file(BENTO_PATH, output_dir=test_output_dir, suffix='suffix')
-        openl3.process_video_file(input_path_alt)
+        openl3.process_video_file(BENTO_PATH, output_dir=test_output_dir,
+                                  audio_model=audio_model,
+                                  image_model=image_model)
+        openl3.process_video_file(BENTO_PATH, output_dir=test_output_dir,
+                                  suffix='suffix',
+                                  audio_model=audio_model,
+                                  image_model=image_model)
+        openl3.process_video_file(input_path_alt, audio_model=audio_model,
+                                  image_model=image_model)
 
         # Make sure we fail when invalid files are provided
-        pytest.raises(OpenL3Error, openl3.process_video_file, invalid_file_path)
+        pytest.raises(OpenL3Error, openl3.process_video_file, invalid_file_path,
+                      audio_model=audio_model, image_model=image_model)
 
         # Make sure paths all exist
         assert os.path.exists(exp_audio_output_path1)
@@ -743,7 +769,9 @@ def test_process_video_file():
 
     try:
         openl3.process_video_file([path1, path2], output_dir=test_output_dir,
-                                  audio_batch_size=4, image_batch_size=4)
+                                  audio_batch_size=4, image_batch_size=4,
+                                  audio_model=audio_model,
+                                  image_model=image_model)
         exp_output_audio_path1 = os.path.join(test_output_dir, "bento_1_audio.npz")
         exp_output_audio_path2 = os.path.join(test_output_dir, "bento_2_audio.npz")
         exp_output_image_path1 = os.path.join(test_output_dir, "bento_1_image.npz")
@@ -789,8 +817,11 @@ def test_process_video_file():
         shutil.rmtree(test_output_dir)
 
     # Make sure we fail when file cannot be opened
-    pytest.raises(OpenL3Error, openl3.process_video_file, '/fake/directory/asdf.mp4')
-    pytest.raises(OpenL3Error, openl3.process_video_file, None)
+    pytest.raises(OpenL3Error, openl3.process_video_file,
+                  '/fake/directory/asdf.mp4', audio_model=audio_model,
+                  image_model=image_model)
+    pytest.raises(OpenL3Error, openl3.process_video_file, None,
+                  audio_model=audio_model, image_model=image_model)
 
 
 def test_center_audio():
