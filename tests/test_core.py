@@ -605,7 +605,7 @@ def test_process_image_file():
     os.makedirs(test_subdir)
 
     # Load a model and pass it in
-    model = openl3.models.load_image_embedding_model("mel256", "music", 6144)
+    model = openl3.models.load_image_embedding_model("mel256", "music", 8192)
 
     # Make a copy of the file so we can test the case where we save to the same directory
     input_path_alt = os.path.join(test_subdir, "daisy.jpg")
@@ -694,7 +694,7 @@ def test_process_video_file():
 
     # Load models
     audio_model = openl3.models.load_audio_embedding_model("mel256", "music", 6144)
-    image_model = openl3.models.load_image_embedding_model("mel256", "music", 6144)
+    image_model = openl3.models.load_image_embedding_model("mel256", "music", 8192)
 
     # Make a copy of the file so we can test the case where we save to the same directory
     input_path_alt = os.path.join(test_subdir, "bento.mp4")
