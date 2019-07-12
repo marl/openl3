@@ -583,7 +583,7 @@ def test_process_audio_file():
         assert embedding1.ndim == 2
         assert timestamps1.ndim == 1
         assert embedding2.ndim == 2
-        assert timestamps2.ndim == 2
+        assert timestamps2.ndim == 1
 
     finally:
         shutil.rmtree(test_output_dir)
