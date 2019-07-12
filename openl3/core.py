@@ -709,7 +709,7 @@ def process_video_file(filepath, output_dir=None, suffix=None,
 
     # Load models
     if not audio_model:
-        audio_model = load_image_embedding_model(input_repr, content_type,
+        audio_model = load_audio_embedding_model(input_repr, content_type,
                                                  audio_embedding_size)
     if not image_model:
         image_model = load_image_embedding_model(input_repr, content_type,
