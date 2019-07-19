@@ -38,6 +38,16 @@ def _pad_audio(audio, frame_len, hop_len):
     return audio
 
 
+def _get_num_windows(audio_len, frame_len, hop_len, center):
+    if center:
+        audio_len += int(frame_len / 2.0)
+
+    if audio_len <= frame_len:
+        return 1
+    else:
+        return 1 + int(np.ceil((audio_len - frame_len)/float(hop_len)))
+
+
 def _preprocess_audio_batch(audio, sr, center=True, hop_size=0.1):
     """Process audio into batch format suitable for input to embedding model """
     if audio.size == 0:
@@ -305,9 +315,11 @@ def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
         sr_list.append(sr)
         batch_filepath_list.append(filepath)
 
-        audio_len = ceil(audio.shape[0] / float(TARGET_SR / sr))
+        audio_length = ceil(audio.shape[0] / float(TARGET_SR / sr))
+        frame_length = TARGET_SR
         hop_length = int(hop_size * TARGET_SR)
-        num_windows = 1 + max(ceil((audio_len - TARGET_SR)/float(hop_length)), 0)
+        num_windows = _get_num_windows(audio_length, frame_length,
+                                       hop_length, center)
         total_batch_size += num_windows
 
         if total_batch_size >= batch_size or file_idx == (num_files - 1):

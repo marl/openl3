@@ -933,6 +933,41 @@ def test_pad_audio():
     assert np.array_equal(padded, audio)
 
 
+def test_get_num_windows():
+    frame_len = 50
+    hop_len = 25
+
+    audio_len = 10
+    num_windows =  openl3.core._get_num_windows(audio_len, frame_len, hop_len,
+                                                center=False)
+    assert num_windows == 1
+
+    audio_len = 10
+    num_windows =  openl3.core._get_num_windows(audio_len, frame_len, hop_len,
+                                                center=True)
+    assert num_windows == 1
+
+    audio_len = 50
+    num_windows =  openl3.core._get_num_windows(audio_len, frame_len, hop_len,
+                                                center=False)
+    assert num_windows == 1
+
+    audio_len = 50
+    num_windows =  openl3.core._get_num_windows(audio_len, frame_len, hop_len,
+                                                center=True)
+    assert num_windows == 2
+
+    audio_len = 51
+    num_windows =  openl3.core._get_num_windows(audio_len, frame_len, hop_len,
+                                                center=False)
+    assert num_windows == 3
+
+    audio_len = 51
+    num_windows =  openl3.core._get_num_windows(audio_len, frame_len, hop_len,
+                                                center=True)
+    assert num_windows == 4
+
+
 def test_preprocess_image_batch():
     # Test a single large image
     single_big_img_arr = np.random.random((512, 1024, 3)) * 2 - 1
