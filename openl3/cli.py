@@ -234,5 +234,7 @@ def main():
         audio_embedding_size=args.audio_embedding_size,
         audio_center=not args.no_audio_centering,
         audio_hop_size=args.audio_hop_size,
+        audio_batch_size=args.audio_batch_size,
         image_embedding_size=args.image_embedding_size,
+        image_batch_size=args.image_batch_size,
         verbose=not args.quiet)
