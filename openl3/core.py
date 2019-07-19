@@ -303,7 +303,9 @@ def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
             raise OpenL3Error('File "{}" could not be found.'.format(filepath))
 
         if verbose:
-            print("openl3: Processing {}".format(filepath))
+            print("openl3: Processing {} ({}/{})".format(filepath,
+                                                         file_idx+1,
+                                                         num_files))
 
         try:
             audio, sr = sf.read(filepath)
@@ -621,7 +623,9 @@ def process_image_file(filepath, output_dir=None, suffix=None, model=None,
             raise OpenL3Error('File "{}" could not be found.'.format(filepath))
 
         if verbose:
-            print("openl3: Processing {}".format(filepath))
+            print("openl3: Processing {} ({}/{})".format(filepath,
+                                                         file_idx+1,
+                                                         num_files))
 
         try:
             image = skimage.io.imread(filepath)
@@ -756,7 +760,9 @@ def process_video_file(filepath, output_dir=None, suffix=None,
             raise OpenL3Error('File "{}" could not be found.'.format(filepath))
 
         if verbose:
-            print("openl3: Processing {}".format(filepath))
+            print("openl3: Processing {} ({}/{})".format(filepath,
+                                                         file_idx+1,
+                                                         num_files))
 
         try:
             clip = VideoFileClip(filepath, target_resolution=(256, 256),
