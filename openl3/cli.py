@@ -22,6 +22,18 @@ def positive_float(value):
     return fvalue
 
 
+def positive_int(value):
+    """An argparse type method for accepting only positive ints"""
+    try:
+        ivalue = int(value)
+    except (ValueError, TypeError) as e:
+        raise ArgumentTypeError('Expected a positive int, error message: '
+                                '{}'.format(e))
+    if ivalue <= 0:
+        raise ArgumentTypeError('Expected a positive int')
+    return ivalue
+
+
 def get_file_list(input_list):
     """Get list of files from the list of inputs"""
     if not isinstance(input_list, Iterable) or isinstance(input_list, string_types):
@@ -44,7 +56,8 @@ def get_file_list(input_list):
 def run(modality, inputs, output_dir=None, suffix=None,
         input_repr="mel256", content_type="music",
         audio_embedding_size=6144, audio_center=True, audio_hop_size=0.1,
-        image_embedding_size=8192, verbose=False):
+        audio_batch_size=32, image_embedding_size=8192,
+        image_batch_size=32, verbose=False):
     """
     Computes and saves L3 embedding for given inputs.
 
@@ -71,8 +84,12 @@ def run(modality, inputs, output_dir=None, suffix=None,
         to center of window.
     audio_hop_size : float
         Hop size in seconds.
+    audio_batch_size : int
+        Batch size used for input to audio embedding model
     image_embedding_size : 8192 or 512
         Image embedding dimensionality.
+    image_batch_size : int
+        Batch size used for input to image embedding model
     verbose : boolean
         If True, print verbose messages.
 
@@ -103,6 +120,7 @@ def run(modality, inputs, output_dir=None, suffix=None,
                            model=model,
                            center=audio_center,
                            hop_size=audio_hop_size,
+                           batch_size=audio_batch_size,
                            verbose=verbose)
     elif modality == 'image':
         model = load_image_embedding_model(input_repr, content_type,
@@ -113,6 +131,7 @@ def run(modality, inputs, output_dir=None, suffix=None,
                            output_dir=output_dir,
                            suffix=suffix,
                            model=model,
+                           batch_size=image_batch_size,
                            verbose=verbose)
     elif modality == 'video':
         audio_model = load_audio_embedding_model(input_repr, content_type,
@@ -129,6 +148,8 @@ def run(modality, inputs, output_dir=None, suffix=None,
                            audio_embedding_size=audio_embedding_size,
                            audio_center=audio_center,
                            audio_hop_size=audio_hop_size,
+                           audio_batch_size=audio_batch_size,
+                           image_batch_size=image_batch_size,
                            image_embedding_size=image_embedding_size,
                            verbose=verbose)
 
@@ -182,9 +203,15 @@ def parse_args(args):
                         help='Used for audio embeddings. '
                              'Hop size in seconds for processing audio files.')
 
+    parser.add_argument('--audio-batch-size', '-ab', type=positive_int, default=32,
+                        help='Batch size used for input to audio embedding model.')
+
     parser.add_argument('--image-embedding-size', '-is', type=int, default=8192,
                         choices=[8192, 512],
                         help='Image embedding dimensionality.')
+
+    parser.add_argument('--image-batch-size', '-ib', type=positive_int, default=32,
+                        help='Batch size used for input to image embedding model.')
 
     parser.add_argument('--quiet', '-q', action='store_true', default=False,
                         help='Suppress all non-error messages to stdout.')

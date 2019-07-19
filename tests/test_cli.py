@@ -1,6 +1,7 @@
 import pytest
 import os
-from openl3.cli import positive_float, get_file_list, parse_args, run, main
+from openl3.cli import positive_int, positive_float, get_file_list, parse_args,\
+                       run, main
 from argparse import ArgumentTypeError
 from openl3.openl3_exceptions import OpenL3Error
 import tempfile
@@ -60,6 +61,27 @@ def test_positive_float():
     invalid = [-5, -1.0, None, 'hello']
     for i in invalid:
         pytest.raises(ArgumentTypeError, positive_float, i)
+
+
+def test_positive_int():
+    # test that returned value is int
+    i = positive_int(5)
+    assert i == 5
+    assert type(i) is int
+
+    i = positive_int(5.0)
+    assert i == 5
+    assert type(i) is int
+
+    # test it works for valid strings
+    i = positive_int('1')
+    assert i == 1
+    assert type(i) is int
+
+    # make sure error raised for all invalid values:
+    invalid = [-5, -1.0, None, 'hello']
+    for i in invalid:
+        pytest.raises(ArgumentTypeError, positive_int, i)
 
 
 def test_get_file_list():
