@@ -341,6 +341,9 @@ def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
                 np.savez(output_path, embedding=embedding, timestamps=ts)
                 assert os.path.exists(output_path)
 
+                if verbose:
+                    print("openl3: Saved {}".format(output_path))
+
             audio_list = []
             sr_list = []
             batch_filepath_list = []
@@ -645,6 +648,9 @@ def process_image_file(filepath, output_dir=None, suffix=None, model=None,
                 np.savez(output_path, embedding=embedding)
                 assert os.path.exists(output_path)
 
+                if verbose:
+                    print("openl3: Saved {}".format(output_path))
+
             image_list = []
             batch_filepath_list = []
 
@@ -792,6 +798,9 @@ def process_video_file(filepath, output_dir=None, suffix=None,
                 np.savez(output_path, embedding=embedding, timestamps=ts)
                 assert os.path.exists(output_path)
 
+                if verbose:
+                    print("openl3: Saved {}".format(output_path))
+
             audio_list = []
             sr_list = []
             audio_batch_filepath_list = []
@@ -813,6 +822,9 @@ def process_video_file(filepath, output_dir=None, suffix=None,
 
                 np.savez(output_path, embedding=embedding, timestamps=ts)
                 assert os.path.exists(output_path)
+
+                if verbose:
+                    print("openl3: Saved {}".format(output_path))
 
             image_list = []
             frame_rate_list = []
