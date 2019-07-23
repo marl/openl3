@@ -409,6 +409,13 @@ In the following example we change the hop size from 0.1 (10 frames per second) 
 
     $ openl3 audio /path/to/file.wav --audio-hop-size 0.5
 
+You can change the batch size used as the input to the audio embedding model to one appropriate for your
+computational resources:
+
+.. code-block:: shell
+
+    $ openl3 audio /path/to/file.wav --audio-batch-size 16
+
 Finally, you can suppress non-error printouts by running:
 
 .. code-block:: shell
@@ -428,6 +435,14 @@ This will create an output file at ``/path/to/file.npz``. Functionality regardin
 specifying models, multiple input files, verbosity, output directories, and suffixes
 behave the same as with extracting audio embeddings.
 
+Similarly as with the audio embedding models, you can change the batch size used as the input to the
+image embedding model to one appropriate for your computational resources:
+
+.. code-block:: shell
+
+    $ openl3 image /path/to/file.png --image-batch-size 16
+
+
 Processing video files
 **********************
 
@@ -441,3 +456,10 @@ This will create output files at ``/path/to/file_audio.npz`` and ``/path/to/file
 for the audio and image embeddings, respectively. Functionality regarding
 specifying models, multiple input files, verbosity, output directories, and suffixes
 behave the same as with extracting audio embeddings.
+
+You can change the batch size used as the input to the audio embedding and image embedding models
+to one appropriate for your computational resources:
+
+.. code-block:: shell
+
+    $ openl3 video /path/to/file.mp4 --audio-batch-size 16 --image-batch-size 16
