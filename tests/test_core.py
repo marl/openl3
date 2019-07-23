@@ -957,12 +957,12 @@ def test_get_num_windows():
                                                 center=True)
     assert num_windows == 2
 
-    audio_len = 51
+    audio_len = 76
     num_windows =  openl3.core._get_num_windows(audio_len, frame_len, hop_len,
                                                 center=False)
     assert num_windows == 3
 
-    audio_len = 51
+    audio_len = 76
     num_windows =  openl3.core._get_num_windows(audio_len, frame_len, hop_len,
                                                 center=True)
     assert num_windows == 4
