@@ -232,7 +232,7 @@ def get_audio_embedding(audio, sr, model=None, input_repr="mel256",
 def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
                        input_repr="mel256", content_type="music",
                        embedding_size=6144, center=True, hop_size=0.1,
-                       batch_size=32, verbose=True):
+                       batch_size=32, overwrite=False, verbose=True):
     """
     Computes and saves L3 embedding for given audio file
 
@@ -268,6 +268,8 @@ def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
         Hop size in seconds.
     batch_size : int
         Batch size used for input to embedding model
+    overwrite : bool
+        If True, overwrites existing output files
     verbose : bool
         If True, prints verbose messages.
 
@@ -306,6 +308,14 @@ def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
             print("openl3: Processing {} ({}/{})".format(filepath,
                                                          file_idx+1,
                                                          num_files))
+
+        # Skip if overwriting isn't enabled and output file exists
+        output_path = get_output_path(filepath, suffix + ".npz",
+                                      output_dir=output_dir)
+        if os.path.exists(output_path) and not overwrite:
+            err_msg = "openl3: {} exists and overwriting not enabled, skipping."
+            print(err_msg.format(output_path))
+            continue
 
         try:
             audio, sr = sf.read(filepath)
@@ -560,7 +570,8 @@ def get_image_embedding(image, frame_rate=None, model=None,
 
 def process_image_file(filepath, output_dir=None, suffix=None, model=None,
                        input_repr="mel256", content_type="music",
-                       embedding_size=8192, batch_size=32, verbose=True):
+                       embedding_size=8192, batch_size=32,
+                       overwrite=False, verbose=True):
     """
     Computes and saves L3 embedding for given image file
 
@@ -591,6 +602,8 @@ def process_image_file(filepath, output_dir=None, suffix=None, model=None,
         Keras model.
     batch_size : int
         Batch size used for input to embedding model
+    overwrite : bool
+        If True, overwrites existing output files
     verbose : bool
         If True, prints verbose messages.
 
@@ -626,6 +639,13 @@ def process_image_file(filepath, output_dir=None, suffix=None, model=None,
             print("openl3: Processing {} ({}/{})".format(filepath,
                                                          file_idx+1,
                                                          num_files))
+
+        # Skip if overwriting isn't enabled and output file exists
+        output_path = get_output_path(filepath, suffix + ".npz",
+                                      output_dir=output_dir)
+        if os.path.exists(output_path) and not overwrite:
+            print("openl3: {} exists, skipping.".format(output_path))
+            continue
 
         try:
             image = skimage.io.imread(filepath)
@@ -665,7 +685,7 @@ def process_video_file(filepath, output_dir=None, suffix=None,
                        audio_embedding_size=6144, audio_center=True,
                        audio_hop_size=0.1, image_embedding_size=8192,
                        audio_batch_size=32, image_batch_size=32,
-                       verbose=True):
+                       overwrite=False, verbose=True):
     """
     Computes and saves L3 audio and video frame embeddings for given video file
 
@@ -714,6 +734,8 @@ def process_video_file(filepath, output_dir=None, suffix=None,
         Batch size used for input to audio embedding model
     image_batch_size : int
         Batch size used for input to image embedding model
+    overwrite : bool
+        If True, overwrites existing output files
     verbose : bool
         If True, prints verbose messages.
 
@@ -763,6 +785,13 @@ def process_video_file(filepath, output_dir=None, suffix=None,
             print("openl3: Processing {} ({}/{})".format(filepath,
                                                          file_idx+1,
                                                          num_files))
+
+        # Skip if overwriting isn't enabled and output file exists
+        output_path = get_output_path(filepath, suffix + ".npz",
+                                      output_dir=output_dir)
+        if os.path.exists(output_path) and not overwrite:
+            print("openl3: {} exists, skipping.".format(output_path))
+            continue
 
         try:
             clip = VideoFileClip(filepath, target_resolution=(256, 256),

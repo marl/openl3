@@ -585,6 +585,24 @@ def test_process_audio_file():
                                   content_type="music", embedding_size=512)
         K.clear_session()
 
+        # Test overwriting
+        test_str = "this is a test file"
+        with open(exp_output_path1, 'w') as f:
+            f.write(test_str)
+        openl3.process_audio_file(CHIRP_MONO_PATH, output_dir=test_output_dir,
+                                  model=model, overwrite=False)
+        with open(exp_output_path1, 'r') as f:
+            output_content = f.read()
+        # File should not be overwritten
+        assert output_content == test_str
+
+        openl3.process_audio_file(CHIRP_MONO_PATH, output_dir=test_output_dir,
+                                  model=model, overwrite=True)
+        with open(exp_output_path1, 'r') as f:
+            output_content = f.read()
+        # File should be overwritten
+        assert output_content != test_str
+        K.clear_session()
     finally:
         shutil.rmtree(test_output_dir)
 
@@ -686,7 +704,24 @@ def test_process_image_file():
                                   content_type="music", embedding_size=512)
         K.clear_session()
 
-        # Make sure that suffices work
+        # Test overwriting
+        test_str = "this is a test file"
+        with open(exp_output_path1, 'w') as f:
+            f.write(test_str)
+        openl3.process_image_file(DAISY_PATH, output_dir=test_output_dir,
+                                  model=model, overwrite=False)
+        with open(exp_output_path1, 'r') as f:
+            output_content = f.read()
+        # File should not be overwritten
+        assert output_content == test_str
+
+        openl3.process_image_file(DAISY_PATH, output_dir=test_output_dir,
+                                  model=model, overwrite=True)
+        with open(exp_output_path1, 'r') as f:
+            output_content = f.read()
+        # File should be overwritten
+        assert output_content != test_str
+        K.clear_session()
     finally:
         shutil.rmtree(test_output_dir)
 
@@ -812,6 +847,34 @@ def test_process_video_file():
                                   image_embedding_size=512)
         K.clear_session()
 
+        # Test overwriting
+        test_str = "this is a test file"
+        with open(exp_audio_output_path1, 'w') as f:
+            f.write(test_str)
+        with open(exp_image_output_path1, 'w') as f:
+            f.write(test_str)
+        openl3.process_video_file(BENTO_PATH, output_dir=test_output_dir,
+                                  audio_model=audio_model,
+                                  image_model=image_model)
+        with open(exp_audio_output_path1, 'r') as f:
+            audio_output_content = f.read()
+        with open(exp_image_output_path1, 'r') as f:
+            image_output_content = f.read()
+        # File should not be overwritten
+        assert audio_output_content == test_str
+        assert image_output_content == test_str
+
+        openl3.process_video_file(BENTO_PATH, output_dir=test_output_dir,
+                                  audio_model=audio_model,
+                                  image_model=image_model)
+        with open(exp_audio_output_path1, 'r') as f:
+            audio_output_content = f.read()
+        with open(exp_image_output_path1, 'r') as f:
+            image_output_content = f.read()
+        # File should be overwritten
+        assert audio_output_content != test_str
+        assert image_output_content != test_str
+        K.clear_session()
     finally:
         shutil.rmtree(test_output_dir)
 
