@@ -787,10 +787,16 @@ def process_video_file(filepath, output_dir=None, suffix=None,
                                                          num_files))
 
         # Skip if overwriting isn't enabled and output file exists
-        output_path = get_output_path(filepath, suffix + ".npz",
-                                      output_dir=output_dir)
-        if os.path.exists(output_path) and not overwrite:
-            print("openl3: {} exists, skipping.".format(output_path))
+        audio_output_path = get_output_path(filepath, audio_suffix + ".npz",
+                                            output_dir=output_dir)
+        image_output_path = get_output_path(filepath, image_suffix + ".npz",
+                                            output_dir=output_dir)
+        skip_audio = os.path.exists(audio_output_path) and not overwrite
+        skip_image = os.path.exists(image_output_path) and not overwrite
+
+        if skip_audio and skip_image:
+            err_msg = "openl3: {} and {} exist, skipping."
+            print(err_msg.format(audio_output_path, image_output_path))
             continue
 
         try:
@@ -802,17 +808,27 @@ def process_video_file(filepath, output_dir=None, suffix=None,
             err_msg = 'Could not open file "{}":\n{}'
             raise OpenL3Error(err_msg.format(filepath, traceback.format_exc()))
 
-        audio_list.append(audio)
-        sr_list.append(TARGET_SR)
-        audio_batch_filepath_list.append(filepath)
-        audio_len = audio.shape[0]
-        audio_hop_length = int(audio_hop_size * TARGET_SR)
-        num_windows = 1 + max(ceil((audio_len - TARGET_SR)/float(audio_hop_length)), 0)
-        total_audio_batch_size += num_windows
+        if not skip_audio:
+            audio_list.append(audio)
+            sr_list.append(TARGET_SR)
+            audio_batch_filepath_list.append(filepath)
+            audio_len = audio.shape[0]
+            audio_hop_length = int(audio_hop_size * TARGET_SR)
+            num_windows = 1 + max(ceil((audio_len - TARGET_SR)/float(audio_hop_length)), 0)
+            total_audio_batch_size += num_windows
+        else:
+            err_msg = "openl3: {} exists, skipping audio embedding extraction."
+            print(err_msg.format(audio_output_path))
+            continue
 
-        image_list.append(images)
-        frame_rate_list.append(int(clip.fps))
-        image_batch_filepath_list.append(filepath)
+        if not skip_image:
+            image_list.append(images)
+            frame_rate_list.append(int(clip.fps))
+            image_batch_filepath_list.append(filepath)
+        else:
+            err_msg = "openl3: {} exists, skipping image embedding extraction."
+            print(err_msg.format(image_output_path))
+            continue
 
         if total_audio_batch_size >= audio_batch_size or file_idx == (num_files - 1):
             embedding_list, ts_list \
