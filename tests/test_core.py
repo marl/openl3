@@ -591,7 +591,7 @@ def test_process_audio_file():
 
         openl3.process_audio_file(CHIRP_MONO_PATH, output_dir=test_output_dir,
                                   model=model, overwrite=True)
-        with open(exp_output_path1, 'r') as f:
+        with open(exp_output_path1, 'rb') as f:
             output_content = f.read()
         # File should be overwritten
         assert output_content != test_str
@@ -710,7 +710,7 @@ def test_process_image_file():
 
         openl3.process_image_file(DAISY_PATH, output_dir=test_output_dir,
                                   model=model, overwrite=True)
-        with open(exp_output_path1, 'r') as f:
+        with open(exp_output_path1, 'rb') as f:
             output_content = f.read()
         # File should be overwritten
         assert output_content != test_str
@@ -857,9 +857,9 @@ def test_process_video_file():
         openl3.process_video_file(BENTO_PATH, output_dir=test_output_dir,
                                   audio_model=audio_model,
                                   image_model=image_model)
-        with open(exp_audio_output_path1, 'r') as f:
+        with open(exp_audio_output_path1, 'rb') as f:
             audio_output_content = f.read()
-        with open(exp_image_output_path1, 'r') as f:
+        with open(exp_image_output_path1, 'rb') as f:
             image_output_content = f.read()
         # File should be overwritten
         assert audio_output_content != test_str
