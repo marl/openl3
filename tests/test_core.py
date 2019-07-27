@@ -557,7 +557,6 @@ def test_process_audio_file():
         openl3.process_audio_file(CHIRP_MONO_PATH, output_dir=test_output_dir,
                                   suffix='suffix', model=model)
         openl3.process_audio_file(input_path_alt, model=model)
-        K.clear_session()
 
         # Make sure we fail when invalid files are provided
         pytest.raises(OpenL3Error, openl3.process_audio_file,
@@ -579,12 +578,6 @@ def test_process_audio_file():
         assert embedding.ndim == 2
         assert timestamps.ndim == 1
 
-        # Test loading model in function
-        openl3.process_audio_file(CHIRP_MONO_PATH, output_dir=test_output_dir,
-                                  input_repr="mel256",
-                                  content_type="music", embedding_size=512)
-        K.clear_session()
-
         # Test overwriting
         test_str = "this is a test file"
         with open(exp_output_path1, 'w') as f:
@@ -603,6 +596,13 @@ def test_process_audio_file():
         # File should be overwritten
         assert output_content != test_str
         K.clear_session()
+
+        # Test loading model in function
+        openl3.process_audio_file(CHIRP_MONO_PATH, output_dir=test_output_dir,
+                                  input_repr="mel256",
+                                  content_type="music", embedding_size=512)
+        K.clear_session()
+
     finally:
         shutil.rmtree(test_output_dir)
 
@@ -679,7 +679,6 @@ def test_process_image_file():
         openl3.process_image_file(DAISY_PATH, output_dir=test_output_dir,
                                   suffix='suffix', model=model)
         openl3.process_image_file(input_path_alt, model=model)
-        K.clear_session()
 
         # Make sure we fail when invalid files are provided
         pytest.raises(OpenL3Error, openl3.process_image_file,
@@ -698,12 +697,6 @@ def test_process_image_file():
         # Quick sanity check on data
         assert embedding.ndim == 2
 
-        # Test loading model in function
-        openl3.process_image_file(DAISY_PATH, output_dir=test_output_dir,
-                                  input_repr="mel256",
-                                  content_type="music", embedding_size=512)
-        K.clear_session()
-
         # Test overwriting
         test_str = "this is a test file"
         with open(exp_output_path1, 'w') as f:
@@ -721,6 +714,12 @@ def test_process_image_file():
             output_content = f.read()
         # File should be overwritten
         assert output_content != test_str
+        K.clear_session()
+
+        # Test loading model in function
+        openl3.process_image_file(DAISY_PATH, output_dir=test_output_dir,
+                                  input_repr="mel256",
+                                  content_type="music", embedding_size=512)
         K.clear_session()
     finally:
         shutil.rmtree(test_output_dir)
@@ -807,7 +806,6 @@ def test_process_video_file():
         # Make sure we fail when invalid files are provided
         pytest.raises(OpenL3Error, openl3.process_video_file, invalid_file_path,
                       audio_model=audio_model, image_model=image_model)
-        K.clear_session()
 
         # Make sure paths all exist
         assert os.path.exists(exp_audio_output_path1)
@@ -839,14 +837,6 @@ def test_process_video_file():
         assert image_embedding.ndim == 2
         assert image_timestamps.ndim == 1
 
-        # Test loading model in function
-        openl3.process_video_file(BENTO_PATH, output_dir=test_output_dir,
-                                  input_repr="mel256",
-                                  content_type="music",
-                                  audio_embedding_size=512,
-                                  image_embedding_size=512)
-        K.clear_session()
-
         # Test overwriting
         test_str = "this is a test file"
         with open(exp_audio_output_path1, 'w') as f:
@@ -874,6 +864,14 @@ def test_process_video_file():
         # File should be overwritten
         assert audio_output_content != test_str
         assert image_output_content != test_str
+        K.clear_session()
+
+        # Test loading model in function
+        openl3.process_video_file(BENTO_PATH, output_dir=test_output_dir,
+                                  input_repr="mel256",
+                                  content_type="music",
+                                  audio_embedding_size=512,
+                                  image_embedding_size=512)
         K.clear_session()
     finally:
         shutil.rmtree(test_output_dir)
