@@ -864,6 +864,35 @@ def test_process_video_file():
         # File should be overwritten
         assert audio_output_content != test_str
         assert image_output_content != test_str
+
+        with open(exp_audio_output_path1, 'w') as f:
+            f.write(test_str)
+        os.remove(exp_image_output_path1)
+        openl3.process_video_file(BENTO_PATH, output_dir=test_output_dir,
+                                  audio_model=audio_model,
+                                  image_model=image_model)
+        with open(exp_audio_output_path1, 'r') as f:
+            audio_output_content = f.read()
+        with open(exp_image_output_path1, 'r') as f:
+            image_output_content = f.read()
+        # Audio output should not be overwritten
+        assert audio_output_content == test_str
+        assert image_output_content != test_str
+
+        with open(exp_image_output_path1, 'w') as f:
+            f.write(test_str)
+        os.remove(exp_audio_output_path1)
+        openl3.process_video_file(BENTO_PATH, output_dir=test_output_dir,
+                                  audio_model=audio_model,
+                                  image_model=image_model)
+        with open(exp_audio_output_path1, 'r') as f:
+            audio_output_content = f.read()
+        with open(exp_image_output_path1, 'r') as f:
+            image_output_content = f.read()
+        # Image output should not be overwritten
+        assert audio_output_content != test_str
+        assert image_output_content == test_str
+
         K.clear_session()
 
         # Test loading model in function
