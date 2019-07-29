@@ -845,7 +845,8 @@ def test_process_video_file():
             f.write(test_str)
         openl3.process_video_file(BENTO_PATH, output_dir=test_output_dir,
                                   audio_model=audio_model,
-                                  image_model=image_model)
+                                  image_model=image_model,
+                                  overwrite=False)
         with open(exp_audio_output_path1, 'r') as f:
             audio_output_content = f.read()
         with open(exp_image_output_path1, 'r') as f:
@@ -856,7 +857,8 @@ def test_process_video_file():
 
         openl3.process_video_file(BENTO_PATH, output_dir=test_output_dir,
                                   audio_model=audio_model,
-                                  image_model=image_model)
+                                  image_model=image_model,
+                                  overwrite=True)
         with open(exp_audio_output_path1, 'rb') as f:
             audio_output_content = f.read()
         with open(exp_image_output_path1, 'rb') as f:
@@ -870,7 +872,8 @@ def test_process_video_file():
         os.remove(exp_image_output_path1)
         openl3.process_video_file(BENTO_PATH, output_dir=test_output_dir,
                                   audio_model=audio_model,
-                                  image_model=image_model)
+                                  image_model=image_model,
+                                  overwrite=False)
         with open(exp_audio_output_path1, 'r') as f:
             audio_output_content = f.read()
         with open(exp_image_output_path1, 'r') as f:
@@ -884,7 +887,8 @@ def test_process_video_file():
         os.remove(exp_audio_output_path1)
         openl3.process_video_file(BENTO_PATH, output_dir=test_output_dir,
                                   audio_model=audio_model,
-                                  image_model=image_model)
+                                  image_model=image_model,
+                                  overwrite=False)
         with open(exp_audio_output_path1, 'r') as f:
             audio_output_content = f.read()
         with open(exp_image_output_path1, 'r') as f:
