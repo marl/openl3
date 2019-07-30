@@ -828,7 +828,7 @@ def process_video_file(filepath, output_dir=None, suffix=None,
             err_msg = "openl3: {} exists, skipping image embedding extraction."
             print(err_msg.format(image_output_path))
 
-        if total_audio_batch_size >= audio_batch_size or file_idx == (num_files - 1):
+        if (total_audio_batch_size >= audio_batch_size or file_idx == (num_files - 1)) and len(audio_list) > 0:
             embedding_list, ts_list \
                 = get_audio_embedding(audio_list, sr_list, model=audio_model,
                                       input_repr=input_repr,
@@ -855,7 +855,7 @@ def process_video_file(filepath, output_dir=None, suffix=None,
             audio_batch_filepath_list = []
             total_audio_batch_size = 0
 
-        if len(image_list) >= image_batch_size or file_idx == (num_files - 1):
+        if (len(image_list) >= image_batch_size or file_idx == (num_files - 1)) and len(image_list) > 0:
             embedding_list, ts_list \
                 = get_image_embedding(image_list, frame_rate_list,
                                       model=image_model, input_repr=input_repr,
