@@ -876,11 +876,11 @@ def test_process_video_file():
                                   overwrite=False)
         with open(exp_audio_output_path1, 'r') as f:
             audio_output_content = f.read()
-        with open(exp_image_output_path1, 'r') as f:
+        with open(exp_image_output_path1, 'rb') as f:
             image_output_content = f.read()
         # Audio output should not be overwritten
         assert audio_output_content == test_str
-        assert image_output_content != test_str
+        assert image_output_content != test_str.encode()
 
         with open(exp_image_output_path1, 'w') as f:
             f.write(test_str)
@@ -889,12 +889,12 @@ def test_process_video_file():
                                   audio_model=audio_model,
                                   image_model=image_model,
                                   overwrite=False)
-        with open(exp_audio_output_path1, 'r') as f:
+        with open(exp_audio_output_path1, 'rb') as f:
             audio_output_content = f.read()
         with open(exp_image_output_path1, 'r') as f:
             image_output_content = f.read()
         # Image output should not be overwritten
-        assert audio_output_content != test_str
+        assert audio_output_content != test_str.encode()
         assert image_output_content == test_str
 
         K.clear_session()
