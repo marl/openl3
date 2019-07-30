@@ -819,7 +819,6 @@ def process_video_file(filepath, output_dir=None, suffix=None,
         else:
             err_msg = "openl3: {} exists, skipping audio embedding extraction."
             print(err_msg.format(audio_output_path))
-            continue
 
         if not skip_image:
             image_list.append(images)
@@ -828,7 +827,6 @@ def process_video_file(filepath, output_dir=None, suffix=None,
         else:
             err_msg = "openl3: {} exists, skipping image embedding extraction."
             print(err_msg.format(image_output_path))
-            continue
 
         if total_audio_batch_size >= audio_batch_size or file_idx == (num_files - 1):
             embedding_list, ts_list \
