@@ -507,12 +507,11 @@ def process_video_file(filepath, output_dir=None, suffix=None,
     except Exception:
         raise OpenL3Error('Could not open file "{}":\n{}'.format(filepath, traceback.format_exc()))
 
-    if not suffix:
-        audio_suffix = "audio"
-        image_suffix = "image"
-    else:
-        audio_suffix = "audio_" + suffix
-        image_suffix = "image_" + suffix
+    audio_suffix, image_suffix = "audio", "image"
+    if suffix:
+        audio_suffix += "_" + suffix
+        image_suffix += "_" + suffix
+
     audio_output_path = get_output_path(filepath, audio_suffix + ".npz",
                                         output_dir=output_dir)
     image_output_path = get_output_path(filepath, image_suffix + ".npz",
