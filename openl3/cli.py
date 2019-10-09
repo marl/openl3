@@ -140,6 +140,8 @@ def run(modality, inputs, output_dir=None, suffix=None,
                                audio_hop_size=audio_hop_size,
                                image_embedding_size=image_embedding_size,
                                verbose=verbose)
+    else:
+        raise OpenL3Error('Invalid modality: {}'.format(modality))
 
     if verbose:
         print('openl3: Done!')
