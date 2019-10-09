@@ -448,7 +448,11 @@ def process_video_file(filepath, output_dir=None, suffix=None,
                        audio_hop_size=0.1, image_embedding_size=8192,
                        verbose=True):
     """
-    Computes and saves L3 audio and video frame embeddings for given video file
+    Computes and saves L3 audio and video frame embeddings for given video file.
+
+    Please note that embeddings for the audio and images are not temporally
+    aligned. Please refer to the timestamps in the output files for the
+    corresponding timestamps for each set of embeddings.
 
     Parameters
     ----------
