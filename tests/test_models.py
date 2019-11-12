@@ -25,40 +25,62 @@ def test_get_audio_embedding_model_path():
 
 
 def test_load_audio_embedding_model():
+    import kapre
+
     m = load_audio_embedding_model('linear', 'music', 6144)
+    assert isinstance(m.layers[1], kapre.time_frequency.Spectrogram)
     assert m.output_shape[1] == 6144
 
     m = load_audio_embedding_model('linear', 'music', 512)
+    assert isinstance(m.layers[1], kapre.time_frequency.Spectrogram)
     assert m.output_shape[1] == 512
 
     m = load_audio_embedding_model('linear', 'env', 6144)
+    assert isinstance(m.layers[1], kapre.time_frequency.Spectrogram)
     assert m.output_shape[1] == 6144
 
     m = load_audio_embedding_model('linear', 'env', 512)
+    assert isinstance(m.layers[1], kapre.time_frequency.Spectrogram)
     assert m.output_shape[1] == 512
 
     m = load_audio_embedding_model('mel128', 'music', 6144)
+    assert isinstance(m.layers[1], kapre.time_frequency.Melspectrogram)
+    assert int(m.layers[1].weights[-1].shape[1]) == 128
     assert m.output_shape[1] == 6144
 
     m = load_audio_embedding_model('mel128', 'music', 512)
+    assert isinstance(m.layers[1], kapre.time_frequency.Melspectrogram)
+    assert int(m.layers[1].weights[-1].shape[1]) == 128
     assert m.output_shape[1] == 512
 
     m = load_audio_embedding_model('mel128', 'env', 6144)
+    assert isinstance(m.layers[1], kapre.time_frequency.Melspectrogram)
+    assert int(m.layers[1].weights[-1].shape[1]) == 128
     assert m.output_shape[1] == 6144
 
     m = load_audio_embedding_model('mel128', 'env', 512)
+    assert isinstance(m.layers[1], kapre.time_frequency.Melspectrogram)
+    assert int(m.layers[1].weights[-1].shape[1]) == 128
     assert m.output_shape[1] == 512
 
     m = load_audio_embedding_model('mel256', 'music', 6144)
+    assert isinstance(m.layers[1], kapre.time_frequency.Melspectrogram)
+    assert int(m.layers[1].weights[-1].shape[1]) == 256
     assert m.output_shape[1] == 6144
 
     m = load_audio_embedding_model('mel256', 'music', 512)
+    assert isinstance(m.layers[1], kapre.time_frequency.Melspectrogram)
+    assert int(m.layers[1].weights[-1].shape[1]) == 256
     assert m.output_shape[1] == 512
 
     m = load_audio_embedding_model('mel256', 'env', 6144)
+    assert isinstance(m.layers[1], kapre.time_frequency.Melspectrogram)
+    assert int(m.layers[1].weights[-1].shape[1]) == 256
     assert m.output_shape[1] == 6144
 
     m = load_audio_embedding_model('mel256', 'env', 512)
+    assert isinstance(m.layers[1], kapre.time_frequency.Melspectrogram)
+    assert int(m.layers[1].weights[-1].shape[1]) == 256
     assert m.output_shape[1] == 512
 
 
