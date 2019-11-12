@@ -173,7 +173,17 @@ def test_run(capsys):
     assert captured.out == expected_message
 
     # delete tempdir
-    os.rmdir(tempdir)
+    if os.path.exists(tempdir):
+        os.rmdir(tempdir)
+
+    # test invalid modality
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        tempdir = tempfile.mkdtemp()
+        run('invalid', CHIRP_44K_PATH, output_dir=tempdir)
+
+    # delete tempdir
+    if os.path.exists(tempdir):
+        os.rmdir(tempdir)
 
     # test correct execution on test audio file (regression)
     tempdir = tempfile.mkdtemp()
