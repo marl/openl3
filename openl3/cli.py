@@ -170,8 +170,8 @@ def parse_args(args):
 
     parser.add_argument('modality',
                         choices=['audio', 'image', 'video'],
-                        help='String to specify the modality to the '
-                             'embedding model, audio, image, or video.')
+                        help='String to specify the modality of the input: '
+                             'audio, image, or video.')
 
     parser.add_argument('inputs', nargs='+',
                         help='Path or paths to files to process, or path to '
