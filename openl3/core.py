@@ -759,12 +759,10 @@ def process_video_file(filepath, output_dir=None, suffix=None,
         image_model = load_image_embedding_model(input_repr, content_type,
                                                  image_embedding_size)
 
-    if not suffix:
-        audio_suffix = "audio"
-        image_suffix = "image"
-    else:
-        audio_suffix = "audio_" + suffix
-        image_suffix = "image_" + suffix
+    audio_suffix, image_suffix = "audio", "image"
+    if suffix:
+        audio_suffix += "_" + suffix
+        image_suffix += "_" + suffix
 
     audio_list = []
     sr_list = []
