@@ -157,6 +157,8 @@ def run(modality, inputs, output_dir=None, suffix=None,
                            image_embedding_size=image_embedding_size,
                            overwrite=overwrite,
                            verbose=verbose)
+    else:
+        raise OpenL3Error('Invalid modality: {}'.format(modality))
 
     if verbose:
         print('openl3: Done!')
