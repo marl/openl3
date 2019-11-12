@@ -177,7 +177,7 @@ def test_run(capsys):
         os.rmdir(tempdir)
 
     # test invalid modality
-    with pytest.raises(SystemExit) as pytest_wrapped_e:
+    with pytest.raises(OpenL3Error) as pytest_wrapped_e:
         tempdir = tempfile.mkdtemp()
         run('invalid', CHIRP_44K_PATH, output_dir=tempdir)
 
