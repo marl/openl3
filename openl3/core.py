@@ -117,7 +117,7 @@ def get_audio_embedding(audio, sr, model=None, input_repr="mel256",
         1D numpy array of audio data or list of audio arrays for multiple
         inputs.
     sr : int or list[int]
-        Sampling rate, or list of sampling rates. If not 48kHz will audio will
+        Sampling rate, or list of sampling rates. If not 48kHz audio will
         be resampled.
     model : keras.models.Model or None
         Loaded model object. If a model is provided, then `input_repr`,
@@ -129,7 +129,7 @@ def get_audio_embedding(audio, sr, model=None, input_repr="mel256",
         Spectrogram representation used for model. Ignored if `model` is
         a valid Keras model.
     content_type : "music" or "env"
-        Type of content used to train embedding. Ignored if `model` is
+        Type of content used to train the embedding model. Ignored if `model` is
         a valid Keras model.
     embedding_size : 6144 or 512
         Embedding dimensionality. Ignored if `model` is a valid
@@ -234,7 +234,7 @@ def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
                        embedding_size=6144, center=True, hop_size=0.1,
                        batch_size=32, overwrite=False, verbose=True):
     """
-    Computes and saves L3 embedding for given audio file
+    Computes and saves L3 embedding for a given audio file
 
     Parameters
     ----------
@@ -253,10 +253,10 @@ def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
         the provided values of `input_repr`, `content_type` and
         `embedding_size`.
     input_repr : "linear", "mel128", or "mel256"
-        Spectrogram representation used for model. Ignored if `model` is
+        Spectrogram representation used as model input. Ignored if `model` is
         a valid Keras model.
     content_type : "music" or "env"
-        Type of content used to train embedding. Ignored if `model` is
+        Type of content used to train the embedding model. Ignored if `model` is
         a valid Keras model.
     embedding_size : 6144 or 512
         Embedding dimensionality. Ignored if `model` is a valid
@@ -463,10 +463,10 @@ def get_image_embedding(image, frame_rate=None, model=None,
         the provided values of `input_repr`, `content_type` and
         `embedding_size`.
     input_repr : "linear", "mel128", or "mel256"
-        Spectrogram representation used for to train audio part of audio-visual
-        correspondence model. Ignored if `model` is a valid Keras model.
+        Spectrogram representation used for to train audio part of embedding
+        model. Ignored if `model` is a valid Keras model.
     content_type : "music" or "env"
-        Type of content used to train embedding. Ignored if `model` is
+        Type of content used to train the embedding model. Ignored if `model` is
         a valid Keras model.
     embedding_size : 8192 or 512
         Embedding dimensionality. Ignored if `model` is a valid
@@ -573,7 +573,7 @@ def process_image_file(filepath, output_dir=None, suffix=None, model=None,
                        embedding_size=8192, batch_size=32,
                        overwrite=False, verbose=True):
     """
-    Computes and saves L3 embedding for given image file
+    Computes and saves L3 embedding for a given image file
 
     Parameters
     ----------
@@ -595,7 +595,7 @@ def process_image_file(filepath, output_dir=None, suffix=None, model=None,
         Spectrogram representation used for model. Ignored if `model` is
         a valid Keras model.
     content_type : "music" or "env"
-        Type of content used to train embedding. Ignored if `model` is
+        Type of content used to train the embedding model. Ignored if `model` is
         a valid Keras model.
     embedding_size : 8192 or 512
         Embedding dimensionality. Ignored if `model` is a valid
@@ -687,7 +687,7 @@ def process_video_file(filepath, output_dir=None, suffix=None,
                        audio_batch_size=32, image_batch_size=32,
                        overwrite=False, verbose=True):
     """
-    Computes and saves L3 audio and video frame embeddings for given video file
+    Computes and saves L3 audio and video frame embeddings for a given video file
 
     Note that image embeddings are computed for every frame of the video. Also
     note that embeddings for the audio and images are not temporally aligned.
@@ -722,7 +722,7 @@ def process_video_file(filepath, output_dir=None, suffix=None,
         Spectrogram representation used for audio model. Ignored if `model` is
         a valid Keras model.
     content_type : "music" or "env"
-        Type of content used to train embedding. Ignored if `model` is
+        Type of content used to train the embedding model. Ignored if `model` is
         a valid Keras model.
     audio_embedding_size : 6144 or 512
         Audio embedding dimensionality. Ignored if `model` is a valid Keras model.

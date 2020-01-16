@@ -6,7 +6,6 @@ from argparse import ArgumentTypeError
 from openl3.openl3_exceptions import OpenL3Error
 import tempfile
 import numpy as np
-import shutil
 try:
     # python 3.4+ should use builtin unittest.mock not mock package
     from unittest.mock import patch
@@ -28,11 +27,6 @@ EMPTY_PATH = os.path.join(TEST_AUDIO_DIR, 'empty.wav')
 SHORT_PATH = os.path.join(TEST_AUDIO_DIR, 'short.wav')
 SILENCE_PATH = os.path.join(TEST_AUDIO_DIR, 'silence.wav')
 
-# Test image file paths
-DAISY_PATH = os.path.join(TEST_IMAGE_DIR, 'daisy.jpg')
-BLANK_PATH = os.path.join(TEST_IMAGE_DIR, 'blank.png')
-SMALL_PATH = os.path.join(TEST_IMAGE_DIR, 'smol.png')
-
 # Test video file paths
 BENTO_PATH = os.path.join(TEST_VIDEO_DIR, 'bento.mp4')
 
@@ -40,8 +34,6 @@ BENTO_PATH = os.path.join(TEST_VIDEO_DIR, 'bento.mp4')
 TEST_REG_DIR = os.path.join(TEST_DIR, 'data', 'regression')
 REG_CHIRP_44K_PATH = os.path.join(TEST_REG_DIR, 'chirp_44k.npz')
 REG_CHIRP_44K_LINEAR_PATH = os.path.join(TEST_REG_DIR, 'chirp_44k_linear.npz')
-REG_DAISY_PATH = os.path.join(TEST_REG_DIR, 'daisy.npz')
-REG_DAISY_LINEAR_PATH = os.path.join(TEST_REG_DIR, 'daisy_linear.npz')
 REG_BENTO_AUDIO_PATH = os.path.join(TEST_REG_DIR, 'bento_audio.npz')
 REG_BENTO_AUDIO_LINEAR_PATH = os.path.join(TEST_REG_DIR, 'bento_audio_linear.npz')
 REG_BENTO_IMAGE_PATH = os.path.join(TEST_REG_DIR, 'bento_image.npz')
@@ -187,135 +179,6 @@ def test_run(capsys):
     # delete tempdir
     if os.path.exists(tempdir):
         os.rmdir(tempdir)
-
-    # test correct execution on test audio file (regression)
-    tempdir = tempfile.mkdtemp()
-    run('audio', CHIRP_44K_PATH, output_dir=tempdir, verbose=True)
-
-    # check output file created
-    audio_outfile = os.path.join(tempdir, 'chirp_44k.npz')
-    assert os.path.isfile(audio_outfile)
-
-    # test correct execution on test image file (regression)
-    run('image', DAISY_PATH, output_dir=tempdir, verbose=True)
-
-    # check output file created
-    image_outfile = os.path.join(tempdir, 'daisy.npz')
-    assert os.path.isfile(image_outfile)
-
-    # regression test
-    audio_data_reg = np.load(REG_CHIRP_44K_PATH)
-    audio_data_out = np.load(audio_outfile)
-    image_data_reg = np.load(REG_DAISY_PATH)
-    image_data_out = np.load(image_outfile)
-
-    assert sorted(audio_data_out.files) == sorted(audio_data_reg.files) == sorted(
-        ['embedding', 'timestamps'])
-    assert np.allclose(audio_data_out['timestamps'], audio_data_reg['timestamps'],
-                       rtol=1e-05, atol=1e-05, equal_nan=False)
-    assert np.allclose(audio_data_out['embedding'], audio_data_reg['embedding'],
-                       rtol=1e-05, atol=1e-05, equal_nan=False)
-
-    assert sorted(image_data_out.files) == sorted(image_data_reg.files) == ['embedding']
-    assert np.allclose(image_data_out['embedding'], image_data_reg['embedding'],
-                       rtol=1e-05, atol=1e-05, equal_nan=False)
-
-    # SECOND regression test
-    run('audio', CHIRP_44K_PATH, output_dir=tempdir, suffix='linear', input_repr='linear',
-        content_type='env', audio_embedding_size=512, audio_center=False, audio_hop_size=0.5,
-        verbose=False)
-
-    # check output file created
-    audio_outfile = os.path.join(tempdir, 'chirp_44k_linear.npz')
-    assert os.path.isfile(audio_outfile)
-
-    run('image', DAISY_PATH, output_dir=tempdir, suffix='linear', input_repr='linear',
-        content_type='env', image_embedding_size=512, verbose=False)
-
-    # check output file created
-    image_outfile = os.path.join(tempdir, 'daisy_linear.npz')
-    assert os.path.isfile(image_outfile)
-
-    # regression test
-    audio_data_reg = np.load(REG_CHIRP_44K_LINEAR_PATH)
-    audio_data_out = np.load(audio_outfile)
-    image_data_reg = np.load(REG_DAISY_LINEAR_PATH)
-    image_data_out = np.load(image_outfile)
-
-    assert sorted(audio_data_out.files) == sorted(audio_data_reg.files) == sorted(
-        ['embedding', 'timestamps'])
-    assert np.allclose(audio_data_out['timestamps'], audio_data_reg['timestamps'],
-                       rtol=1e-05, atol=1e-05, equal_nan=False)
-    assert np.allclose(audio_data_out['embedding'], audio_data_reg['embedding'],
-                       rtol=1e-05, atol=1e-05, equal_nan=False)
-
-    assert sorted(image_data_out.files) == sorted(image_data_reg.files) == ['embedding']
-    assert np.allclose(image_data_out['embedding'], image_data_reg['embedding'],
-                       rtol=1e-05, atol=1e-05, equal_nan=False)
-
-
-    ## Video processing regression tests
-    run('video', BENTO_PATH, output_dir=tempdir, verbose=True)
-
-    # check output files created
-    audio_outfile = os.path.join(tempdir, 'bento_audio.npz')
-    assert os.path.isfile(audio_outfile)
-    image_outfile = os.path.join(tempdir, 'bento_image.npz')
-    assert os.path.isfile(image_outfile)
-
-    # regression test
-    audio_data_reg = np.load(REG_BENTO_AUDIO_PATH)
-    audio_data_out = np.load(audio_outfile)
-    image_data_reg = np.load(REG_BENTO_IMAGE_PATH)
-    image_data_out = np.load(image_outfile)
-
-    assert sorted(audio_data_out.files) == sorted(audio_data_reg.files) == sorted(
-        ['embedding', 'timestamps'])
-    assert np.allclose(audio_data_out['timestamps'], audio_data_reg['timestamps'],
-                       rtol=1e-05, atol=1e-05, equal_nan=False)
-    assert np.allclose(audio_data_out['embedding'], audio_data_reg['embedding'],
-                       rtol=1e-05, atol=1e-05, equal_nan=False)
-
-    assert sorted(image_data_out.files) == sorted(image_data_reg.files) == sorted(
-        ['embedding', 'timestamps'])
-    assert np.allclose(image_data_out['timestamps'], image_data_reg['timestamps'],
-                       rtol=1e-05, atol=1e-05, equal_nan=False)
-    assert np.allclose(image_data_out['embedding'], image_data_reg['embedding'],
-                       rtol=1e-05, atol=1e-05, equal_nan=False)
-
-    # SECOND regression test
-    run('video', BENTO_PATH, output_dir=tempdir, suffix='linear', input_repr='linear',
-        content_type='env', audio_embedding_size=512, image_embedding_size=512,
-        audio_center=False, audio_hop_size=0.5, verbose=False)
-
-    # check output files created
-    audio_outfile = os.path.join(tempdir, 'bento_audio_linear.npz')
-    assert os.path.isfile(audio_outfile)
-    image_outfile = os.path.join(tempdir, 'bento_image_linear.npz')
-    assert os.path.isfile(image_outfile)
-
-    # regression test
-    audio_data_reg = np.load(REG_BENTO_AUDIO_LINEAR_PATH)
-    audio_data_out = np.load(audio_outfile)
-    image_data_reg = np.load(REG_BENTO_IMAGE_LINEAR_PATH)
-    image_data_out = np.load(image_outfile)
-
-    assert sorted(audio_data_out.files) == sorted(audio_data_reg.files) == sorted(
-        ['embedding', 'timestamps'])
-    assert np.allclose(audio_data_out['timestamps'], audio_data_reg['timestamps'],
-                       rtol=1e-05, atol=1e-05, equal_nan=False)
-    assert np.allclose(audio_data_out['embedding'], audio_data_reg['embedding'],
-                       rtol=1e-05, atol=1e-05, equal_nan=False)
-
-    assert sorted(image_data_out.files) == sorted(image_data_reg.files) == sorted(
-        ['embedding', 'timestamps'])
-    assert np.allclose(image_data_out['timestamps'], image_data_reg['timestamps'],
-                       rtol=1e-05, atol=1e-05, equal_nan=False)
-    assert np.allclose(image_data_out['embedding'], image_data_reg['embedding'],
-                       rtol=1e-05, atol=1e-05, equal_nan=False)
-
-    # delete output file and temp folder
-    shutil.rmtree(tempdir)
 
 
 def test_main():
