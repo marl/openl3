@@ -15,6 +15,7 @@ from openl3.openl3_warnings import OpenL3Warning
 TEST_DIR = os.path.dirname(__file__)
 TEST_AUDIO_DIR = os.path.join(TEST_DIR, 'data', 'audio')
 TEST_IMAGE_DIR = os.path.join(TEST_DIR, 'data', 'image')
+TEST_VIDEO_DIR = os.path.join(TEST_DIR, 'data', 'video')
 
 # Test audio file paths
 CHIRP_MONO_PATH = os.path.join(TEST_AUDIO_DIR, 'chirp_mono.wav')
@@ -29,7 +30,9 @@ SILENCE_PATH = os.path.join(TEST_AUDIO_DIR, 'silence.wav')
 DAISY_PATH = os.path.join(TEST_IMAGE_DIR, 'daisy.jpg')
 BLANK_PATH = os.path.join(TEST_IMAGE_DIR, 'blank.png')
 SMALL_PATH = os.path.join(TEST_IMAGE_DIR, 'smol.png')
-BENTO_PATH = os.path.join(TEST_IMAGE_DIR, 'bento.mp4')
+
+# Test video file paths
+BENTO_PATH = os.path.join(TEST_VIDEO_DIR, 'bento.mp4')
 
 
 def test_get_audio_embedding():
