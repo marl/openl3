@@ -20,12 +20,16 @@ For more detailed information, please consult the
 
 libsndfile
 __________
-OpenL3 depends on the `pysoundfile` module to load audio files, which depends on the non-Python library
+OpenL3 depends on the ``pysoundfile`` module to load audio files, which depends on the non-Python library
 ``libsndfile``. On Windows and macOS, these will be installed via ``pip`` and you can therefore skip this step.
 However, on Linux this must be installed manually via your platform's package manager.
 For Debian-based distributions (such as Ubuntu), this can be done by simply running
 
 >>> apt-get install libsndfile1
+
+Alternatively, if you are using ``conda``, you can install ``libsndfile`` simply by running
+
+>>> conda install -c conda-forge libsndfile
 
 For more detailed information, please consult the
 `pysoundfile installation documentation <https://pysoundfile.readthedocs.io/en/0.9.0/#installation>`_.
