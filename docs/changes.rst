@@ -3,6 +3,15 @@
 Changelog
 ---------
 
+v0.3.0
+~~~~~~
+- Rename audio related embedding functions to indicate that they are specific to audio.
+- Add image embedding functionality to API and CLI.
+- Add video processing functionality to API and CLI.
+- Add batch processing functionality to API and CLI to more efficiently process multiple inputs.
+- Update documentation with new functionality.
+- Address build issues with updated dependencies.
+
 v0.2.0
 ~~~~~~
 - Update embedding models with ones that have been trained with the kapre bug fixed.

@@ -45,7 +45,9 @@ class Mock(MagicMock):
 MOCK_MODULES = [
     'numpy', 'soundfile', 'resampy', 'keras', 'tensorflow',
     'kapre', 'kapre.time_frequency', 'keras.layers', 'keras.models',
-    'keras.regularizers', 'sklearn', 'sklearn.decomposition'
+    'keras.regularizers', 'sklearn', 'sklearn.decomposition', 'skimage',
+    'moviepy', 'skimage.io', 'moviepy.video', 'moviepy.video.io',
+    'moviepy.video.io.VideoFileClip'
 ]
 
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
@@ -191,7 +193,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'OpenL3', 'OpenL3 Documentation',
-     author, 'OpenL3', 'One line description of project.',
+     author, 'OpenL3', 'Open-source deep audio and image embeddings.',
      'Miscellaneous'),
 ]
 
