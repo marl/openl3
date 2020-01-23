@@ -40,6 +40,10 @@ For Debian-based distributions (such as Ubuntu), this can be done by simply runn
 
     apt-get install libsndfile1
 
+Alternatively, if you are using `conda`, you can install `libsndfile` simply by running
+
+    conda install -c conda-forge libsndfile
+
 For more detailed information, please consult the
 [`pysoundfile` installation documentation](https://pysoundfile.readthedocs.io/en/0.9.0/#installation>).
 
