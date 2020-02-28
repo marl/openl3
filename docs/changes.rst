@@ -3,6 +3,13 @@
 Changelog
 ---------
 
+v0.3.1
+~~~~~~
+- Require `keras>=2.0.9,<2.3.0` in dependencies to avoid force installation of TF 2.x during pip installation.
+- Update README and installation docs to explicitly state that we do not yet support TF 2.x and to offer a working dependency combination.
+- Require `kapre==0.1.4` in dependencies to avoid installing `tensorflow>=1.14` which break regression tests.
+
+
 v0.3.0
 ~~~~~~
 - Rename audio related embedding functions to indicate that they are specific to audio.
