@@ -20,7 +20,7 @@ before_install:
     - ffmpeg -hwaccels
 
 install:
-    - pip install "tensorflow>=1.12.0,<1.14.0"
+    - pip install "tensorflow>=1.12.0,<=1.15.0"
     - pip install pytest
     - pip install -e .[tests]
 
