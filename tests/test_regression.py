@@ -61,7 +61,7 @@ def test_audio_regression(capsys):
     assert np.allclose(audio_data_out['timestamps'], audio_data_reg['timestamps'],
                        rtol=1e-05, atol=1e-05, equal_nan=False)
     assert np.allclose(audio_data_out['embedding'], audio_data_reg['embedding'],
-                       rtol=1e-05, atol=1e-05, equal_nan=False)
+                       rtol=1e-03, atol=1e-03, equal_nan=False)
 
     # SECOND regression test
     run('audio', CHIRP_44K_PATH, output_dir=tempdir, suffix='linear', input_repr='linear',
@@ -173,7 +173,7 @@ def test_video_regression(capsys):
     assert np.allclose(audio_data_out['timestamps'], audio_data_reg['timestamps'],
                        rtol=1e-05, atol=1e-05, equal_nan=False)
     assert np.allclose(audio_data_out['embedding'], audio_data_reg['embedding'],
-                       rtol=1e-05, atol=1e-05, equal_nan=False)
+                       rtol=1e-03, atol=1e-03, equal_nan=False)
 
     assert sorted(image_data_out.files) == sorted(image_data_reg.files) == sorted(
         ['embedding', 'timestamps'])
@@ -181,4 +181,3 @@ def test_video_regression(capsys):
                        rtol=1e-05, atol=1e-05, equal_nan=False)
     assert np.allclose(image_data_out['embedding'], image_data_reg['embedding'],
                        rtol=1e-05, atol=1e-05, equal_nan=False)
-

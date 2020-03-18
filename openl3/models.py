@@ -6,12 +6,12 @@ from .openl3_exceptions import OpenL3Error
 with warnings.catch_warnings():
     # Suppress TF and Keras warnings when importing
     warnings.simplefilter("ignore")
-    from keras.models import Model
-    from keras.layers import (
+    from tensorflow.keras.models import Model
+    from tensorflow.keras.layers import (
         Input, Conv2D, BatchNormalization, MaxPooling2D,
         Flatten, Activation, Lambda
     )
-    import keras.regularizers as regularizers
+    import tensorflow.keras.regularizers as regularizers
     from kapre.time_frequency import Spectrogram, Melspectrogram
 
 

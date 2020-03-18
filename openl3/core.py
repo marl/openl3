@@ -1,11 +1,11 @@
 import os
 import sklearn.decomposition
-import keras
 import resampy
 import traceback
 import soundfile as sf
 import numpy as np
 import six
+from tensorflow import keras
 from numbers import Real
 from math import ceil
 import warnings

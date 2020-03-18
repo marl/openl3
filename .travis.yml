@@ -1,4 +1,4 @@
-dist: xenial
+dist: bionic
 
 language: python
 
@@ -6,22 +6,22 @@ notifications:
     email: false
 
 python:
-    - "2.7"
-    - "3.5"
     - "3.6"
+    - "3.7"
+    - "3.8"
 
 before_install:
-    - pip install python-coveralls
-    - pip install "pytest-faulthandler>=1.5.0,<2.0.0"
-    - pip install pytest-cov
-    - sudo add-apt-repository -y ppa:mc3man/xerus-media
     - sudo apt-get update
+    - sudo apt-get install -y python-skimage
     - sudo apt-get install -y ffmpeg
     - ffmpeg -hwaccels
 
 install:
-    - pip install "tensorflow>=1.12.0,<1.14.0"
+    - pip install tensorflow
     - pip install pytest
+    - pip install pytest-cov
+    - pip install python-coveralls
+    - pip install Cython
     - pip install -e .[tests]
 
 #before_script:

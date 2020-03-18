@@ -26,12 +26,10 @@ their usecase.
 
 On most platforms, either of the following commands should properly install Tensorflow:
 
-    pip install "tensorflow<1.14" # CPU-only version
-    pip install "tensorflow-gpu<1.14" # GPU version
+    pip install "tensorflow" # CPU-only version
+    pip install "tensorflow-gpu" # GPU version
     
     
-**Please note that Tensorflow 2.x is not yet supported. Ensure that an earlier version of Tensorflow is installed.** If you run into further issues with installation, a known working dependency combination is Tensorflow 1.13, Keras 2.0, and Kapre 0.1.4.
-
 For more detailed information, please consult the
 [Tensorflow installation documentation](https://www.tensorflow.org/install/).
 
@@ -69,6 +67,11 @@ To install the latest version of OpenL3 from source:
 
         cd openl3
         pip install -e .
+
+3. Run tests (optional):
+
+        pip install pytest pytest-cov
+        pytest tests/test_cli.py
 
 # Using OpenL3
 

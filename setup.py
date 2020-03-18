@@ -79,15 +79,17 @@ setup(
         'Documentation': 'https://readthedocs.org/projects/openl3/'
     },
     install_requires=[
-        'keras>=2.0.9,<2.3.0',
-        'numpy>=1.13.0',
-        'scipy>=0.19.1',
-        'kapre==0.1.4',
+        'numpy>=1.17.3,<2.0',
+        'scipy==1.4.1',
+        'kapre>=0.1.5',
+        'numba<=0.48',
         'PySoundFile>=0.9.0.post1',
         'resampy>=0.2.1,<0.3.0',
-        'h5py>=2.7.0,<3.0.0',
+        'h5py>=2.10.0,<2.11.0',
         'moviepy>=1.0.0',
-        'scikit-image>=0.14.3,<0.15.0'
+        'scikit-image>=0.14.3,<0.15.0',
+        'mir_eval>=0.4',
+        'sortedcontainers>=2.0.0'
     ],
     extras_require={
         'docs': [
