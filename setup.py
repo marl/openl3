@@ -5,10 +5,7 @@ import imp
 from itertools import product
 from setuptools import setup, find_packages
 
-try:
-    from urllib.request import urlretrieve
-except ImportError:
-    from urllib import urlretrieve
+from urllib.request import urlretrieve
 
 module_dir = 'openl3'
 modalities = ['audio', 'image']
@@ -66,8 +63,6 @@ setup(
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
         'Topic :: Multimedia :: Sound/Audio :: Analysis',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',

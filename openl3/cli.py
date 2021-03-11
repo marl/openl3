@@ -1,4 +1,3 @@
-from __future__ import print_function
 import os
 import sys
 import sklearn.decomposition
@@ -7,7 +6,6 @@ from openl3.models import load_audio_embedding_model, load_image_embedding_model
 from openl3.openl3_exceptions import OpenL3Error
 from argparse import ArgumentParser, RawDescriptionHelpFormatter, ArgumentTypeError
 from collections import Iterable
-from six import string_types
 
 
 def positive_float(value):
@@ -36,7 +34,7 @@ def positive_int(value):
 
 def get_file_list(input_list):
     """Get list of files from the list of inputs"""
-    if not isinstance(input_list, Iterable) or isinstance(input_list, string_types):
+    if not isinstance(input_list, Iterable) or isinstance(input_list, str):
         raise ArgumentTypeError('input_list must be iterable (and not string)')
     file_list = []
     for item in input_list:
@@ -99,7 +97,7 @@ def run(modality, inputs, output_dir=None, suffix=None,
     -------
     """
 
-    if isinstance(inputs, string_types):
+    if isinstance(inputs, str):
         file_list = [inputs]
     elif isinstance(inputs, Iterable):
         file_list = get_file_list(inputs)
