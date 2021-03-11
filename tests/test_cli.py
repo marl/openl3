@@ -6,11 +6,7 @@ from argparse import ArgumentTypeError
 from openl3.openl3_exceptions import OpenL3Error
 import tempfile
 import numpy as np
-try:
-    # python 3.4+ should use builtin unittest.mock not mock package
-    from unittest.mock import patch
-except ImportError:
-    from mock import patch
+from unittest.mock import patch
 
 
 TEST_DIR = os.path.dirname(__file__)

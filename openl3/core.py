@@ -5,7 +5,6 @@ import resampy
 import traceback
 import soundfile as sf
 import numpy as np
-import six
 from numbers import Real
 from math import ceil
 import warnings
@@ -277,7 +276,7 @@ def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
     -------
 
     """
-    if isinstance(filepath, six.string_types):
+    if isinstance(filepath, str):
         filepath_list = [filepath]
     elif isinstance(filepath, list):
         filepath_list = filepath
@@ -611,7 +610,7 @@ def process_image_file(filepath, output_dir=None, suffix=None, model=None,
     -------
 
     """
-    if isinstance(filepath, six.string_types):
+    if isinstance(filepath, str):
         filepath_list = [filepath]
     elif isinstance(filepath, list):
         filepath_list = filepath
@@ -746,7 +745,7 @@ def process_video_file(filepath, output_dir=None, suffix=None,
     -------
 
     """
-    if isinstance(filepath, six.string_types):
+    if isinstance(filepath, str):
         filepath_list = [filepath]
     elif isinstance(filepath, list):
         filepath_list = filepath
