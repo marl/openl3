@@ -82,13 +82,14 @@ def compare(results1_file, results2_file):
         print(f)
         for rep1, rep2, name1, name2 in zip(results1[f], results2[f], names1, names2):
             _compare(rep1, rep2, name1, name2)
+            print()
         print()
 
 def _compare(rep1, rep2, name1, name2):
-    close = np.allclose(rep1, rep2, rtol=1e-05, atol=1e-05, equal_nan=False)
-    print(name1, name2, 'allclose', close)
-    print(rep1.shape, [rep1.min(), rep1.max()], rep1.mean())
-    print(rep2.shape, [rep2.min(), rep2.max()], rep2.mean())
+    print(name1, name2)
+    print(rep1.shape, 'min/max:', [rep1.min(), rep1.max()], 'mean:', rep1.mean())
+    print(rep2.shape, 'min/max:', [rep2.min(), rep2.max()], 'mean:', rep2.mean())
+    print('allclose:', np.allclose(rep1, rep2, verbose=True, rtol=1e-05, atol=1e-05, equal_nan=False))
 
 def show(results1_file, results2_file, fileindex=0, mapindex=0, limit=3, offset=0, clip=None):
     '''Plot the differences between the outputs of two versions.
@@ -112,7 +113,7 @@ def show(results1_file, results2_file, fileindex=0, mapindex=0, limit=3, offset=
 
     f = files[fileindex]
     for rep1, rep2, name1, name2 in list(zip(results1[f], results2[f], names1, names2))[offset:offset+limit if limit else None]:
-        rep1, rep2 = rep1[:,5:-30], rep2[:,5:-30]
+        # rep1, rep2 = rep1[:,5:-30], rep2[:,5:-30]
         _compare(rep1, rep2, name1, name2)
         if rep1.ndim < 4:
             print(name1, name2, rep1.shape, 'too small for imshow')
@@ -137,9 +138,9 @@ def _load_results(file, sep='+'):
     file = str(file)
     if not os.path.isfile(file):
         # find files matching query
-        pattern = adj_file('*.pkl'.format(file))
+        pattern = adj_file('layerbylayer-*.pkl'.format(file))
         parts = file.split(sep)
-        files = [f for f in glob.glob(pattern) if all(p in f for p in parts)]
+        files = [f for f in glob.glob(pattern) if all(p in os.path.basename(f) for p in parts)]
         if not files:
             raise OSError('No files matching {} in {}'.format(file, pattern))
         elif len(files) > 1:
@@ -150,17 +151,15 @@ def _load_results(file, sep='+'):
         results = pickle.load(f)
     return results['files'], results['names']
 
-def _debugallclose(x1, x2, rtol=1e-04, atol=1e-04, **kw):
+def _debugallclose(x1, x2, rtol=1e-04, atol=1e-04, verbose=False, **kw):
     passed = _allclose(x1, x2, rtol=rtol, atol=atol, **kw)
-    if not passed:
+    if not passed and verbose:
         x1, x2 = np.asarray(x1), np.asarray(x2)
         print('shapes:', x1.shape, x2.shape)
         print('nans:', np.mean(np.isnan(x1)), np.mean(np.isnan(x2)))
         diff = np.abs(x2 - x1)
         print('amount above rtol:', np.mean(diff > rtol))
-        print('min:', diff.min(), 'max:', diff.max(), 'mean:', diff.mean())
-        print()
-
+        print('diff stats:', 'min:', diff.min(), 'max:', diff.max(), 'mean:', diff.mean())
     return passed
 
 _allclose = np.allclose
