@@ -226,3 +226,20 @@ def test_script_main():
     assert np.allclose(data_out['embedding'], data_reg['embedding'],
                        rtol=1e-05, atol=1e-05, equal_nan=False)
 
+def debugallclose(x1, x2, rtol=1e-05, atol=1e-05, **kw):
+    passed = _allclose(x1, x2, rtol=rtol, atol=atol, **kw)
+    if not passed:
+        x1, x2 = np.asarray(x1), np.asarray(x2)
+        print('shapes:', x1.shape, x2.shape)
+        print('nans:', np.mean(np.isnan(x1)), np.mean(np.isnan(x2)))
+        diff = np.abs(x2 - x1)
+        print('amount above rtol:', np.mean(diff > rtol))
+        print('min:', diff.min(1))
+        print('max:', diff.max(1))
+        print('mean:', diff.mean(1))
+        print()
+
+    return passed
+
+_allclose = np.allclose
+np.allclose = debugallclose

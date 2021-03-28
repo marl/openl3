@@ -4,7 +4,7 @@ import numpy as np
 import os
 import shutil
 import soundfile as sf
-import keras.backend as K
+import tensorflow.keras.backend as K
 from skimage.io import imread
 import openl3
 import openl3.models

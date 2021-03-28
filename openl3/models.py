@@ -1,18 +1,53 @@
 import os
 import warnings
 import sklearn.decomposition
+import librosa
 from .openl3_exceptions import OpenL3Error
 
 with warnings.catch_warnings():
     # Suppress TF and Keras warnings when importing
     warnings.simplefilter("ignore")
-    from keras.models import Model
-    from keras.layers import (
-        Input, Conv2D, BatchNormalization, MaxPooling2D,
-        Flatten, Activation, Lambda
-    )
-    import keras.regularizers as regularizers
-    from kapre.time_frequency import Spectrogram, Melspectrogram
+    import tensorflow as tf
+    import tensorflow.keras.backend as K
+    from tensorflow.keras import Model
+    from tensorflow.keras.layers import (
+        Input, Conv2D, Permute, BatchNormalization, MaxPooling2D,
+        Flatten, Activation, Lambda)
+    import tensorflow.keras.regularizers as regularizers
+
+    import kapre.composed
+
+# NOTE: This is just hotfixing - this won't stay here lol
+
+def _log10(x):
+        return tf.math.log(x) / tf.math.log(tf.constant(10, dtype=x.dtype))
+
+# NOTE: this is the old method of converting to db - need to get that back
+def magnitude_to_decibel(x, ref_value=1.0, amin=1e-10, dynamic_range=80.0):
+    # print('I AM RUNNING!')
+    amin = tf.cast(amin or 1e-10, dtype=x.dtype)
+    log_spec = 10. * _log10(K.maximum(x, amin))
+    max_axis = tuple(range(K.ndim(x))[1:]) or None
+    
+    spec_max = K.max(log_spec, axis=max_axis, keepdims=True)
+    log_spec = log_spec - spec_max
+    log_spec = K.maximum(log_spec, -dynamic_range)
+    return log_spec
+
+def __fixspec(func):
+    def inner(*a, return_decibel=False, **kw):
+        # using old db func
+        seq = func(*a, return_decibel=False, **kw)
+        if return_decibel:
+            seq.add(tf.keras.layers.Lambda(magnitude_to_decibel))
+
+        # the output is (None, t, f, ch) instead of (None, f, t, ch), so gotta fix that
+        seq.add(Permute((2, 1, 3)))
+        return seq
+    return inner
+
+kapre.composed.get_stft_magnitude_layer = __fixspec(kapre.composed.get_stft_magnitude_layer)
+kapre.composed.get_melspectrogram_layer = __fixspec(kapre.composed.get_melspectrogram_layer)
 
 
 AUDIO_POOLING_SIZES = {
@@ -52,7 +87,7 @@ def load_audio_embedding_model(input_repr, content_type, embedding_size):
 
     Returns
     -------
-    model : keras.models.Model
+    model : tf.keras.Model
         Model object.
     """
 
@@ -108,7 +143,7 @@ def load_image_embedding_model(input_repr, content_type, embedding_size):
 
     Returns
     -------
-    model : keras.models.Model
+    model : tf.keras.Model
         Model object.
     """
 
@@ -155,7 +190,7 @@ def _construct_linear_audio_network():
 
     Returns
     -------
-    model : keras.models.Model
+    model : tf.keras.Model
         Model object.
     """
 
@@ -166,12 +201,17 @@ def _construct_linear_audio_network():
     audio_window_dur = 1
 
     # INPUT
-    x_a = Input(shape=(1, asr * audio_window_dur), dtype='float32')
+    input_shape = (1, asr * audio_window_dur)
+    x_a = Input(shape=input_shape, dtype='float32')
 
     # SPECTROGRAM PREPROCESSING
     # 257 x 199 x 1
-    y_a = Spectrogram(n_dft=n_dft, n_hop=n_hop, power_spectrogram=1.0,
-                      return_decibel_spectrogram=True, padding='valid')(x_a)
+    spec = kapre.composed.get_stft_magnitude_layer(
+        input_shape=input_shape, 
+        n_fft=n_dft, hop_length=n_hop, return_decibel=True,
+        input_data_format='channels_first', 
+        output_data_format='channels_last')
+    y_a = spec(x_a)
     y_a = BatchNormalization()(y_a)
 
     # CONV BLOCK 1
@@ -246,7 +286,7 @@ def _construct_mel128_audio_network():
 
     Returns
     -------
-    model : keras.models.Model
+    model : tf.keras.Model
         Model object.
     """
 
@@ -258,13 +298,18 @@ def _construct_mel128_audio_network():
     audio_window_dur = 1
 
     # INPUT
-    x_a = Input(shape=(1, asr * audio_window_dur), dtype='float32')
+    input_shape = (1, asr * audio_window_dur)
+    x_a = Input(shape=input_shape, dtype='float32')
 
     # MELSPECTROGRAM PREPROCESSING
     # 128 x 199 x 1
-    y_a = Melspectrogram(n_dft=n_dft, n_hop=n_hop, n_mels=n_mels,
-                      sr=asr, power_melgram=1.0, htk=True,
-                      return_decibel_melgram=True, padding='same')(x_a)
+    spec = kapre.composed.get_melspectrogram_layer(
+        input_shape=input_shape, 
+        n_fft=n_dft, hop_length=n_hop, n_mels=n_mels, 
+        sample_rate=asr, return_decibel=True, pad_end=True,
+        input_data_format='channels_first', 
+        output_data_format='channels_last')
+    y_a = spec(x_a)
     y_a = BatchNormalization()(y_a)
 
     # CONV BLOCK 1
@@ -340,7 +385,7 @@ def _construct_mel256_audio_network():
 
     Returns
     -------
-    model : keras.models.Model
+    model : tf.keras.Model
         Model object.
     """
 
@@ -352,13 +397,18 @@ def _construct_mel256_audio_network():
     audio_window_dur = 1
 
     # INPUT
-    x_a = Input(shape=(1, asr * audio_window_dur), dtype='float32')
+    input_shape = (1, asr * audio_window_dur)
+    x_a = Input(shape=input_shape, dtype='float32')
 
     # MELSPECTROGRAM PREPROCESSING
-    # 128 x 199 x 1
-    y_a = Melspectrogram(n_dft=n_dft, n_hop=n_hop, n_mels=n_mels,
-                      sr=asr, power_melgram=1.0, htk=True, # n_win=n_win,
-                      return_decibel_melgram=True, padding='same')(x_a)
+    # 256 x 199 x 1
+    spec = kapre.composed.get_melspectrogram_layer(
+        input_shape=input_shape, 
+        n_fft=n_dft, hop_length=n_hop, n_mels=n_mels,
+        sample_rate=asr, return_decibel=True, pad_end=True,
+        input_data_format='channels_first', 
+        output_data_format='channels_last')
+    y_a = spec(x_a)
     y_a = BatchNormalization()(y_a)
 
     # CONV BLOCK 1
@@ -432,7 +482,7 @@ def _construct_image_network():
 
     Returns
     -------
-    model : keras.models.Model
+    model : tf.keras.Model
         Model object.
     """
 

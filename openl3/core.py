@@ -1,6 +1,6 @@
 import os
 import sklearn.decomposition
-import keras
+import tensorflow as tf
 import resampy
 import traceback
 import soundfile as sf
@@ -119,7 +119,7 @@ def get_audio_embedding(audio, sr, model=None, input_repr="mel256",
     sr : int or list[int]
         Sampling rate, or list of sampling rates. If not 48kHz audio will
         be resampled.
-    model : keras.models.Model or None
+    model : tf.keras.Model or None
         Loaded model object. If a model is provided, then `input_repr`,
         `content_type`, and `embedding_size` will be ignored.
         If None is provided, the model will be loaded using
@@ -154,8 +154,8 @@ def get_audio_embedding(audio, sr, model=None, input_repr="mel256",
             list of such arrays for multiple audio cplips.
 
     """
-    if model is not None and not isinstance(model, keras.models.Model):
-        raise OpenL3Error('Invalid model provided. Must be of type keras.model.Models'
+    if model is not None and not isinstance(model, tf.keras.Model):
+        raise OpenL3Error('Invalid model provided. Must be of type tf.keras.Model'
                           ' but got {}'.format(str(type(model))))
 
     if str(input_repr) not in ("linear", "mel128", "mel256"):
@@ -246,7 +246,7 @@ def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
     suffix : str or None
         String to be appended to the output filename, i.e. <base filename>_<suffix>.npz.
         If None, then no suffix will be added, i.e. <base filename>.npz.
-    model : keras.models.Model or None
+    model : tf.keras.Model or None
         Loaded model object. If a model is provided, then `input_repr`,
         `content_type`, and `embedding_size` will be ignored.
         If None is provided, the model will be loaded using
@@ -456,7 +456,7 @@ def get_image_embedding(image, frame_rate=None, model=None,
         Video frame rate (if applicable), which if provided results in
         a timestamp array being returned. A list of frame rates can also be
         provided. If None, no timestamp array is returned.
-    model : keras.models.Model or None
+    model : tf.keras.Model or None
         Loaded model object. If a model is provided, then `input_repr`,
         `content_type`, and `embedding_size` will be ignored.
         If None is provided, the model will be loaded using
@@ -484,8 +484,8 @@ def get_image_embedding(image, frame_rate=None, model=None,
             Array of timestamps for each frame. If `frame_rate` is None,
             this is not returned.
     """
-    if model is not None and not isinstance(model, keras.models.Model):
-        raise OpenL3Error('Invalid model provided. Must be of type keras.model.Models'
+    if model is not None and not isinstance(model, tf.keras.Model):
+        raise OpenL3Error('Invalid model provided. Must be of type tf.keras.Model'
                           ' but got {}'.format(str(type(model))))
 
     if str(input_repr) not in ("linear", "mel128", "mel256"):
@@ -585,7 +585,7 @@ def process_image_file(filepath, output_dir=None, suffix=None, model=None,
     suffix : str or None
         String to be appended to the output filename, i.e. <base filename>_<suffix>.npz.
         If None, then no suffix will be added, i.e. <base filename>.npz.
-    model : keras.models.Model or None
+    model : tf.keras.Model or None
         Loaded model object. If a model is provided, then `input_repr`,
         `content_type`, and `embedding_size` will be ignored.
         If None is provided, the model will be loaded using
@@ -706,13 +706,13 @@ def process_video_file(filepath, output_dir=None, suffix=None,
         i.e. <base filename>_<modality>_<suffix>.npz.
         If None, then no suffix will be added,
         i.e. <base filename>_<modality>.npz.
-    audio_model : keras.models.Model or None
+    audio_model : tf.keras.Model or None
         Loaded audio model object. If a model is provided, then `input_repr`,
         `content_type`, and `embedding_size` will be ignored.
         If None is provided, the model will be loaded using
         the provided values of `input_repr`, `content_type` and
         `embedding_size`.
-    image_model : keras.models.Model or None
+    image_model : tf.keras.Model or None
         Loaded audio model object. If a model is provided, then `input_repr`,
         `content_type`, and `embedding_size` will be ignored.
         If None is provided, the model will be loaded using
