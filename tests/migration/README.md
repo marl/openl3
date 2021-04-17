@@ -74,6 +74,7 @@ input_repr, content_type, embedding_size = 'mel128', 'music', 6144
 model = openl3.models.load_audio_embedding_model(
     input_repr, content_type, embedding_size)
 Z, ts = openl3.get_audio_embedding(audio, sr, model=model)  # kapre
+Z, ts = openl3.get_audio_embedding(audio, sr, model=model, frontend='kapre')  # equivalent
 
 # include_frontend=False removes the kapre layer
 # now you must make sure to include input_repr in your get_audio_embedding call
@@ -82,6 +83,7 @@ Z, ts = openl3.get_audio_embedding(audio, sr, model=model)  # kapre
 model = openl3.models.load_audio_embedding_model(
     input_repr, content_type, embedding_size, include_frontend=False)
 Z, ts = openl3.get_audio_embedding(audio, sr, model=model, input_repr=input_repr)  # librosa
+Z, ts = openl3.get_audio_embedding(audio, sr, model=model, input_repr=input_repr, frontend='librosa')  # equivalent
 
 # get embedding using librosa frontend (matches kapre 0.1.4 implementation)
 import openl3.core
@@ -90,6 +92,7 @@ openl3.core.use_librosa_v2(False)
 model = openl3.models.load_audio_embedding_model(
     input_repr, content_type, embedding_size, include_frontend=False)
 Z, ts = openl3.get_audio_embedding(audio, sr, model=model, input_repr=input_repr)  # librosa
+Z, ts = openl3.get_audio_embedding(audio, sr, model=model, input_repr=input_repr, frontend='librosa')  # equivalent
 openl3.core.use_librosa_v2(True)
 
 ```
