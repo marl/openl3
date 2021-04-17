@@ -91,7 +91,7 @@ def _compare(rep1, rep2, name1, name2):
     print(rep2.shape, 'min/max:', [rep2.min(), rep2.max()], 'mean:', rep2.mean())
     print('allclose:', np.allclose(rep1, rep2, verbose=True, rtol=1e-05, atol=1e-05, equal_nan=False))
 
-def show(results1_file, results2_file, fileindex=0, mapindex=0, limit=3, offset=0, clip=None):
+def show(results1_file, results2_file, fileindex=0, mapindex=0, limit=3, offset=0, shift=0, shifty=0, clip=None, abs=True):
     '''Plot the differences between the outputs of two versions.
     
     Arguments:
@@ -114,14 +114,25 @@ def show(results1_file, results2_file, fileindex=0, mapindex=0, limit=3, offset=
     f = files[fileindex]
     for rep1, rep2, name1, name2 in list(zip(results1[f], results2[f], names1, names2))[offset:offset+limit if limit else None]:
         # rep1, rep2 = rep1[:,5:-30], rep2[:,5:-30]
+        if shifty > 0:
+            rep2 = np.concatenate([rep1[:,:shifty], rep2[:,:-shifty]], axis=1)
+        elif shifty < 0:
+            rep2 = np.concatenate([rep2[:,shifty:], rep1[:,-shifty:]], axis=1)
+        if shift > 0:
+            rep2 = np.concatenate([rep1[:,:,:shift], rep2[:,:,:-shift]], axis=2)
+        elif shift < 0:
+            rep2 = np.concatenate([rep2[:,:,shift:], rep1[:,:,-shift:]], axis=2)
+
         _compare(rep1, rep2, name1, name2)
         if rep1.ndim < 4:
             print(name1, name2, rep1.shape, 'too small for imshow')
             continue
 
         plt.figure(figsize=(15, 8))
-        diff = np.abs(rep2 - rep1)
-        for i, xs in enumerate(zip(rep1, rep2, np.clip(diff, -clip, clip) if clip else diff)):
+        diff = rep2 - rep1
+        diff = np.abs(diff) if abs else diff
+        diff = np.clip(diff, -clip, clip) if clip else diff
+        for i, xs in enumerate(zip(rep1, rep2, diff)):
             for j, (x, name, vname) in enumerate(zip(xs, (name1, name2,''), version_names+['diff'])):
                 plt.subplot(len(rep1), len(xs), 1 + i*len(xs)+j)
                 librosa.display.specshow(x[...,mapindex], cmap='magma')
