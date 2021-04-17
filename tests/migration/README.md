@@ -35,7 +35,7 @@ X_librosa = openl3.preprocess(audio, sr, hop_size=1, input_repr=input_repr)
 ```
 
 #### Changing Frontends
-```bash
+```python
 import openl3  # using dev openl3
 
 # load audio
@@ -59,7 +59,7 @@ openl3.core.use_librosa_v2(True)
 ```
 
 #### Changing Frontends with a pre-built model.
-```bash
+```python
 import openl3  # using dev openl3
 
 # load audio
