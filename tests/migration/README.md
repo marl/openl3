@@ -43,19 +43,26 @@ TEST_AUDIO_DIR = os.path.abspath(os.path.join('../data', 'audio'))
 CHIRP_44K_PATH = os.path.join(TEST_AUDIO_DIR, 'chirp_44k.wav')
 audio, sr = sf.read(CHIRP_44K_PATH)
 
-# get embedding using kapre frontend 
-# (if you want the legacy kapre version - import openl3 from pypi instead)
+# (frontend matches kapre 0.1.4 implementation)
+
+# get embedding using kapre frontend
 Z, ts = openl3.get_audio_embedding(audio, sr)
 Z, ts = openl3.get_audio_embedding(audio, sr, frontend='kapre')  # equivalent
 
-# get embedding using librosa frontend (matches kapre 0.3.5 implementation)
+# get embedding using librosa frontend
 Z, ts = openl3.get_audio_embedding(audio, sr, frontend='librosa')
 
-# get embedding using librosa frontend (matches kapre 0.1.4 implementation)
-import openl3.core
-openl3.core.use_librosa_v2(False)
+# switch to use kapre v2 db scaling (matches kapre 0.3.5 db scaling implementation)
+openl3.use_db_scaling_v2(True)
+
+# get embedding using kapre frontend
+Z, ts = openl3.get_audio_embedding(audio, sr)
+
+# get embedding using librosa frontend
 Z, ts = openl3.get_audio_embedding(audio, sr, frontend='librosa')
-openl3.core.use_librosa_v2(True)
+
+# you can switch back to v1 scaling
+openl3.use_db_scaling_v2(False)
 ```
 
 #### Changing Frontends with a pre-built model.
@@ -85,15 +92,20 @@ model = openl3.models.load_audio_embedding_model(
 Z, ts = openl3.get_audio_embedding(audio, sr, model=model, input_repr=input_repr)  # librosa
 Z, ts = openl3.get_audio_embedding(audio, sr, model=model, input_repr=input_repr, frontend='librosa')  # equivalent
 
-# get embedding using librosa frontend (matches kapre 0.1.4 implementation)
-import openl3.core
-openl3.core.use_librosa_v2(False)
+# get embedding using librosa frontend (matches kapre 0.3.5 db scaling implementation)
+openl3.use_db_scaling_v2(True)
 
+# get embedding using kapre v2 db scaling frontend 
+model = openl3.models.load_audio_embedding_model(
+    input_repr, content_type, embedding_size)
+Z, ts = openl3.get_audio_embedding(audio, sr, model=model)  # kapre determined by the model input shape
+Z, ts = openl3.get_audio_embedding(audio, sr, model=model, frontend='kapre')  # equivalent
+
+# get embedding using librosa with v2 db scaling frontend 
 model = openl3.models.load_audio_embedding_model(
     input_repr, content_type, embedding_size, include_frontend=False)
-Z, ts = openl3.get_audio_embedding(audio, sr, model=model, input_repr=input_repr)  # librosa
+Z, ts = openl3.get_audio_embedding(audio, sr, model=model, input_repr=input_repr)  # librosa, determined by the model input shape
 Z, ts = openl3.get_audio_embedding(audio, sr, model=model, input_repr=input_repr, frontend='librosa')  # equivalent
-openl3.core.use_librosa_v2(True)
 
 ```
 
