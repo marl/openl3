@@ -9,7 +9,7 @@ import six
 from numbers import Real
 from math import ceil
 import warnings
-from .models import load_audio_embedding_model, load_image_embedding_model
+from .models import load_audio_embedding_model, load_image_embedding_model, use_db_scaling_v2
 from .openl3_exceptions import OpenL3Error
 from .openl3_warnings import OpenL3Warning
 import skimage
@@ -17,11 +17,6 @@ from moviepy.video.io.VideoFileClip import VideoFileClip
 import librosa
 
 TARGET_SR = 48000
-
-LIBROSA_V2 = True
-def use_librosa_v2(enabled=True):
-    global LIBROSA_V2
-    LIBROSA_V2 = enabled
 
 
 def _center_audio(audio, frame_len):
@@ -108,13 +103,25 @@ def _preprocess_audio_batch(audio, sr=48000, center=True, hop_size=0.1):
     return x
 
 
+# These functions match the kapre and librosa frontends under differing conditions.
+
+# v1 vs v2 refers to the current TFv1 pypi release, vs the TFv2 dev version
+# v1 uses kapre==0.1.4
+# v1 uses kapre==0.3.5
+# the main difference between the versions is how dB scaling is done. 
+
+# There is also a padding difference between kapre v1 and v2 so I added an alternative mel frontend (_mel_frontend_v1_2)
+# that more closely matches kapre v2 with v1 db scaling
+
 def _linear_frontend_v1(audio, n_fft=512, hop_length=242, db_amin=1e-10, db_ref=1.0, db_dynamic_range=80.0):
+    '''Kapre v1 linear frontend.'''
     S = np.abs(librosa.stft(audio, n_fft=n_fft, hop_length=hop_length, center=False))
     S = librosa.power_to_db(S, ref=db_ref, amin=db_amin, top_db=db_dynamic_range)
     S -= S.max()
     return S
 
 def _linear_frontend_v2(audio, n_fft=512, hop_length=242, db_amin=1e-5, db_ref=1.0, db_dynamic_range=80.0):
+    '''Kapre v2 linear frontend.'''
     S = np.abs(librosa.stft(audio, n_fft=n_fft, hop_length=hop_length, center=False))
     S = librosa.power_to_db(S, ref=db_ref, amin=db_amin, top_db=db_dynamic_range)
     return S
@@ -122,13 +129,23 @@ def _linear_frontend_v2(audio, n_fft=512, hop_length=242, db_amin=1e-5, db_ref=1
 
 def _mel_frontend_v1(audio, sr=48000, n_mels=128, n_fft=2048, hop_length=242, 
                   db_amin=1e-10, db_ref=1.0, db_dynamic_range=80.0):
+    '''Kapre v1 mel frontend.'''
     S = librosa.feature.melspectrogram(audio, sr, n_mels=n_mels, n_fft=n_fft, hop_length=hop_length, center=True, power=1.0)
     S = librosa.power_to_db(S, ref=db_ref, amin=db_amin, top_db=db_dynamic_range)
     S -= S.max()
     return S
 
-def _mel_frontend_v2(audio, sr=48000, n_mels=128, n_fft=2048, hop_length=242, 
-                  db_amin=1e-5, db_ref=1.0, db_dynamic_range=80.0):
+def _mel_frontend_v1_2(audio, sr=48000, n_mels=128, n_fft=2048, hop_length=242, db_amin=1e-10, db_ref=1.0, db_dynamic_range=80.0):
+    '''Kapre v2 mel frontend with v1 dB scaling function. (kapre v2 uses right padding instead of center padding)'''
+    audio = np.pad(audio, (0, n_fft-1), 'constant', constant_values=0)
+    S = librosa.feature.melspectrogram(audio, sr, n_mels=n_mels, n_fft=n_fft, hop_length=hop_length, center=False, power=1.0)
+    S = librosa.power_to_db(S, ref=db_ref, amin=db_amin, top_db=db_dynamic_range)
+    S -= S.max()
+    return S
+# _mel_frontend_v1 = _mel_frontend_v1_2
+
+def _mel_frontend_v2(audio, sr=48000, n_mels=128, n_fft=2048, hop_length=242, db_amin=1e-5, db_ref=1.0, db_dynamic_range=80.0):
+    '''Kapre v2 (with v2 dB scaling function).'''
     audio = np.pad(audio, (0, n_fft-1), 'constant', constant_values=0)
     S = librosa.feature.melspectrogram(audio, sr, n_mels=n_mels, n_fft=n_fft, hop_length=hop_length, center=False, power=1.0)
     S = librosa.power_to_db(S, ref=db_ref, amin=db_amin, top_db=db_dynamic_range)
@@ -157,7 +174,7 @@ def preprocess(audio, sr=48000, hop_size=0.1, center=True, input_repr=None, **kw
     x = _preprocess_audio_batch(audio, sr, hop_size=hop_size, center=center)
     if input_repr:
         _linear_frontend, _mel_frontend = (
-            (_linear_frontend_v2, _mel_frontend_v2) if LIBROSA_V2 else 
+            (_linear_frontend_v2, _mel_frontend_v2) if use_db_scaling_v2.enabled else 
             (_linear_frontend_v1, _mel_frontend_v1))
         if input_repr == 'linear':
             x = np.stack([_linear_frontend(xi[0], **kw) for xi in x])[...,None]
