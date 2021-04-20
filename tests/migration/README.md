@@ -109,6 +109,48 @@ Z, ts = openl3.get_audio_embedding(audio, sr, model=model, input_repr=input_repr
 
 ```
 
+### The Frontend Code Differences
+
+```python
+def _linear_frontend_v1(audio, n_fft=512, hop_length=242, db_amin=1e-10, db_ref=1.0, db_dynamic_range=80.0):
+    '''Kapre v1 linear frontend.'''
+    S = np.abs(librosa.stft(audio, n_fft=n_fft, hop_length=hop_length, center=False))
+    S = librosa.power_to_db(S, ref=db_ref, amin=db_amin, top_db=db_dynamic_range)
+    S -= S.max()
+    return S
+
+def _linear_frontend_v2(audio, n_fft=512, hop_length=242, db_amin=1e-5, db_ref=1.0, db_dynamic_range=80.0):
+    '''Kapre v2 linear frontend.'''
+    S = np.abs(librosa.stft(audio, n_fft=n_fft, hop_length=hop_length, center=False))
+    S = librosa.power_to_db(S, ref=db_ref, amin=db_amin, top_db=db_dynamic_range)
+    return S
+
+
+def _mel_frontend_v1(audio, sr=48000, n_mels=128, n_fft=2048, hop_length=242, 
+                  db_amin=1e-10, db_ref=1.0, db_dynamic_range=80.0):
+    '''Kapre v1 mel frontend.'''
+    S = librosa.feature.melspectrogram(audio, sr, n_mels=n_mels, n_fft=n_fft, hop_length=hop_length, center=True, power=1.0)
+    S = librosa.power_to_db(S, ref=db_ref, amin=db_amin, top_db=db_dynamic_range)
+    S -= S.max()
+    return S
+
+def _mel_frontend_v1_2(audio, sr=48000, n_mels=128, n_fft=2048, hop_length=242, db_amin=1e-10, db_ref=1.0, db_dynamic_range=80.0):
+    '''Kapre v2 mel frontend with v1 dB scaling function. (kapre v2 uses right padding instead of center padding)'''
+    audio = np.pad(audio, (0, n_fft-1), 'constant', constant_values=0)
+    S = librosa.feature.melspectrogram(audio, sr, n_mels=n_mels, n_fft=n_fft, hop_length=hop_length, center=False, power=1.0)
+    S = librosa.power_to_db(S, ref=db_ref, amin=db_amin, top_db=db_dynamic_range)
+    S -= S.max()
+    return S
+# _mel_frontend_v1 = _mel_frontend_v1_2
+
+def _mel_frontend_v2(audio, sr=48000, n_mels=128, n_fft=2048, hop_length=242, db_amin=1e-5, db_ref=1.0, db_dynamic_range=80.0):
+    '''Kapre v2 (with v2 dB scaling function).'''
+    audio = np.pad(audio, (0, n_fft-1), 'constant', constant_values=0)
+    S = librosa.feature.melspectrogram(audio, sr, n_mels=n_mels, n_fft=n_fft, hop_length=hop_length, center=False, power=1.0)
+    S = librosa.power_to_db(S, ref=db_ref, amin=db_amin, top_db=db_dynamic_range)
+    return S
+```
+
 ## TF 1 - TF 2 Comparisons
 
 ### To compare the model layer outputs:

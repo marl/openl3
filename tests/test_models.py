@@ -28,14 +28,14 @@ def test_load_audio_embedding_model():
 
     m = load_audio_embedding_model('linear', 'music', 6144)
     # assert isinstance(m.layers[1], kapre.time_frequency.Spectrogram)
-    assert m.layers[1].output_shape == (None, 257, 199, 1)
+    assert m.layers[1].output_shape == (None, 257, 197, 1)
     assert m.output_shape[1] == 6144
 
     first_model = m
 
     m = load_audio_embedding_model('linear', 'music', 512)
     # assert isinstance(m.layers[1], kapre.time_frequency.Spectrogram)
-    assert m.layers[1].output_shape == (None, 257, 199, 1)
+    assert m.layers[1].output_shape == (None, 257, 197, 1)
     assert m.output_shape[1] == 512
     # Check model consistency
     assert isinstance(m.layers[0], type(first_model.layers[0]))
@@ -45,7 +45,7 @@ def test_load_audio_embedding_model():
 
     m = load_audio_embedding_model('linear', 'env', 6144)
     # assert isinstance(m.layers[1], kapre.time_frequency.Spectrogram)
-    assert m.layers[1].output_shape == (None, 257, 199, 1)
+    assert m.layers[1].output_shape == (None, 257, 197, 1)
     assert m.output_shape[1] == 6144
     # Check model consistency
     assert isinstance(m.layers[0], type(first_model.layers[0]))
@@ -55,7 +55,7 @@ def test_load_audio_embedding_model():
 
     m = load_audio_embedding_model('linear', 'env', 512)
     # assert isinstance(m.layers[1], kapre.time_frequency.Spectrogram)
-    assert m.layers[1].output_shape == (None, 257, 199, 1)
+    assert m.layers[1].output_shape == (None, 257, 197, 1)
     assert m.output_shape[1] == 512
     # Check model consistency
     assert isinstance(m.layers[0], type(first_model.layers[0]))

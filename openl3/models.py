@@ -15,41 +15,28 @@ with warnings.catch_warnings():
         Flatten, Activation, Lambda)
     import tensorflow.keras.regularizers as regularizers
 
-    # TODO: making kapre an optional dependency ?
-    # from kapre.composed import get_stft_magnitude_layer, get_melspectrogram_layer
-
-
-def use_db_scaling_v2(enabled=True):
-    use_db_scaling_v2.enabled = enabled
-use_db_scaling_v2.enabled = False
 
 def _log10(x):
     return tf.math.log(x) / tf.math.log(tf.constant(10, dtype=x.dtype))
 
 
-def magnitude_to_decibel(x, ref_value=1.0, amin=1e-10, dynamic_range=80.0):
+def kapre_v0_1_4_magnitude_to_decibel(x, ref_value=1.0, amin=1e-10, dynamic_range=80.0):
     amin = tf.cast(amin or 1e-10, dtype=x.dtype)
-    log_spec = 10. * _log10(K.maximum(x, amin))
     max_axis = tuple(range(K.ndim(x))[1:]) or None
+    log_spec = 10. * _log10(K.maximum(x, amin))
     return K.maximum(
         log_spec - K.max(log_spec, axis=max_axis, keepdims=True), 
         -dynamic_range)
 
 
 def __fix_kapre_spec(func):
-    def get_spec(*a, return_decibel=False, **kw):
-        if use_db_scaling_v2.enabled:
-            seq = func(*a, return_decibel=return_decibel, **kw)
-        else:
-            seq = func(*a, return_decibel=False, **kw)
-            if return_decibel:
-                seq.add(Lambda(magnitude_to_decibel))
+    def get_spectrogram(*a, return_decibel=False, **kw):
+        seq = func(*a, return_decibel=False, **kw)
+        if return_decibel:
+            seq.add(Lambda(kapre_v0_1_4_magnitude_to_decibel))
         seq.add(Permute((2, 1, 3)))  # the output is (None, t, f, ch) instead of (None, f, t, ch), so gotta fix that
         return seq
-    return get_spec
-
-# get_stft_magnitude_layer = __fix_kapre_spec(get_stft_magnitude_layer)
-# get_melspectrogram_layer = __fix_kapre_spec(get_melspectrogram_layer)
+    return get_spectrogram
 
 
 AUDIO_POOLING_SIZES = {

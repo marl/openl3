@@ -9,7 +9,7 @@ import six
 from numbers import Real
 from math import ceil
 import warnings
-from .models import load_audio_embedding_model, load_image_embedding_model, use_db_scaling_v2
+from .models import load_audio_embedding_model, load_image_embedding_model
 from .openl3_exceptions import OpenL3Error
 from .openl3_warnings import OpenL3Warning
 import skimage
@@ -103,85 +103,66 @@ def _preprocess_audio_batch(audio, sr=48000, center=True, hop_size=0.1):
     return x
 
 
-# These functions match the kapre and librosa frontends under differing conditions.
-
-# v1 vs v2 refers to the current TFv1 pypi release, vs the TFv2 dev version
-# v1 uses kapre==0.1.4
-# v1 uses kapre==0.3.5
-# the main difference between the versions is how dB scaling is done. 
-
-# There is also a padding difference between kapre v1 and v2 so I added an alternative mel frontend (_mel_frontend_v1_2)
-# that more closely matches kapre v2 with v1 db scaling
-
-def _linear_frontend_v1(audio, n_fft=512, hop_length=242, db_amin=1e-10, db_ref=1.0, db_dynamic_range=80.0):
-    '''Kapre v1 linear frontend.'''
+def _librosa_linear_frontend(audio, n_fft=512, hop_length=242, db_amin=1e-10, db_ref=1.0, dynamic_range=80.0):
+    '''Librosa linear frontend designed to match original Kapre (0.1.4).'''
     S = np.abs(librosa.stft(audio, n_fft=n_fft, hop_length=hop_length, center=False))
-    S = librosa.power_to_db(S, ref=db_ref, amin=db_amin, top_db=db_dynamic_range)
+    S = librosa.power_to_db(S, ref=db_ref, amin=db_amin, top_db=dynamic_range)
     S -= S.max()
     return S
 
-def _linear_frontend_v2(audio, n_fft=512, hop_length=242, db_amin=1e-5, db_ref=1.0, db_dynamic_range=80.0):
-    '''Kapre v2 linear frontend.'''
-    S = np.abs(librosa.stft(audio, n_fft=n_fft, hop_length=hop_length, center=False))
-    S = librosa.power_to_db(S, ref=db_ref, amin=db_amin, top_db=db_dynamic_range)
-    return S
-
-
-def _mel_frontend_v1(audio, sr=48000, n_mels=128, n_fft=2048, hop_length=242, 
-                  db_amin=1e-10, db_ref=1.0, db_dynamic_range=80.0):
-    '''Kapre v1 mel frontend.'''
-    S = librosa.feature.melspectrogram(audio, sr, n_mels=n_mels, n_fft=n_fft, hop_length=hop_length, center=True, power=1.0)
-    S = librosa.power_to_db(S, ref=db_ref, amin=db_amin, top_db=db_dynamic_range)
+def _librosa_mel_frontend(audio, sr=48000, n_mels=128, n_fft=2048, hop_length=242, 
+                          db_amin=1e-10, db_ref=1.0, dynamic_range=80.0):
+    '''Librosa mel frontend designed to match original Kapre (0.1.4).'''
+    S = librosa.feature.melspectrogram(
+        audio, sr, n_mels=n_mels, n_fft=n_fft, hop_length=hop_length, 
+        center=True, power=1.0)
+    S = librosa.power_to_db(S, ref=db_ref, amin=db_amin, top_db=dynamic_range)
     S -= S.max()
     return S
 
-def _mel_frontend_v1_2(audio, sr=48000, n_mels=128, n_fft=2048, hop_length=242, db_amin=1e-10, db_ref=1.0, db_dynamic_range=80.0):
-    '''Kapre v2 mel frontend with v1 dB scaling function. (kapre v2 uses right padding instead of center padding)'''
-    audio = np.pad(audio, (0, n_fft-1), 'constant', constant_values=0)
-    S = librosa.feature.melspectrogram(audio, sr, n_mels=n_mels, n_fft=n_fft, hop_length=hop_length, center=False, power=1.0)
-    S = librosa.power_to_db(S, ref=db_ref, amin=db_amin, top_db=db_dynamic_range)
-    S -= S.max()
-    return S
-# _mel_frontend_v1 = _mel_frontend_v1_2
 
-def _mel_frontend_v2(audio, sr=48000, n_mels=128, n_fft=2048, hop_length=242, db_amin=1e-5, db_ref=1.0, db_dynamic_range=80.0):
-    '''Kapre v2 (with v2 dB scaling function).'''
-    audio = np.pad(audio, (0, n_fft-1), 'constant', constant_values=0)
-    S = librosa.feature.melspectrogram(audio, sr, n_mels=n_mels, n_fft=n_fft, hop_length=hop_length, center=False, power=1.0)
-    S = librosa.power_to_db(S, ref=db_ref, amin=db_amin, top_db=db_dynamic_range)
-    return S
-
-
-def preprocess(audio, sr=48000, hop_size=0.1, center=True, input_repr=None, **kw):
+def preprocess(audio, sr=48000, hop_size=0.1, input_repr=None, center=True, **kw):
     '''Preprocess the audio into a format compatible with the model.
     
-    Arguments:
-        audio (np.ndarray[N], np.ndarray[N, 1]): The audio PCM.
-        sr (int): The audio sample rate.
-        hop_size (float): Hop size in seconds.
-        center (bool): If True, center pad the audio with zeros.
-        input_repr (str, None): The input representation to generate.
-            If input_repr, is None, then no spectrogram is computed and
-            it is assumed that the model contains the details about 
-            the input representation.
+    Parameters
+    ----------
+    audio : np.ndarray [shape=(N,) or (N,C)] or list[np.ndarray]
+        1D numpy array of audio data or list of audio arrays for multiple
+        inputs.
+    sr : int or list[int]
+        Sampling rate, or list of sampling rates. If not 48kHz audio will
+        be resampled.
+    hop_size : float
+        Hop size in seconds.
+    input_repr : str or None
+        Spectrogram representation used for model.
+        If input_repr, is None, then no spectrogram is computed and
+        it is assumed that the model contains the details about 
+        the input representation.
+    center : boolean
+        If True, pads beginning of signal so timestamps correspond
+        to center of window.
 
-    Returns:
-        preprocessed (np.ndarray): The preprocessed audio. Depending on 
-            the value of input_repr, it will be np.ndarray[batch, time, frequency, 1]
-            if a valid input representation is provided,
-            or np.ndarray[batch, time, 1] if no input_repr is provided.
+    Returns
+    -------
+    input_data (np.ndarray): The preprocessed audio. Depending on 
+        the value of input_repr, it will be np.ndarray[batch, time, frequency, 1]
+        if a valid input representation is provided,
+        or np.ndarray[batch, time, 1] if no input_repr is provided.
     '''
+    # if audio is shaped like a spectrogram:  # if shaped like [freq, time], convert to [batch, freq, time, channel]
+    #     stft_hop_size = 242  # needs to know stft hop size
+    #     return librosa.util.frame(x, int(sr/stft_hop_size), int(sr/stft_hop_size*hop_size)).transpose((2, 0, 1))[...,None]
     x = _preprocess_audio_batch(audio, sr, hop_size=hop_size, center=center)
     if input_repr:
-        _linear_frontend, _mel_frontend = (
-            (_linear_frontend_v2, _mel_frontend_v2) if use_db_scaling_v2.enabled else 
-            (_linear_frontend_v1, _mel_frontend_v1))
         if input_repr == 'linear':
-            x = np.stack([_linear_frontend(xi[0], **kw) for xi in x])[...,None]
+            x = np.stack([_librosa_linear_frontend(xi[0], **kw) for xi in x])[...,None]
         elif input_repr == 'mel128':
-            x = np.stack([_mel_frontend(xi[0], n_mels=128, **kw) for xi in x])[...,None]
+            x = np.stack([_librosa_mel_frontend(xi[0], n_mels=128, **kw) for xi in x])[...,None]
         elif input_repr == 'mel256':
-            x = np.stack([_mel_frontend(xi[0], n_mels=256, **kw) for xi in x])[...,None]
+            x = np.stack([_librosa_mel_frontend(xi[0], n_mels=256, **kw) for xi in x])[...,None]
+        else:
+            raise OpenL3Error('Invalid input representation "{}"'.format(input_repr))
     return x
 
 
@@ -226,20 +207,21 @@ def get_audio_embedding(audio, sr=48000, model=None, input_repr="mel256",
     batch_size : int
         Batch size used for input to embedding model
     frontend : str
-        The audio frontend to use. Can be 'kapre', 'librosa', 'auto', or None. If None, 
-        you must provide an appropriate spectrogram of shape=(batch, time, freq, channel).
+        The audio frontend to use. Can be 'kapre', 'librosa', 'auto', or None. 
+        If 'auto', it will determine the appropriate frontend based on the model input shape.
+        If None, you must provide an appropriate spectrogram of shape=(batch, time, freq, channel).
         TODO: add channel internally and do batching if ndim == 3?
     verbose : bool
         If True, prints verbose messages.
 
     Returns
     -------
-        embedding : np.ndarray [shape=(T, D)] or list[np.ndarray]
-            Array of embeddings for each window or list of such arrays for
-            multiple audio clips.
-        timestamps : np.ndarray [shape=(T,)] or list[np.ndarray]
-            Array of timestamps corresponding to each embedding in the output or
-            list of such arrays for multiple audio cplips.
+    embedding : np.ndarray [shape=(T, D)] or list[np.ndarray]
+        Array of embeddings for each window or list of such arrays for
+        multiple audio clips.
+    timestamps : np.ndarray [shape=(T,)] or list[np.ndarray]
+        Array of timestamps corresponding to each embedding in the output or
+        list of such arrays for multiple audio cplips.
 
     """
     if model is not None and not isinstance(model, tf.keras.Model):
@@ -282,22 +264,22 @@ def get_audio_embedding(audio, sr=48000, model=None, input_repr="mel256",
         raise OpenL3Error(err_msg.format(len(audio_list), len(sr_list)))
 
 
-    if frontend == 'auto':
-        if model is None or len(model.input_shape) == 3:
+    if frontend == 'auto':  # detect which frontend to use
+        # if they don't specify anything, use kapre
+        if model is None:  
             frontend = 'kapre'
-        elif audio_list and np.squeeze(audio_list[0]).ndim == 1:  # they passed audio
-            frontend = 'librosa'
+        # if the model has shape [batch, time, channel], the frontend is inside the model
+        elif len(model.input_shape) == 3:
+            frontend = 'kapre'
         else:
-            frontend = None
+            frontend = 'librosa'
+        # NOTE: can we detect external frontend (frontend=None) based on input data shape
 
     # Get embedding model
     if model is None:
         model = load_audio_embedding_model(
             input_repr, content_type, embedding_size, 
             include_frontend=frontend == 'kapre')
-
-    embedding_list = []
-    ts_list = []
 
     # Collect all audio arrays in a single array
     batch = []
@@ -306,8 +288,6 @@ def get_audio_embedding(audio, sr=48000, model=None, input_repr="mel256",
             x = preprocess(
                 x, sr, hop_size=hop_size, center=center, 
                 input_repr=input_repr if frontend == 'librosa' else None)
-        # else:  # TODO: do batching for mel spectrogram input
-        #     x = librosa.util.frame(x, ...).T
         batch.append(x)
 
     file_batch_size_list = [x.shape[0] for x in batch]
@@ -315,20 +295,19 @@ def get_audio_embedding(audio, sr=48000, model=None, input_repr="mel256",
     # Compute embeddings
     batch_embedding = model.predict(batch, verbose=1 if verbose else 0,
                                     batch_size=batch_size)
+
+    embedding_list = []
     start_idx = 0
     for file_batch_size in file_batch_size_list:
         end_idx = start_idx + file_batch_size
-        embedding = batch_embedding[start_idx:end_idx, ...]
-        ts = np.arange(embedding.shape[0]) * hop_size
-
-        embedding_list.append(embedding)
-        ts_list.append(ts)
+        embedding_list.append(batch_embedding[start_idx:end_idx, ...])
         start_idx = end_idx
+
+    ts_list = [np.arange(z.shape[0]) * hop_size for z in embedding_list]
 
     if not list_input:
         return embedding_list[0], ts_list[0]
-    else:
-        return embedding_list, ts_list
+    return embedding_list, ts_list
 
 
 def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
