@@ -449,11 +449,12 @@ OpenL3 provides two different audio frontends to choose from.
 Kapre (GPU)
 ^^^^^^^^^^^
 
-Kapre is the frontend that has been historically used in OpenL3. The current version uses Tensorflow 
-operations to compute the audio features that allows the computations to be executed on GPUs.
+Historically, Kapre has been used to extract features for OpenL3. Kapre uses Tensorflow 
+operations to compute the audio features that allows the computations to be executed on GPUs 
+when available.
 
 Using Kapre, the feature extraction stage is baked into the model, meaning that the OpenL3 Keras model 
-takes audio PCM (``shape=(None, 1, samples)``) as input.
+takes batches of audio PCM as input (``shape=(None, 1, samples)``).
 
 .. code-block:: python
 
@@ -489,8 +490,12 @@ Beginning with version 0.4.0, OpenL3 also provides support for computing audio f
 which offers you flexibility and allows you to precompute or parallelize your computations across multiple CPUs. 
 
 Contrary to the Kapre frontend, the Librosa frontend is not included inside the model. Instead the Keras model 
-takes precomputed spectrograms in the format of the input representation chosen. OpenL3's high-level interfaces 
-still work the same though!
+takes either linear or mel spectrograms (according to the input representation chosen). OpenL3's high-level interfaces 
+still work the same though, it just changes the mechanics of how features are calculated under the hood. 
+
+This also decouples the feature extraction, which consists of specialized audio code that may not export well, 
+from the standard convolutional and fully-connected layers that comprise the rest of OpenL3, making it easier to 
+port the model into new environments.
 
 .. code-block:: python
 
