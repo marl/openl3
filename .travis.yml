@@ -6,9 +6,11 @@ notifications:
     email: false
 
 python:
-    - "2.7"
+    # - "2.7"
     - "3.5"
     - "3.6"
+    - "3.7"
+    - "3.8"
 
 before_install:
     - pip install python-coveralls
@@ -20,7 +22,7 @@ before_install:
     - ffmpeg -hwaccels
 
 install:
-    - pip install "tensorflow>=1.12.0,<1.14.0"
+    # - pip install "tensorflow>=1.12.0,<1.14.0"
     - pip install pytest
     - pip install -e .[tests]
 
