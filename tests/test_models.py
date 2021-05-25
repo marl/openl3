@@ -1,26 +1,24 @@
+import openl3.core
 from openl3.models import (
     load_audio_embedding_model, get_audio_embedding_model_path,
     load_image_embedding_model, get_image_embedding_model_path)
+import pytest
 
 
-def test_get_audio_embedding_model_path():
-    embedding_model_path = get_audio_embedding_model_path('linear', 'music')
-    assert '/'.join(embedding_model_path.split('/')[-2:]) == 'openl3/openl3_audio_linear_music.h5'
+INPUT_REPR_SIZES = {
+    'linear': (None, 257, 197, 1),
+    'mel128': (None, 128, 199, 1),
+    'mel256': (None, 256, 199, 1),
+}
+CONTENT_TYPES = ['env', 'music']
 
-    embedding_model_path = get_audio_embedding_model_path('linear', 'env')
-    assert '/'.join(embedding_model_path.split('/')[-2:]) == 'openl3/openl3_audio_linear_env.h5'
-
-    embedding_model_path = get_audio_embedding_model_path('mel128', 'music')
-    assert '/'.join(embedding_model_path.split('/')[-2:]) == 'openl3/openl3_audio_mel128_music.h5'
-
-    embedding_model_path = get_audio_embedding_model_path('mel128', 'env')
-    assert '/'.join(embedding_model_path.split('/')[-2:]) == 'openl3/openl3_audio_mel128_env.h5'
-
-    embedding_model_path = get_audio_embedding_model_path('mel256', 'music')
-    assert '/'.join(embedding_model_path.split('/')[-2:]) == 'openl3/openl3_audio_mel256_music.h5'
-
-    embedding_model_path = get_audio_embedding_model_path('mel256', 'env')
-    assert '/'.join(embedding_model_path.split('/')[-2:]) == 'openl3/openl3_audio_mel256_env.h5'
+@pytest.mark.parametrize('input_repr', list(INPUT_REPR_SIZES))
+@pytest.mark.parametrize('content_type', CONTENT_TYPES)
+def test_get_audio_embedding_model_path(input_repr, content_type):
+    embedding_model_path = get_audio_embedding_model_path(input_repr, content_type)
+    assert (
+        '/'.join(embedding_model_path.split('/')[-2:]) == 
+        'openl3/openl3_audio_{}_{}.h5'.format(input_repr, content_type))
 
 
 def test_load_audio_embedding_model():
@@ -144,24 +142,48 @@ def test_load_audio_embedding_model():
                 for (l1, l2) in zip(m.layers[2:], first_model.layers[2:])])
 
 
-def test_get_image_embedding_model_path():
-    embedding_model_path = get_image_embedding_model_path('linear', 'music')
-    assert '/'.join(embedding_model_path.split('/')[-2:]) == 'openl3/openl3_image_linear_music.h5'
+def _compare_layers(layersA, layersB):
+    assert len(layersA) == len(layersB)
+    for la, lb in zip(layersA, layersB):
+        assert type(la) == type(lb)
+        assert la.input_shape == lb.input_shape
+        assert la.output_shape == lb.output_shape
 
-    embedding_model_path = get_image_embedding_model_path('linear', 'env')
-    assert '/'.join(embedding_model_path.split('/')[-2:]) == 'openl3/openl3_image_linear_env.h5'
 
-    embedding_model_path = get_image_embedding_model_path('mel128', 'music')
-    assert '/'.join(embedding_model_path.split('/')[-2:]) == 'openl3/openl3_image_mel128_music.h5'
+@pytest.mark.parametrize('input_repr', list(INPUT_REPR_SIZES))
+def test_frontend(input_repr):
+    # check spectrogram input size
+    m = load_audio_embedding_model(input_repr, 'env', 512, frontend=False)
+    assert m.input_shape == INPUT_REPR_SIZES[input_repr]
 
-    embedding_model_path = get_image_embedding_model_path('mel128', 'env')
-    assert '/'.join(embedding_model_path.split('/')[-2:]) == 'openl3/openl3_image_mel128_env.h5'
+    m2 = load_audio_embedding_model(input_repr, 'env', 512, frontend=True)
+    assert m2.input_shape == (None, 1, openl3.core.TARGET_SR)
 
-    embedding_model_path = get_image_embedding_model_path('mel256', 'music')
-    assert '/'.join(embedding_model_path.split('/')[-2:]) == 'openl3/openl3_image_mel256_music.h5'
+    # compare all layers to model with frontend
+    _compare_layers(m.layers[1:], m2.layers[2:])
 
-    embedding_model_path = get_image_embedding_model_path('mel256', 'env')
-    assert '/'.join(embedding_model_path.split('/')[-2:]) == 'openl3/openl3_image_mel256_env.h5'
+    m_alt = load_audio_embedding_model(input_repr, 'env', 512, frontend='librosa')
+    assert m_alt.input_shape == INPUT_REPR_SIZES[input_repr]
+
+    _compare_layers(m.layers[1:], m_alt.layers[1:])
+
+    m2_alt = load_audio_embedding_model(input_repr, 'env', 512, frontend='kapre')
+    assert m2.input_shape == (None, 1, openl3.core.TARGET_SR)
+
+    _compare_layers(m2.layers[1:], m2_alt.layers[1:])
+
+    with pytest.raises(openl3.exceptions.OpenL3Error):
+        load_audio_embedding_model(input_repr, 'env', 512, frontend='not-a-thing')
+
+
+
+@pytest.mark.parametrize('input_repr', list(INPUT_REPR_SIZES))
+@pytest.mark.parametrize('content_type', CONTENT_TYPES)
+def test_get_image_embedding_model_path(input_repr, content_type):
+    embedding_model_path = get_image_embedding_model_path(input_repr, content_type)
+    assert (
+        '/'.join(embedding_model_path.split('/')[-2:]) == 
+        'openl3/openl3_image_{}_{}.h5'.format(input_repr, content_type))
 
 
 def test_load_image_embedding_model():

@@ -32,12 +32,12 @@ BENTO_PATH = os.path.join(TEST_VIDEO_DIR, 'bento.mp4')
 
 # Regression file paths
 TEST_REG_DIR = os.path.join(TEST_DIR, 'data', 'regression')
-REG_CHIRP_44K_PATH = os.path.join(TEST_REG_DIR, 'chirp_44k.npz')
-REG_CHIRP_44K_LINEAR_PATH = os.path.join(TEST_REG_DIR, 'chirp_44k_linear.npz')
-REG_BENTO_AUDIO_PATH = os.path.join(TEST_REG_DIR, 'bento_audio.npz')
-REG_BENTO_AUDIO_LINEAR_PATH = os.path.join(TEST_REG_DIR, 'bento_audio_linear.npz')
-REG_BENTO_IMAGE_PATH = os.path.join(TEST_REG_DIR, 'bento_image.npz')
-REG_BENTO_IMAGE_LINEAR_PATH = os.path.join(TEST_REG_DIR, 'bento_image_linear.npz')
+REG_CHIRP_44K_PATH = os.path.join(TEST_REG_DIR, 'chirp_44k_kapre.npz')
+REG_CHIRP_44K_LINEAR_PATH = os.path.join(TEST_REG_DIR, 'chirp_44k_kapre_linear.npz')
+REG_BENTO_AUDIO_PATH = os.path.join(TEST_REG_DIR, 'bento_audio_kapre.npz')
+REG_BENTO_AUDIO_LINEAR_PATH = os.path.join(TEST_REG_DIR, 'bento_audio_kapre_linear.npz')
+REG_BENTO_IMAGE_PATH = os.path.join(TEST_REG_DIR, 'bento_image_kapre.npz')
+REG_BENTO_IMAGE_LINEAR_PATH = os.path.join(TEST_REG_DIR, 'bento_image_kapre_linear.npz')
 
 
 def test_positive_float():
