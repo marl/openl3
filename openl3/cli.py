@@ -57,7 +57,8 @@ def run(modality, inputs, output_dir=None, suffix=None,
         input_repr="mel256", content_type="music",
         audio_embedding_size=6144, audio_center=True, audio_hop_size=0.1,
         audio_batch_size=32, image_embedding_size=8192,
-        image_batch_size=32, overwrite=False, verbose=False):
+        image_batch_size=32, audio_frontend='auto',
+        overwrite=False, verbose=False):
     """
     Computes and saves L3 embedding for given inputs.
 
@@ -124,6 +125,7 @@ def run(modality, inputs, output_dir=None, suffix=None,
                            hop_size=audio_hop_size,
                            batch_size=audio_batch_size,
                            overwrite=overwrite,
+                           frontend=audio_frontend,
                            verbose=verbose)
     elif modality == 'image':
         model = load_image_embedding_model(input_repr, content_type,
@@ -155,6 +157,7 @@ def run(modality, inputs, output_dir=None, suffix=None,
                            audio_batch_size=audio_batch_size,
                            image_batch_size=image_batch_size,
                            image_embedding_size=image_embedding_size,
+                           audio_frontend=audio_frontend,
                            overwrite=overwrite,
                            verbose=verbose)
     else:
@@ -220,6 +223,10 @@ def parse_args(args):
     parser.add_argument('--image-batch-size', '-ib', type=positive_int, default=32,
                         help='Batch size used for input to image embedding model.')
 
+    parser.add_argument('--audio-frontend', '-fe', default='kapre',
+                        choices=['kapre', 'librosa'],
+                        help='The acoustic frontend to use.')
+
     parser.add_argument('--overwrite', '-ow', action='store_true',
                         help='If set, overwrites existing outputs files.')
 
@@ -247,5 +254,6 @@ def main():
         audio_batch_size=args.audio_batch_size,
         image_embedding_size=args.image_embedding_size,
         image_batch_size=args.image_batch_size,
+        audio_frontend=args.audio_frontend,
         overwrite=args.overwrite,
         verbose=not args.quiet)

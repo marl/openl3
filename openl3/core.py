@@ -9,7 +9,7 @@ import six
 from numbers import Real
 from math import ceil
 import warnings
-from .models import load_audio_embedding_model, load_image_embedding_model
+from .models import load_audio_embedding_model, load_image_embedding_model, _validate_audio_frontend
 from .openl3_exceptions import OpenL3Error
 from .openl3_warnings import OpenL3Warning
 import skimage
@@ -103,14 +103,16 @@ def _preprocess_audio_batch(audio, sr=48000, center=True, hop_size=0.1):
     return x
 
 
-def _librosa_linear_frontend(audio, n_fft=512, hop_length=242, db_amin=1e-10, db_ref=1.0, dynamic_range=80.0):
+def _librosa_linear_frontend(audio, n_fft=512, hop_length=242, db_amin=1e-10, 
+                             db_ref=1.0, dynamic_range=80.0):
     '''Librosa linear frontend designed to match original Kapre (0.1.4).'''
     S = np.abs(librosa.stft(audio, n_fft=n_fft, hop_length=hop_length, center=False))
     S = librosa.power_to_db(S, ref=db_ref, amin=db_amin, top_db=dynamic_range)
     S -= S.max()
     return S
 
-def _librosa_mel_frontend(audio, sr=48000, n_mels=128, n_fft=2048, hop_length=242, 
+
+def _librosa_mel_frontend(audio, sr=48000, n_mels=128, n_fft=2048, hop_length=242,
                           db_amin=1e-10, db_ref=1.0, dynamic_range=80.0):
     '''Librosa mel frontend designed to match original Kapre (0.1.4).'''
     S = librosa.feature.melspectrogram(
@@ -121,9 +123,10 @@ def _librosa_mel_frontend(audio, sr=48000, n_mels=128, n_fft=2048, hop_length=24
     return S
 
 
-def preprocess(audio, sr=48000, hop_size=0.1, input_repr=None, center=True, **kw):
-    '''Preprocess the audio into a format compatible with the model.
-    
+def preprocess_audio(audio, sr=48000, hop_size=0.1, input_repr=None, center=True, **kw):
+    """
+    Preprocess the audio into a format compatible with the model.
+
     Parameters
     ----------
     audio : np.ndarray [shape=(N,) or (N,C)] or list[np.ndarray]
@@ -149,7 +152,7 @@ def preprocess(audio, sr=48000, hop_size=0.1, input_repr=None, center=True, **kw
         the value of input_repr, it will be np.ndarray[batch, time, frequency, 1]
         if a valid input representation is provided,
         or np.ndarray[batch, time, 1] if no input_repr is provided.
-    '''
+    """
     # if audio is shaped like a spectrogram:  # if shaped like [freq, time], convert to [batch, freq, time, channel]
     #     stft_hop_size = 242  # needs to know stft hop size
     #     return librosa.util.frame(x, int(sr/stft_hop_size), int(sr/stft_hop_size*hop_size)).transpose((2, 0, 1))[...,None]
@@ -263,29 +266,19 @@ def get_audio_embedding(audio, sr=48000, model=None, input_repr="mel256",
                   ' sample rates ({})'
         raise OpenL3Error(err_msg.format(len(audio_list), len(sr_list)))
 
-
-    if frontend == 'auto':  # detect which frontend to use
-        # if they don't specify anything, use kapre
-        if model is None:  
-            frontend = 'kapre'
-        # if the model has shape [batch, time, channel], the frontend is inside the model
-        elif len(model.input_shape) == 3:
-            frontend = 'kapre'
-        else:
-            frontend = 'librosa'
-        # NOTE: can we detect external frontend (frontend=None) based on input data shape
+    frontend = _validate_audio_frontend(frontend, model)
 
     # Get embedding model
     if model is None:
         model = load_audio_embedding_model(
             input_repr, content_type, embedding_size, 
-            include_frontend=frontend == 'kapre')
+            frontend=frontend)
 
     # Collect all audio arrays in a single array
     batch = []
     for x, sr in zip(audio_list, sr_list):
         if frontend:
-            x = preprocess(
+            x = preprocess_audio(
                 x, sr, hop_size=hop_size, center=center, 
                 input_repr=input_repr if frontend == 'librosa' else None)
         batch.append(x)
@@ -313,7 +306,7 @@ def get_audio_embedding(audio, sr=48000, model=None, input_repr="mel256",
 def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
                        input_repr="mel256", content_type="music",
                        embedding_size=6144, center=True, hop_size=0.1,
-                       batch_size=32, overwrite=False, verbose=True):
+                       batch_size=32, overwrite=False, frontend='auto', verbose=True):
     """
     Computes and saves L3 embedding for a given audio file
 
@@ -351,6 +344,9 @@ def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
         Batch size used for input to embedding model
     overwrite : bool
         If True, overwrites existing output files
+    frontend : str
+        The audio frontend to use. By default, will detect based on model
+        shape, or will use 'kapre' if no model is provided.
     verbose : bool
         If True, prints verbose messages.
 
@@ -370,9 +366,10 @@ def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
         suffix = ""
 
     # Load model
+    frontend = _validate_audio_frontend(frontend, model)
     if not model:
         model = load_audio_embedding_model(input_repr, content_type,
-                                           embedding_size)
+                                           embedding_size, frontend=frontend)
 
     audio_list = []
     sr_list = []
@@ -766,6 +763,7 @@ def process_video_file(filepath, output_dir=None, suffix=None,
                        audio_embedding_size=6144, audio_center=True,
                        audio_hop_size=0.1, image_embedding_size=8192,
                        audio_batch_size=32, image_batch_size=32,
+                       audio_frontend='auto',
                        overwrite=False, verbose=True):
     """
     Computes and saves L3 audio and video frame embeddings for a given video file
@@ -818,6 +816,9 @@ def process_video_file(filepath, output_dir=None, suffix=None,
         Batch size used for input to audio embedding model
     image_batch_size : int
         Batch size used for input to image embedding model
+    frontend : str
+        The audio frontend to use. By default, will detect based on audio model
+        shape, or will use 'kapre' if no model is provided.
     overwrite : bool
         If True, overwrites existing output files
     verbose : bool
@@ -835,10 +836,13 @@ def process_video_file(filepath, output_dir=None, suffix=None,
         err_msg = 'filepath should be type str or list[str], but got {}.'
         raise OpenL3Error(err_msg.format(filepath))
 
+    audio_frontend = _validate_audio_frontend(audio_frontend, audio_model)
+
     # Load models
     if not audio_model:
         audio_model = load_audio_embedding_model(input_repr, content_type,
-                                                 audio_embedding_size)
+                                                 audio_embedding_size, 
+                                                 frontend=audio_frontend)
     if not image_model:
         image_model = load_image_embedding_model(input_repr, content_type,
                                                  image_embedding_size)

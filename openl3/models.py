@@ -39,6 +39,24 @@ def __fix_kapre_spec(func):
     return get_spectrogram
 
 
+def _validate_audio_frontend(frontend='auto', model=None):
+    if frontend == 'auto':  # detect which frontend to use
+        # if they don't specify anything, use kapre
+        if model is None:  
+            frontend = 'kapre'
+        # if the model has shape [batch, time, channel], the frontend is inside the model
+        elif len(model.input_shape) == 3:
+            frontend = 'kapre'
+        else:
+            frontend = 'librosa'
+        # NOTE: can we detect external frontend (frontend=None) based on input data shape?
+
+    VALID_FRONTENDS = ("librosa", "kapre")
+    if str(frontend) not in VALID_FRONTENDS:
+        raise OpenL3Error('Invalid frontend "{}". Must be one of {}'.format(frontend, VALID_FRONTENDS))
+    return frontend
+
+
 AUDIO_POOLING_SIZES = {
     'linear': {
         6144: (8, 8),
@@ -60,7 +78,7 @@ IMAGE_POOLING_SIZES = {
 }
 
 
-def load_audio_embedding_model(input_repr, content_type, embedding_size, include_frontend=True):
+def load_audio_embedding_model(input_repr, content_type, embedding_size, frontend='kapre'):
     """
     Returns a model with the given characteristics. Loads the model
     if the model has not been loaded yet.
@@ -73,17 +91,25 @@ def load_audio_embedding_model(input_repr, content_type, embedding_size, include
         Type of content used to train embedding.
     embedding_size : 6144 or 512
         Embedding dimensionality.
+    frontend : "kapre" or "librosa" (or True or False, respectively)
+        The audio frontend to use.
 
     Returns
     -------
     model : tf.keras.Model
         Model object.
     """
+    # Semantically, I think booleans make more sense here than kapre/librosa, but for compatibility
+    if frontend is True:
+        frontend = 'kapre'
+    if frontend == False:
+        frontend = 'librosa'
+    frontend = _validate_audio_frontend(frontend)
 
     # Construct embedding model and load model weights
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        m = AUDIO_MODELS[input_repr](include_frontend=include_frontend)
+        m = AUDIO_MODELS[input_repr](include_frontend=frontend == 'kapre')
 
     m.load_weights(get_audio_embedding_model_path(input_repr, content_type))
 
@@ -92,6 +118,7 @@ def load_audio_embedding_model(input_repr, content_type, embedding_size, include
     y_a = MaxPooling2D(pool_size=pool_size, padding='same')(m.output)
     y_a = Flatten()(y_a)
     m = Model(inputs=m.input, outputs=y_a)
+    m.frontend = frontend
     return m
 
 
