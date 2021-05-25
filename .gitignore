@@ -5,6 +5,7 @@
 __pycache__
 .idea/*
 .cache/*
+.vscode
 .ipynb_checkpoints
 
 .pytest_cache
