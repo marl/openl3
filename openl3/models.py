@@ -44,12 +44,14 @@ def _validate_audio_frontend(frontend='auto', model=None):
         # if they don't specify anything, use kapre
         if model is None:  
             frontend = 'kapre'
-        # if the model has shape [batch, time, channel], the frontend is inside the model
+        # if the model has shape [batch, channel, time], the frontend is inside the model
         elif len(model.input_shape) == 3:
             frontend = 'kapre'
         else:
             frontend = 'librosa'
         # NOTE: can we detect external frontend (frontend=None) based on input data shape?
+        # XXX: should we throw an error if model shape doesn't match
+        #      frontend expected shape? or just let it fail later?
 
     VALID_FRONTENDS = ("librosa", "kapre")
     if str(frontend) not in VALID_FRONTENDS:
@@ -102,7 +104,7 @@ def load_audio_embedding_model(input_repr, content_type, embedding_size, fronten
     # Semantically, I think booleans make more sense here than kapre/librosa, but for compatibility
     if frontend is True:
         frontend = 'kapre'
-    if frontend == False:
+    if frontend is False or frontend is None:
         frontend = 'librosa'
     frontend = _validate_audio_frontend(frontend)
 

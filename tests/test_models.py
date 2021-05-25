@@ -2,6 +2,7 @@ import openl3.core
 from openl3.models import (
     load_audio_embedding_model, get_audio_embedding_model_path,
     load_image_embedding_model, get_image_embedding_model_path)
+from openl3.openl3_exceptions import OpenL3Error
 import pytest
 
 
@@ -172,9 +173,33 @@ def test_frontend(input_repr):
 
     _compare_layers(m2.layers[1:], m2_alt.layers[1:])
 
-    with pytest.raises(openl3.exceptions.OpenL3Error):
+    with pytest.raises(OpenL3Error):
         load_audio_embedding_model(input_repr, 'env', 512, frontend='not-a-thing')
 
+
+def test_validate_audio_frontend():
+    # test kapre/librosa frontend
+    mk = load_audio_embedding_model('mel128', 'env', 512, frontend='kapre')
+    assert len(mk.input_shape) == 3
+    assert openl3.models._validate_audio_frontend('auto', mk) == 'kapre'
+
+    ml = load_audio_embedding_model('mel128', 'env', 512, frontend='librosa')
+    assert len(ml.input_shape) == 4
+    assert openl3.models._validate_audio_frontend('auto', ml) == 'librosa'
+
+    # alt boolean values - truthy means yes frontend
+    mk = load_audio_embedding_model('mel128', 'env', 512, frontend=True)
+    assert len(mk.input_shape) == 3
+    assert openl3.models._validate_audio_frontend('auto', mk) == 'kapre'
+
+    # falsey values means no frontend
+    ml = load_audio_embedding_model('mel128', 'env', 512, frontend=False)
+    assert len(ml.input_shape) == 4
+    assert openl3.models._validate_audio_frontend('auto', ml) == 'librosa'
+
+    ml = load_audio_embedding_model('mel128', 'env', 512, frontend=None)
+    assert len(ml.input_shape) == 4
+    assert openl3.models._validate_audio_frontend('auto', ml) == 'librosa'
 
 
 @pytest.mark.parametrize('input_repr', list(INPUT_REPR_SIZES))

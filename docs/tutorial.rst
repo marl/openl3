@@ -453,7 +453,7 @@ Kapre is the frontend that has been historically used in OpenL3. The current ver
 operations to compute the audio features that allows the computations to be executed on GPUs.
 
 Using Kapre, the feature extraction stage is baked into the model, meaning that the OpenL3 Keras model 
-takes audio PCM (``shape=(None, samples, 1)``) as input.
+takes audio PCM (``shape=(None, 1, samples)``) as input.
 
 .. code-block:: python
 
@@ -507,8 +507,7 @@ still work the same though!
     # load model with no frontend for use with an external librosa frontend
     input_repr, content_type, embedding_size = 'mel128', 'music', 6144
     model_librosa = openl3.models.load_audio_embedding_model(
-        input_repr, content_type, embedding_size, 
-        include_frontend=False)
+        input_repr, content_type, embedding_size, frontend='librosa')
 
     # get embedding using pre-loaded model and librosa frontend 
     emb_list, ts_list = openl3.get_audio_embedding(audio, sr, model=model_librosa)

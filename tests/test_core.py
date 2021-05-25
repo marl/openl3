@@ -1013,7 +1013,7 @@ def test_get_num_windows():
 
 
 def test_preprocess_audio(chirp_audio_sr):
-    hop_len = 0.1
+    # hop_len = 0.1
     audio, sr = chirp_audio_sr
     n_frames = 16 #int(np.ceil(len(audio) / hop_len / sr))  # ??? ugh padding or smsht
 
@@ -1026,11 +1026,6 @@ def test_preprocess_audio(chirp_audio_sr):
 
     with pytest.raises(OpenL3Error):
         openl3.preprocess_audio(audio, sr, input_repr='asdfadsasdfasdfaasdf')
-
-# TODO: complete coverage
-# - test preprocess_audio (inc invalid)
-# - test validate_frontend librosa detect (and bool aliases for load model)
-
 
 
 def test_preprocess_image_batch():
