@@ -74,14 +74,14 @@ base_url = 'https://github.com/marl/openl3/raw/models/'
 #         print('Removed compressed file.')
 
 
-def compress(*weight_files, out_dir=None, version=model_version_str):
+def compress(*weight_files, out_dir=None, version=model_version_str, overwrite=False):
     version = version.replace('.', '_')
     weight_files = weight_files or glob.glob(os.path.abspath(os.path.join(__file__, '../../openl3/*.h5')))
     out_dir = os.path.abspath(out_dir or os.path.join(__file__, '../../../models'))  # assume adjacent repo
     os.makedirs(out_dir, exist_ok=True)
 
     for weight_file in weight_files:
-        if not os.path.isfile(weight_file):
+        if not overwrite and not os.path.isfile(weight_file):
             print('Weight file', weight_file, 'does not exist. skipping...')
             continue
 

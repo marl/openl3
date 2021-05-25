@@ -23,9 +23,7 @@ def run(*files, search='spectrogram', doit=False):
             you from accidentally deleting weights.
     '''
     # extra .. gets rid of fname
-    pattern = os.path.abspath(os.path.join(
-        __file__, '../../', 
-        'openl3/*.h5'))
+    pattern = os.path.abspath(os.path.join(__file__, '../../../', 'openl3/*.h5'))
 
     deleted = {}
     for fname in files or glob.glob(pattern):
