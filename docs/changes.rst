@@ -3,6 +3,15 @@
 Changelog
 ---------
 
+v0.4.0
+~~~~~~
+ - Upgrade to `tensorflow>=2.0.0`
+ - Upgrade to `kapre>=`. Reverted magnitude scaling method to match `<=` as that's what the model was trained on.
+ - Add librosa frontend, and allow frontend to be configurable between `kapre` and `librosa`
+    - Added `include_frontend=False` flag to `load_audio_embedding_model` for use with a librosa or other external frontend
+    - Added a `openl3.preprocess` function that computes the input features needed for each frontend
+
+
 v0.3.1
 ~~~~~~
 - Require `keras>=2.0.9,<2.3.0` in dependencies to avoid force installation of TF 2.x during pip installation.

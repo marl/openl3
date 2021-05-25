@@ -441,6 +441,86 @@ Multiple files can be processed as well (with a specified model input batch size
     openl3.process_video_file(video_filepath_list, batch_size=32)
 
 
+Choosing an Audio Frontend (CPU / GPU)
+**************************************
+
+OpenL3 provides two different audio frontends to choose from.
+
+Kapre (GPU)
+^^^^^^^^^^^
+
+Kapre is the frontend that has been historically used in OpenL3. The current version uses Tensorflow 
+operations to compute the audio features that allows the computations to be executed on GPUs.
+
+Using Kapre, the feature extraction stage is baked into the model, meaning that the OpenL3 Keras model 
+takes audio PCM (``shape=(None, samples, 1)``) as input.
+
+.. code-block:: python
+
+    import openl3
+    import soundfile as sf
+
+    audio, sr = sf.read('/path/to/file1.wav')
+
+    # get embedding using kapre frontend
+    emb_list, ts_list = openl3.get_audio_embedding(audio, sr)
+    emb_list, ts_list = openl3.get_audio_embedding(audio, sr, frontend='kapre')  # same result
+
+    # pre-loading a model
+
+    # load model with the kapre frontend
+    input_repr, content_type, embedding_size = 'mel128', 'music', 6144
+    model_kapre = openl3.models.load_audio_embedding_model(input_repr, content_type, embedding_size)
+
+    # get embedding using pre-loaded model with kapre frontend 
+    emb_list, ts_list = openl3.get_audio_embedding(audio, sr, model=model_kapre)
+
+    # computing embeddings manually for a single file.
+    # Note: If no input representation (`input_repr`) is passed to `preprocess_audio`
+    # then it will prepare the input data for the kapre frontend.
+
+    input_data = openl3.preprocess_audio(audio, sr)
+    emb, ts = model_kapre.predict(input_data)
+
+Librosa (CPU)
+^^^^^^^^^^^^^
+
+Beginning with version 0.4.0, OpenL3 also provides support for computing audio features using Librosa, 
+which offers you flexibility and allows you to precompute or parallelize your computations across multiple CPUs. 
+
+Contrary to the Kapre frontend, the Librosa frontend is not included inside the model. Instead the Keras model 
+takes precomputed spectrograms in the format of the input representation chosen. OpenL3's high-level interfaces 
+still work the same though!
+
+.. code-block:: python
+
+    import openl3
+    import soundfile as sf
+
+    audio, sr = sf.read('/path/to/file1.wav')
+
+    # get embedding using librosa frontend
+    emb_list, ts_list = openl3.get_audio_embedding(audio, sr, frontend='librosa')
+
+    # pre-loading a model
+
+    # load model with no frontend for use with an external librosa frontend
+    input_repr, content_type, embedding_size = 'mel128', 'music', 6144
+    model_librosa = openl3.models.load_audio_embedding_model(
+        input_repr, content_type, embedding_size, 
+        include_frontend=False)
+
+    # get embedding using pre-loaded model and librosa frontend 
+    emb_list, ts_list = openl3.get_audio_embedding(audio, sr, model=model_librosa)
+
+    # computing embeddings manually for a single file
+    # Note how we pass the input representation (`input_repr`) to `preprocess_audio` so that 
+    # librosa knows how to compute the inputs.
+
+    input_data = openl3.preprocess_audio(audio, sr, input_repr=input_repr)
+    emb, ts = model_librosa.predict(input_data)
+
+
 Using the Command Line Interface (CLI)
 --------------------------------------
 

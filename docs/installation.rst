@@ -5,20 +5,6 @@ Installation instructions
 
 Dependencies
 -----------------------
-Tensorflow
-__________
-Because Tensorflow comes in CPU-only and GPU variants, we leave it up to the user to install the version that best fits
-their usecase.
-
-On most platforms, either of the following commands should properly install Tensorflow:
-
->>> pip install "tensorflow<1.14" # CPU-only version
->>> pip install "tensorflow-gpu<1.14" # GPU version
-
-**Please note that Tensorflow 2.x is not yet supported. Ensure that an earlier version of Tensorflow is installed.** If you run into further issues with installation, a known working dependency combination is Tensorflow 1.13, Keras 2.0, and Kapre 0.1.4.
-
-For more detailed information, please consult the
-`Tensorflow installation documentation <https://www.tensorflow.org/install/>`_.
 
 libsndfile
 __________
@@ -36,6 +22,11 @@ Alternatively, if you are using ``conda``, you can install ``libsndfile`` simply
 For more detailed information, please consult the
 `pysoundfile installation documentation <https://pysoundfile.readthedocs.io/en/0.9.0/#installation>`_.
 
+Tensorflow
+__________
+Starting with ``openl3>=0.4.0``, Openl3 has been upgraded to use Tensorflow 2. Because Tensorflow 2 and higher now includes GPU support, ``tensorflow>=2.0.0`` is included as a dependency and no longer needs to be installed separately. 
+
+If you are interested in using Tensorflow 1.x, please install using ``pip install 'openl3<=0.3.4'``.
 
 Installing OpenL3
 -----------------
