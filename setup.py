@@ -87,6 +87,7 @@ setup(
         'resampy>=0.2.1,<0.3.0',
         'h5py>=2.7.0,<3.0.0',
         'moviepy>=1.0.0',
+        'Cython>=0.23.4',  # 3.8 failed because scikit-image was missing cython
         'scikit-image>=0.14.3,<0.15.0'
     ],
     extras_require={

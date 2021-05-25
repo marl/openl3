@@ -6,8 +6,8 @@ notifications:
     email: false
 
 python:
-    # - "2.7"
-    - "3.5"
+    # - "2.7"  # byeeeee forever
+    # - "3.5"  # tensorflow 2 does not support
     - "3.6"
     - "3.7"
     - "3.8"
