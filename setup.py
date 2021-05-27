@@ -17,7 +17,7 @@ content_type = ['music', 'env']
 model_version_str = 'v0_4_0'
 weight_files = ['openl3_{}_{}_{}.h5'.format(*tup)
                 for tup in product(modalities, input_reprs, content_type)]
-base_url = 'https://github.com/marl/openl3/raw/models/'
+base_url = 'https://github.com/beasteers/openl3/raw/models/'
 
 if len(sys.argv) > 1 and sys.argv[1] == 'sdist':
     # exclude the weight files in sdist
@@ -53,7 +53,7 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/marl/openl3',
-    author='Jason Cramer, Ho-Hsiang Wu, and Justin Salamon',
+    author='Jason Cramer, Ho-Hsiang Wu, Bea Steers, and Justin Salamon',
     author_email='jtcramer@nyu.edu',
     packages=find_packages(),
     entry_points={
@@ -87,7 +87,6 @@ setup(
         'resampy>=0.2.1,<0.3.0',
         'h5py>=2.7.0,<3.0.0',
         'moviepy>=1.0.0',
-        'Cython>=0.23.4',  # 3.8 failed because scikit-image was missing cython
         'scikit-image>=0.14.3,<0.15.0'
     ],
     extras_require={
