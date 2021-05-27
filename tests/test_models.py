@@ -154,24 +154,14 @@ def _compare_layers(layersA, layersB):
 @pytest.mark.parametrize('input_repr', list(INPUT_REPR_SIZES))
 def test_frontend(input_repr):
     # check spectrogram input size
-    m = load_audio_embedding_model(input_repr, 'env', 512, frontend=False)
+    m = load_audio_embedding_model(input_repr, 'env', 512, frontend='librosa')
     assert m.input_shape == INPUT_REPR_SIZES[input_repr]
 
-    m2 = load_audio_embedding_model(input_repr, 'env', 512, frontend=True)
+    m2 = load_audio_embedding_model(input_repr, 'env', 512, frontend='kapre')
     assert m2.input_shape == (None, 1, openl3.core.TARGET_SR)
 
     # compare all layers to model with frontend
     _compare_layers(m.layers[1:], m2.layers[2:])
-
-    m_alt = load_audio_embedding_model(input_repr, 'env', 512, frontend='librosa')
-    assert m_alt.input_shape == INPUT_REPR_SIZES[input_repr]
-
-    _compare_layers(m.layers[1:], m_alt.layers[1:])
-
-    m2_alt = load_audio_embedding_model(input_repr, 'env', 512, frontend='kapre')
-    assert m2.input_shape == (None, 1, openl3.core.TARGET_SR)
-
-    _compare_layers(m2.layers[1:], m2_alt.layers[1:])
 
     with pytest.raises(OpenL3Error):
         load_audio_embedding_model(input_repr, 'env', 512, frontend='not-a-thing')
@@ -179,27 +169,18 @@ def test_frontend(input_repr):
 
 def test_validate_audio_frontend():
     # test kapre/librosa frontend
-    mk = load_audio_embedding_model('mel128', 'env', 512, frontend='kapre')
+    input_repr = 'mel128'
+    mk = load_audio_embedding_model(input_repr, 'env', 512, frontend='kapre')
     assert len(mk.input_shape) == 3
-    assert openl3.models._validate_audio_frontend('auto', mk) == 'kapre'
+    assert openl3.models._validate_audio_frontend('infer', input_repr, mk) == ('kapre', input_repr)
 
-    ml = load_audio_embedding_model('mel128', 'env', 512, frontend='librosa')
+    ml = load_audio_embedding_model(input_repr, 'env', 512, frontend='librosa')
     assert len(ml.input_shape) == 4
-    assert openl3.models._validate_audio_frontend('auto', ml) == 'librosa'
+    assert openl3.models._validate_audio_frontend('infer', input_repr, ml) == ('librosa', input_repr)
 
-    # alt boolean values - truthy means yes frontend
-    mk = load_audio_embedding_model('mel128', 'env', 512, frontend=True)
-    assert len(mk.input_shape) == 3
-    assert openl3.models._validate_audio_frontend('auto', mk) == 'kapre'
-
-    # falsey values means no frontend
-    ml = load_audio_embedding_model('mel128', 'env', 512, frontend=False)
-    assert len(ml.input_shape) == 4
-    assert openl3.models._validate_audio_frontend('auto', ml) == 'librosa'
-
-    ml = load_audio_embedding_model('mel128', 'env', 512, frontend=None)
-    assert len(ml.input_shape) == 4
-    assert openl3.models._validate_audio_frontend('auto', ml) == 'librosa'
+    assert openl3.models._validate_audio_frontend('infer', None, mk) == ('kapre', 'mel256')
+    with pytest.raises(OpenL3Error):
+        openl3.models._validate_audio_frontend('infer', None, ml)
 
 
 @pytest.mark.parametrize('input_repr', list(INPUT_REPR_SIZES))
