@@ -114,7 +114,8 @@ def run(modality, inputs, output_dir=None, suffix=None,
     # Load model
     if modality == 'audio':
         model = load_audio_embedding_model(input_repr, content_type,
-                                           audio_embedding_size)
+                                           audio_embedding_size,
+                                           frontend=audio_frontend)
 
         # Process all files in the arguments
         process_audio_file(file_list,
@@ -125,7 +126,7 @@ def run(modality, inputs, output_dir=None, suffix=None,
                            hop_size=audio_hop_size,
                            batch_size=audio_batch_size,
                            overwrite=overwrite,
-                           frontend=audio_frontend,
+                           input_repr=input_repr,
                            verbose=verbose)
     elif modality == 'image':
         model = load_image_embedding_model(input_repr, content_type,
@@ -141,7 +142,8 @@ def run(modality, inputs, output_dir=None, suffix=None,
                            verbose=verbose)
     elif modality == 'video':
         audio_model = load_audio_embedding_model(input_repr, content_type,
-                                                 audio_embedding_size)
+                                                 audio_embedding_size,
+                                                 frontend=audio_frontend)
         image_model = load_image_embedding_model(input_repr, content_type,
                                                  image_embedding_size)
 
@@ -157,7 +159,7 @@ def run(modality, inputs, output_dir=None, suffix=None,
                            audio_batch_size=audio_batch_size,
                            image_batch_size=image_batch_size,
                            image_embedding_size=image_embedding_size,
-                           audio_frontend=audio_frontend,
+                           input_repr=input_repr,
                            overwrite=overwrite,
                            verbose=verbose)
     else:
@@ -223,7 +225,7 @@ def parse_args(args):
     parser.add_argument('--image-batch-size', '-ib', type=positive_int, default=32,
                         help='Batch size used for input to image embedding model.')
 
-    parser.add_argument('--audio-frontend', '-fe', default='kapre',
+    parser.add_argument('--audio-frontend', '-af', default='kapre',
                         choices=['kapre', 'librosa'],
                         help='The acoustic frontend to use.')
 
