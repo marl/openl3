@@ -17,7 +17,7 @@ content_type = ['music', 'env']
 model_version_str = 'v0_4_0'
 weight_files = ['openl3_{}_{}_{}.h5'.format(*tup)
                 for tup in product(modalities, input_reprs, content_type)]
-base_url = 'https://github.com/beasteers/openl3/raw/models/'
+base_url = 'https://github.com/marl/openl3/raw/models/'
 
 if len(sys.argv) > 1 and sys.argv[1] == 'sdist':
     # exclude the weight files in sdist
