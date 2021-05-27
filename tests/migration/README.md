@@ -2,7 +2,7 @@
 
 ## Steps
 
-### To get the current version runnable:
+### To get the tensorflow 2 version (v0.4.0) runnable:
 install the dev version:
 ```bash
 git clone https://github.com/beasteers/openl3.git openl3-tf2

@@ -1,4 +1,4 @@
-'''
+'''Package the .h5 weights files so that they are ready to be uploaded to the git models folder.
 
 Assuming you set it up like this:
 
@@ -75,6 +75,7 @@ base_url = 'https://github.com/marl/openl3/raw/models/'
 
 
 def compress(*weight_files, out_dir=None, version=model_version_str, overwrite=False):
+    '''Compress the weights using the same compression technique used to download the weights in setup.py.'''
     version = version.replace('.', '_')
     weight_files = weight_files or glob.glob(os.path.abspath(os.path.join(__file__, '../../openl3/*.h5')))
     out_dir = os.path.abspath(out_dir or os.path.join(__file__, '../../../models'))  # assume adjacent repo

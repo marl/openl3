@@ -13,7 +13,8 @@ files = [CHIRP_44K_PATH]
 adj_file = lambda *fs: os.path.join(os.path.dirname(__file__), *fs)
 
 def compute(input_repr="linear", content_type="music", embedding_size=6144, hop_size=1):
-    '''Compute the outputs for all layers in a model using the current openl3 version.
+    '''Compute the outputs for all layers in a model using the current openl3 version available 
+    in your python environment.
     
     To switch versions, run this in a different python environment with your desired version
     installed.
