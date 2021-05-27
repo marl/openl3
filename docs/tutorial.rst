@@ -449,12 +449,15 @@ OpenL3 provides two different audio frontends to choose from.
 Kapre (GPU)
 ^^^^^^^^^^^
 
-Historically, Kapre has been used to extract features for OpenL3. Kapre uses Tensorflow 
-operations to compute the audio features that allows the computations to be executed on GPUs 
-when available.
+Kapre implements audio processing as neural network layers, and computes the audio front-end 
+(spectrogram or mel-spectrogram) as part of running model inference. This means that when 
+a GPU is available, audio processing happens on the GPU. The OpenL3 Keras model takes batches 
+of audio PCM as input ``(shape=(None, 1, samples))``.
 
-Using Kapre, the feature extraction stage is baked into the model, meaning that the OpenL3 Keras model 
-takes batches of audio PCM as input (``shape=(None, 1, samples)``).
+NOTE: due to updates in Kapre, the embeddings produced by OpenL3>=0.4.0 are not identical to 
+those produced by previous versions (e.g. 0.3.1), even though both use Kapre for audio processing. 
+If you are running inference with a model that was trained on OpenL3 embeddings, we strongly 
+recommend using the same version of OpenL3 that was used to train that model.
 
 .. code-block:: python
 
@@ -489,13 +492,13 @@ Librosa (CPU)
 Beginning with version 0.4.0, OpenL3 also provides support for computing audio features using Librosa, 
 which offers you flexibility and allows you to precompute or parallelize your computations across multiple CPUs. 
 
-Contrary to the Kapre frontend, the Librosa frontend is not included inside the model. Instead the Keras model 
+Contrary to the Kapre frontend, the Librosa frontend is not included as part of the neural network model. Instead the Keras model 
 takes either linear or mel spectrograms (according to the input representation chosen). OpenL3's high-level interfaces 
 still work the same though, it just changes the mechanics of how features are calculated under the hood. 
 
-This also decouples the feature extraction, which consists of specialized audio code that may not export well, 
+This also decouples the feature extraction, which consists of specialized audio code that may not export well (e.g., to ONNX), 
 from the standard convolutional and fully-connected layers that comprise the rest of OpenL3, making it easier to 
-port the model into new environments.
+port the model to other neural network frameworks.
 
 .. code-block:: python
 
@@ -604,6 +607,12 @@ computational resources:
 .. code-block:: shell
 
     $ openl3 audio /path/to/file.wav --audio-batch-size 16
+
+By default, the CLI will use the Kapre frontend to compute audio embeddings. You may also choose to use Librosa to compute the embeddings:
+
+.. code-block:: shell
+
+    $ openl3 audio /path/to/file.wav --audio-frontend librosa
 
 Finally, you can suppress non-error printouts by running:
 

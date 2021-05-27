@@ -28,6 +28,16 @@ Starting with ``openl3>=0.4.0``, Openl3 has been upgraded to use Tensorflow 2. B
 
 If you are interested in using Tensorflow 1.x, please install using ``pip install 'openl3<=0.3.4'``.
 
+Tensorflow 1x & OpenL3 <= v0.3.4
+********************************
+Because Tensorflow 1.x comes in CPU-only and GPU variants, we leave it up to the user to install the version that best fits
+their usecase.
+
+On most platforms, either of the following commands should properly install Tensorflow:
+
+>>> pip install "tensorflow<1.14" # CPU-only version
+>>> pip install "tensorflow-gpu<1.14" # GPU version
+
 Installing OpenL3
 -----------------
 The simplest way to install OpenL3 is by using ``pip``, which will also install the additional required dependencies
