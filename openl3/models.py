@@ -16,11 +16,19 @@ with warnings.catch_warnings():
     import tensorflow.keras.regularizers as regularizers
 
 
+VALID_FRONTENDS = ("librosa", "kapre")
+VALID_INPUT_REPRS = ("linear", "mel128", "mel256")
+VALID_CONTENT_TYPES = ("music", "env")
+VALID_EMBEDDING_SIZES = (6144, 512)
+
+
 def _log10(x):
+    '''log10 tensorflow function.'''
     return tf.math.log(x) / tf.math.log(tf.constant(10, dtype=x.dtype))
 
 
 def kapre_v0_1_4_magnitude_to_decibel(x, ref_value=1.0, amin=1e-10, dynamic_range=80.0):
+    '''log10 tensorflow function.'''
     amin = tf.cast(amin or 1e-10, dtype=x.dtype)
     max_axis = tuple(range(K.ndim(x))[1:]) or None
     log_spec = 10. * _log10(K.maximum(x, amin))
@@ -30,6 +38,7 @@ def kapre_v0_1_4_magnitude_to_decibel(x, ref_value=1.0, amin=1e-10, dynamic_rang
 
 
 def __fix_kapre_spec(func):
+    '''Wraps the kapre composite layer interface to revert .'''
     def get_spectrogram(*a, return_decibel=False, **kw):
         seq = func(*a, return_decibel=False, **kw)
         if return_decibel:
@@ -39,24 +48,42 @@ def __fix_kapre_spec(func):
     return get_spectrogram
 
 
-def _validate_audio_frontend(frontend='auto', model=None):
-    if frontend == 'auto':  # detect which frontend to use
-        # if they don't specify anything, use kapre
-        if model is None:  
-            frontend = 'kapre'
-        # if the model has shape [batch, channel, time], the frontend is inside the model
-        elif len(model.input_shape) == 3:
-            frontend = 'kapre'
-        else:
-            frontend = 'librosa'
-        # NOTE: can we detect external frontend (frontend=None) based on input data shape?
-        # XXX: should we throw an error if model shape doesn't match
-        #      frontend expected shape? or just let it fail later?
+def _validate_audio_frontend(frontend='infer', input_repr=None, model=None):
+    '''Make sure that the audio frontend matches the model and input_repr.'''
+    ndims = len(model.input_shape) if model is not None else None
 
-    VALID_FRONTENDS = ("librosa", "kapre")
-    if str(frontend) not in VALID_FRONTENDS:
+    if frontend == 'infer':  # detect which frontend to use
+        if model is None:  # default
+            frontend = 'kapre'
+        elif ndims == 3:  # shape: [batch, channel, samples]
+            frontend = 'kapre'
+        elif ndims == 4:  # shape: [batch, frequency, time, channel]
+            frontend = 'librosa'
+        else:
+            raise OpenL3Error(
+                'Invalid model input shape: {}. Expected a model '
+                'with either a 3 or 4 dimensional input,  got {}.'.format(model.input_shape, ndims))
+
+    if frontend not in VALID_FRONTENDS:
         raise OpenL3Error('Invalid frontend "{}". Must be one of {}'.format(frontend, VALID_FRONTENDS))
-    return frontend
+
+    # validate that our model shape matches our frontend.
+    if ndims is not None:
+        if frontend == 'kapre' and ndims != 3:
+            raise OpenL3Error('Invalid model input shape: {}. Expected 3 dims got {}.'.format(model.input_shape, ndims))
+        if frontend == 'librosa' and ndims != 4:
+            raise OpenL3Error('Invalid model input shape: {}. Expected 4 dims got {}.'.format(model.input_shape, ndims))
+
+    if input_repr is None:
+        if frontend == 'librosa':
+            raise OpenL3Error('You must specify input_repr for a librosa frontend.')
+        else:
+            input_repr = 'mel256'
+    
+    if str(input_repr) not in VALID_INPUT_REPRS:
+        raise OpenL3Error('Invalid input representation "{}". Must be one of {}'.format(input_repr, VALID_INPUT_REPRS))
+
+    return frontend, input_repr
 
 
 AUDIO_POOLING_SIZES = {
@@ -93,20 +120,16 @@ def load_audio_embedding_model(input_repr, content_type, embedding_size, fronten
         Type of content used to train embedding.
     embedding_size : 6144 or 512
         Embedding dimensionality.
-    frontend : "kapre" or "librosa" (or True or False, respectively)
-        The audio frontend to use.
+    frontend : "kapre" or "librosa"
+        The audio frontend to use. If frontend == 'kapre', then the kapre frontend will
+        be included. Otherwise no frontend will be added inside the keras model.
 
     Returns
     -------
     model : tf.keras.Model
         Model object.
     """
-    # Semantically, I think booleans make more sense here than kapre/librosa, but for compatibility
-    if frontend is True:
-        frontend = 'kapre'
-    if frontend is False or frontend is None:
-        frontend = 'librosa'
-    frontend = _validate_audio_frontend(frontend)
+    frontend, input_repr = _validate_audio_frontend(frontend, input_repr)
 
     # Construct embedding model and load model weights
     with warnings.catch_warnings():
