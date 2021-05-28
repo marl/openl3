@@ -5,11 +5,19 @@ Changelog
 
 v0.4.0
 ~~~~~~
- - Upgrade to `tensorflow>=2.0.0`
- - Upgrade to `kapre>=0.3.5`. Reverted magnitude scaling method to match `kapre<=0.1.4` as that's what the model was trained on.
+ - Upgraded to `tensorflow>=2.0.0`. Tensorflow is now included as a dependency because of dual CPU-GPU support.
+ - Upgraded to `kapre>=0.3.5`. Reverted magnitude scaling method to match `kapre<=0.1.4` as that's what the model was trained on.
+ - Removed Python 2/3.5 support as they are not supported by Tensorflow 2 (and added 3.7 & 3.8)
  - Add librosa frontend, and allow frontend to be configurable between `kapre` and `librosa`
+    - Added ``frontend='kapre'`` parameter to ``get_audio_embedding``, ``process_audio_file``, and ``load_audio_embedding_model``
+    - Added ``audio_frontend='kapre'`` parameter to ``process_video_file`` and the CLI
     - Added `frontend='librosa'` flag to `load_audio_embedding_model` for use with a librosa or other external frontend
     - Added a `openl3.preprocess_audio` function that computes the input features needed for each frontend
+ - Model .h5 no longer have Kapre layers in them and are all importable from ``tf.keras``
+ - Made ``skimage`` and ``moviepy.video.io.VideoFileClip import VideoFileClip`` use lazy imports
+ - Added new regression data for both Kapre 0.3.5 and Librosa
+ - Parameterized some of the tests to reduce duplication
+ - Added developer helpers for regression data, weight packaging, and .h5 file manipulation
 
 
 v0.3.1
