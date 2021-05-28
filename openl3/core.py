@@ -1,5 +1,4 @@
 import os
-import sklearn.decomposition
 import tensorflow as tf
 import resampy
 import traceback
@@ -11,8 +10,6 @@ import warnings
 from .models import load_audio_embedding_model, load_image_embedding_model, _validate_audio_frontend
 from .openl3_exceptions import OpenL3Error
 from .openl3_warnings import OpenL3Warning
-import skimage
-from moviepy.video.io.VideoFileClip import VideoFileClip
 
 TARGET_SR = 48000
 
@@ -450,6 +447,7 @@ def _preprocess_image_batch(image):
     batch : np.ndarray [shape=(N, H, W, C)]
         4d numpy array of image data.
     """
+    import skimage
     if image.size == 0:
         raise OpenL3Error('Got empty image')
 
@@ -680,6 +678,7 @@ def process_image_file(filepath, output_dir=None, suffix=None, model=None,
     -------
 
     """
+    import skimage
     if isinstance(filepath, str):
         filepath_list = [filepath]
     elif isinstance(filepath, list):
@@ -819,6 +818,7 @@ def process_video_file(filepath, output_dir=None, suffix=None,
     -------
 
     """
+    from moviepy.video.io.VideoFileClip import VideoFileClip
     if isinstance(filepath, str):
         filepath_list = [filepath]
     elif isinstance(filepath, list):

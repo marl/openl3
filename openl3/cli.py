@@ -1,6 +1,5 @@
 import os
 import sys
-import sklearn.decomposition
 from openl3 import process_audio_file, process_image_file, process_video_file
 from openl3.models import load_audio_embedding_model, load_image_embedding_model
 from openl3.openl3_exceptions import OpenL3Error
