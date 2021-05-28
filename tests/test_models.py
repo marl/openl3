@@ -168,19 +168,30 @@ def test_frontend(input_repr):
 
 
 def test_validate_audio_frontend():
-    # test kapre/librosa frontend
     input_repr = 'mel128'
+
+    # test kapre
     mk = load_audio_embedding_model(input_repr, 'env', 512, frontend='kapre')
     assert len(mk.input_shape) == 3
-    assert openl3.models._validate_audio_frontend('infer', input_repr, mk) == ('kapre', input_repr)
+    # assert openl3.models._validate_audio_frontend('infer', input_repr, mk) == ('kapre', input_repr)
+    assert openl3.models._validate_audio_frontend('kapre', input_repr, mk) == ('kapre', input_repr)
 
+    # test librosa validate
     ml = load_audio_embedding_model(input_repr, 'env', 512, frontend='librosa')
     assert len(ml.input_shape) == 4
-    assert openl3.models._validate_audio_frontend('infer', input_repr, ml) == ('librosa', input_repr)
+    # assert openl3.models._validate_audio_frontend('infer', input_repr, ml) == ('librosa', input_repr)
+    assert openl3.models._validate_audio_frontend('librosa', input_repr, ml) == ('librosa', input_repr)
 
-    assert openl3.models._validate_audio_frontend('infer', None, mk) == ('kapre', 'mel256')
+    # test frontend + no input_repr
+    assert openl3.models._validate_audio_frontend('kapre', None, mk) == ('kapre', 'mel256')
     with pytest.raises(OpenL3Error):
-        openl3.models._validate_audio_frontend('infer', None, ml)
+        openl3.models._validate_audio_frontend('librosa', None, ml)
+    
+    # test mismatched frontend/model
+    with pytest.raises(OpenL3Error):
+        openl3.models._validate_audio_frontend('librosa', None, mk)
+    with pytest.raises(OpenL3Error):
+        openl3.models._validate_audio_frontend('kapre', None, ml)
 
 
 @pytest.mark.parametrize('input_repr', list(INPUT_REPR_SIZES))

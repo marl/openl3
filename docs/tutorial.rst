@@ -500,6 +500,9 @@ This also decouples the feature extraction, which consists of specialized audio 
 from the standard convolutional and fully-connected layers that comprise the rest of OpenL3, making it easier to 
 port the model to other neural network frameworks.
 
+NOTE: ``input_repr`` is a required parameter to ``openl3.get_audio_embedding`` when using the librosa frontend, because the feature 
+extraction steps are no longer compiled into the model.
+
 .. code-block:: python
 
     import openl3
@@ -514,18 +517,30 @@ port the model to other neural network frameworks.
 
     # load model with no frontend for use with an external librosa frontend
     input_repr, content_type, embedding_size = 'mel128', 'music', 6144
-    model_librosa = openl3.models.load_audio_embedding_model(
+    model = openl3.models.load_audio_embedding_model(
         input_repr, content_type, embedding_size, frontend='librosa')
 
     # get embedding using pre-loaded model and librosa frontend 
-    emb_list, ts_list = openl3.get_audio_embedding(audio, sr, model=model_librosa)
+    emb_list, ts_list = openl3.get_audio_embedding(audio, sr, model=model, frontend='librosa')
 
     # computing embeddings manually for a single file
     # Note how we pass the input representation (`input_repr`) to `preprocess_audio` so that 
     # librosa knows how to compute the inputs.
 
     input_data = openl3.preprocess_audio(audio, sr, input_repr=input_repr)
-    emb, ts = model_librosa.predict(input_data)
+    emb, ts = model.predict(input_data)
+
+
+The same applies for video file processing, using ``audio_frontend='librosa'``
+
+.. code-block:: python
+
+    # load model with no frontend for use with an external librosa frontend
+    input_repr, content_type, embedding_size = 'mel128', 'music', 6144
+    model = openl3.models.load_audio_embedding_model(
+        input_repr, content_type, embedding_size, frontend='librosa')
+
+    openl3.process_video_file(video_fname, audio_model=model, audio_frontend='librosa')
 
 
 Using the Command Line Interface (CLI)

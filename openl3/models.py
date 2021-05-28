@@ -48,21 +48,21 @@ def __fix_kapre_spec(func):
     return get_spectrogram
 
 
-def _validate_audio_frontend(frontend='infer', input_repr=None, model=None):
+def _validate_audio_frontend(frontend='kapre', input_repr=None, model=None):
     '''Make sure that the audio frontend matches the model and input_repr.'''
     ndims = len(model.input_shape) if model is not None else None
 
-    if frontend == 'infer':  # detect which frontend to use
-        if model is None:  # default
-            frontend = 'kapre'
-        elif ndims == 3:  # shape: [batch, channel, samples]
-            frontend = 'kapre'
-        elif ndims == 4:  # shape: [batch, frequency, time, channel]
-            frontend = 'librosa'
-        else:
-            raise OpenL3Error(
-                'Invalid model input shape: {}. Expected a model '
-                'with either a 3 or 4 dimensional input,  got {}.'.format(model.input_shape, ndims))
+    # if frontend == 'infer':  # detect which frontend to use
+    #     if model is None:  # default
+    #         frontend = 'kapre'
+    #     elif ndims == 3:  # shape: [batch, channel, samples]
+    #         frontend = 'kapre'
+    #     elif ndims == 4:  # shape: [batch, frequency, time, channel]
+    #         frontend = 'librosa'
+    #     else:
+    #         raise OpenL3Error(
+    #             'Invalid model input shape: {}. Expected a model '
+    #             'with either a 3 or 4 dimensional input,  got {}.'.format(model.input_shape, ndims))
 
     if frontend not in VALID_FRONTENDS:
         raise OpenL3Error('Invalid frontend "{}". Must be one of {}'.format(frontend, VALID_FRONTENDS))

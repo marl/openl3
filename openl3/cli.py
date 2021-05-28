@@ -54,7 +54,7 @@ def run(modality, inputs, output_dir=None, suffix=None,
         input_repr="mel256", content_type="music",
         audio_embedding_size=6144, audio_center=True, audio_hop_size=0.1,
         audio_batch_size=32, image_embedding_size=8192,
-        image_batch_size=32, audio_frontend='auto',
+        image_batch_size=32, audio_frontend='kapre',
         overwrite=False, verbose=False):
     """
     Computes and saves L3 embedding for given inputs.
@@ -124,6 +124,7 @@ def run(modality, inputs, output_dir=None, suffix=None,
                            batch_size=audio_batch_size,
                            overwrite=overwrite,
                            input_repr=input_repr,
+                           frontend=audio_frontend,
                            verbose=verbose)
     elif modality == 'image':
         model = load_image_embedding_model(input_repr, content_type,
@@ -157,6 +158,7 @@ def run(modality, inputs, output_dir=None, suffix=None,
                            image_batch_size=image_batch_size,
                            image_embedding_size=image_embedding_size,
                            input_repr=input_repr,
+                           audio_frontend=audio_frontend,
                            overwrite=overwrite,
                            verbose=verbose)
     else:

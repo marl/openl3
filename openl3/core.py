@@ -25,8 +25,9 @@ def _pad_audio(audio, frame_len, hop_len):
     if audio_len < frame_len:
         pad_length = frame_len - audio_len
     else:
-        pad_length = int(np.ceil((audio_len - frame_len)/float(hop_len))) * hop_len \
-                     - (audio_len - frame_len)
+        pad_length = (
+            int(np.ceil((audio_len - frame_len)/float(hop_len))) * hop_len 
+            - (audio_len - frame_len))
 
     if pad_length > 0:
         audio = np.pad(audio, (0, pad_length), mode='constant', constant_values=0)
@@ -167,7 +168,7 @@ def preprocess_audio(audio, sr, hop_size=0.1, input_repr=None, center=True, **kw
 def get_audio_embedding(audio, sr, model=None, input_repr=None,
                         content_type="music", embedding_size=6144,
                         center=True, hop_size=0.1, batch_size=32,
-                        frontend="infer", verbose=True):
+                        frontend="kapre", verbose=True):
     """
     Computes and returns L3 embedding for given audio data.
 
@@ -203,9 +204,8 @@ def get_audio_embedding(audio, sr, model=None, input_repr=None,
         Hop size in seconds.
     batch_size : int
         Batch size used for input to embedding model
-    frontend : "kapre" or "librosa" or "infer"
-        The audio frontend to use. If "infer", it will determine the appropriate frontend 
-        based on the model input shape. If no model is provided, it will use "kapre".
+    frontend : "kapre" or "librosa"
+        The audio frontend to use. By default, it will use "kapre".
     verbose : bool
         If True, prints verbose messages.
 
@@ -253,8 +253,8 @@ def get_audio_embedding(audio, sr, model=None, input_repr=None,
         raise OpenL3Error(err_msg.format(type(sr)))
 
     if len(audio_list) != len(sr_list):
-        err_msg = 'Mismatch between number of audio inputs ({}) and number of' \
-                  ' sample rates ({})'
+        err_msg = ('Mismatch between number of audio inputs ({}) and number of'
+                   ' sample rates ({})')
         raise OpenL3Error(err_msg.format(len(audio_list), len(sr_list)))
 
     # Get embedding model
@@ -294,7 +294,7 @@ def get_audio_embedding(audio, sr, model=None, input_repr=None,
 def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
                        input_repr=None, content_type="music",
                        embedding_size=6144, center=True, hop_size=0.1,
-                       batch_size=32, overwrite=False, frontend="infer", verbose=True):
+                       batch_size=32, overwrite=False, frontend="kapre", verbose=True):
     """
     Computes and saves L3 embedding for a given audio file
 
@@ -316,7 +316,8 @@ def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
         `embedding_size`.
     input_repr : "linear", "mel128", or "mel256"
         Spectrogram representation used as model input. Ignored if `model` is
-        a valid Keras model.
+        a valid Keras model with a Kapre frontend. This is required with a 
+        Librosa frontend.
     content_type : "music" or "env"
         Type of content used to train the embedding model. Ignored if `model` is
         a valid Keras model.
@@ -332,9 +333,8 @@ def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
         Batch size used for input to embedding model
     overwrite : bool
         If True, overwrites existing output files
-    frontend : "kapre" or "librosa" or "infer"
-        The audio frontend to use. If "infer", it will determine the appropriate frontend 
-        based on the model input shape. If no model is provided, it will use "kapre".
+    frontend : "kapre" or "librosa"
+        The audio frontend to use. By default, it will use "kapre".
     verbose : bool
         If True, prints verbose messages.
 
@@ -401,15 +401,16 @@ def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
         total_batch_size += num_windows
 
         if total_batch_size >= batch_size or file_idx == (num_files - 1):
-            embedding_list, ts_list \
-                = get_audio_embedding(audio_list, sr_list, model=model,
-                                      input_repr=input_repr,
-                                      content_type=content_type,
-                                      embedding_size=embedding_size,
-                                      center=center,
-                                      hop_size=hop_size,
-                                      batch_size=batch_size,
-                                      verbose=verbose)
+            embedding_list, ts_list = get_audio_embedding(
+                audio_list, sr_list, model=model,
+                input_repr=input_repr,
+                content_type=content_type,
+                embedding_size=embedding_size,
+                center=center,
+                hop_size=hop_size,
+                batch_size=batch_size,
+                frontend=frontend,
+                verbose=verbose)
             for fpath, embedding, ts in zip(batch_filepath_list,
                                             embedding_list,
                                             ts_list):
@@ -467,8 +468,8 @@ def _preprocess_image_batch(image):
         image = image[np.newaxis, ...]
 
     if min(image.shape[1], image.shape[2]) < 224:
-        err_msg = 'Image(s) must be at at least as large as 224x224 px. ' \
-                  'Got image(s) of size {}x{} px'
+        err_msg = ('Image(s) must be at at least as large as 224x224 px. '
+                   'Got image(s) of size {}x{} px')
         raise OpenL3Error(err_msg.format(image.shape[1], image.shape[2]))
 
     if image.shape[1] != 224 or image.shape[2] != 224:
@@ -590,8 +591,8 @@ def get_image_embedding(image, frame_rate=None, model=None,
         raise OpenL3Error(err_msg.format(type(frame_rate)))
 
     if len(image_list) != len(frame_rate_list):
-        err_msg = 'Mismatch between number of image inputs ({}) and number of' \
-                  ' frame rates ({})'
+        err_msg = ('Mismatch between number of image inputs ({}) and number of'
+                   ' frame rates ({})')
         raise OpenL3Error(err_msg.format(len(image_list), len(frame_rate_list)))
 
     batch = []
@@ -727,12 +728,12 @@ def process_image_file(filepath, output_dir=None, suffix=None, model=None,
         batch_filepath_list.append(filepath)
 
         if len(image_list) >= batch_size or file_idx == (num_files - 1):
-            embedding_list \
-                = get_image_embedding(image_list, model=model,
-                                      input_repr=input_repr,
-                                      content_type=content_type,
-                                      embedding_size=embedding_size,
-                                      verbose=verbose)
+            embedding_list = get_image_embedding(
+                image_list, model=model,
+                input_repr=input_repr,
+                content_type=content_type,
+                embedding_size=embedding_size,
+                verbose=verbose)
             for fpath, embedding in zip(batch_filepath_list, embedding_list):
                 output_path = get_output_path(fpath, suffix + ".npz",
                                               output_dir=output_dir)
@@ -753,7 +754,7 @@ def process_video_file(filepath, output_dir=None, suffix=None,
                        audio_embedding_size=6144, audio_center=True,
                        audio_hop_size=0.1, image_embedding_size=8192,
                        audio_batch_size=32, image_batch_size=32,
-                       audio_frontend="infer",
+                       audio_frontend="kapre",
                        overwrite=False, verbose=True):
     """
     Computes and saves L3 audio and video frame embeddings for a given video file
@@ -789,7 +790,8 @@ def process_video_file(filepath, output_dir=None, suffix=None,
         `embedding_size`.
     input_repr : "linear", "mel128", or "mel256"
         Spectrogram representation used for audio model. Ignored if `model` is
-        a valid Keras model.
+        a valid Keras model with a Kapre frontend. This is required with a 
+        Librosa frontend.
     content_type : "music" or "env"
         Type of content used to train the embedding model. Ignored if `model` is
         a valid Keras model.
@@ -806,9 +808,8 @@ def process_video_file(filepath, output_dir=None, suffix=None,
         Batch size used for input to audio embedding model
     image_batch_size : int
         Batch size used for input to image embedding model
-    audio_frontend : "kapre" or "librosa" or "infer"
-        The audio frontend to use. If "infer", it will determine the appropriate frontend 
-        based on the model input shape. If no model is provided, it will use "kapre".
+    audio_frontend : "kapre" or "librosa"
+        The audio frontend to use. By default, it will use "kapre".
     overwrite : bool
         If True, overwrites existing output files
     verbose : bool
@@ -906,15 +907,16 @@ def process_video_file(filepath, output_dir=None, suffix=None,
             print(err_msg.format(image_output_path))
 
         if (total_audio_batch_size >= audio_batch_size or file_idx == (num_files - 1)) and len(audio_list) > 0:
-            embedding_list, ts_list \
-                = get_audio_embedding(audio_list, sr_list, model=audio_model,
-                                      input_repr=input_repr,
-                                      content_type=content_type,
-                                      embedding_size=audio_embedding_size,
-                                      center=audio_center,
-                                      hop_size=audio_hop_size,
-                                      batch_size=audio_batch_size,
-                                      verbose=verbose)
+            embedding_list, ts_list = get_audio_embedding(
+                audio_list, sr_list, model=audio_model,
+                input_repr=input_repr,
+                content_type=content_type,
+                embedding_size=audio_embedding_size,
+                center=audio_center,
+                hop_size=audio_hop_size,
+                batch_size=audio_batch_size,
+                frontend=audio_frontend,
+                verbose=verbose)
             for fpath, embedding, ts in zip(audio_batch_filepath_list,
                                             embedding_list,
                                             ts_list):
@@ -933,13 +935,13 @@ def process_video_file(filepath, output_dir=None, suffix=None,
             total_audio_batch_size = 0
 
         if (len(image_list) >= image_batch_size or file_idx == (num_files - 1)) and len(image_list) > 0:
-            embedding_list, ts_list \
-                = get_image_embedding(image_list, frame_rate_list,
-                                      model=image_model, input_repr=input_repr,
-                                      content_type=content_type,
-                                      embedding_size=image_embedding_size,
-                                      batch_size=image_batch_size,
-                                      verbose=verbose)
+            embedding_list, ts_list = get_image_embedding(
+                image_list, frame_rate_list,
+                model=image_model, input_repr=input_repr,
+                content_type=content_type,
+                embedding_size=image_embedding_size,
+                batch_size=image_batch_size,
+                verbose=verbose)
             for fpath, embedding, ts in zip(image_batch_filepath_list,
                                             embedding_list,
                                             ts_list):
