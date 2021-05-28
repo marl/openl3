@@ -4,11 +4,6 @@ import tempfile
 import numpy as np
 import shutil
 import pytest
-try:
-    # python 3.4+ should use builtin unittest.mock not mock package
-    from unittest.mock import patch
-except ImportError:
-    from mock import patch
 
 
 TEST_DIR = os.path.dirname(__file__)
