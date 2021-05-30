@@ -1,18 +1,89 @@
 import os
 import warnings
 import sklearn.decomposition
+import numpy as np
 from .openl3_exceptions import OpenL3Error
 
 with warnings.catch_warnings():
     # Suppress TF and Keras warnings when importing
     warnings.simplefilter("ignore")
-    from keras.models import Model
-    from keras.layers import (
-        Input, Conv2D, BatchNormalization, MaxPooling2D,
-        Flatten, Activation, Lambda
-    )
-    import keras.regularizers as regularizers
-    from kapre.time_frequency import Spectrogram, Melspectrogram
+    import tensorflow as tf
+    import tensorflow.keras.backend as K
+    from tensorflow.keras import Model
+    from tensorflow.keras.layers import (
+        Input, Conv2D, Permute, BatchNormalization, MaxPooling2D,
+        Flatten, Activation, Lambda)
+    import tensorflow.keras.regularizers as regularizers
+
+
+VALID_FRONTENDS = ("librosa", "kapre")
+VALID_INPUT_REPRS = ("linear", "mel128", "mel256")
+VALID_CONTENT_TYPES = ("music", "env")
+VALID_EMBEDDING_SIZES = (6144, 512)
+
+
+def _log10(x):
+    '''log10 tensorflow function.'''
+    return tf.math.log(x) / tf.math.log(tf.constant(10, dtype=x.dtype))
+
+
+def kapre_v0_1_4_magnitude_to_decibel(x, ref_value=1.0, amin=1e-10, dynamic_range=80.0):
+    '''log10 tensorflow function.'''
+    amin = tf.cast(amin or 1e-10, dtype=x.dtype)
+    max_axis = tuple(range(K.ndim(x))[1:]) or None
+    log_spec = 10. * _log10(K.maximum(x, amin))
+    return K.maximum(
+        log_spec - K.max(log_spec, axis=max_axis, keepdims=True), 
+        -dynamic_range)
+
+
+def __fix_kapre_spec(func):
+    '''Wraps the kapre composite layer interface to revert .'''
+    def get_spectrogram(*a, return_decibel=False, **kw):
+        seq = func(*a, return_decibel=False, **kw)
+        if return_decibel:
+            seq.add(Lambda(kapre_v0_1_4_magnitude_to_decibel))
+        seq.add(Permute((2, 1, 3)))  # the output is (None, t, f, ch) instead of (None, f, t, ch), so gotta fix that
+        return seq
+    return get_spectrogram
+
+
+def _validate_audio_frontend(frontend='kapre', input_repr=None, model=None):
+    '''Make sure that the audio frontend matches the model and input_repr.'''
+    ndims = len(model.input_shape) if model is not None else None
+
+    # if frontend == 'infer':  # detect which frontend to use
+    #     if model is None:  # default
+    #         frontend = 'kapre'
+    #     elif ndims == 3:  # shape: [batch, channel, samples]
+    #         frontend = 'kapre'
+    #     elif ndims == 4:  # shape: [batch, frequency, time, channel]
+    #         frontend = 'librosa'
+    #     else:
+    #         raise OpenL3Error(
+    #             'Invalid model input shape: {}. Expected a model '
+    #             'with either a 3 or 4 dimensional input,  got {}.'.format(model.input_shape, ndims))
+
+    if frontend not in VALID_FRONTENDS:
+        raise OpenL3Error('Invalid frontend "{}". Must be one of {}'.format(frontend, VALID_FRONTENDS))
+
+    # validate that our model shape matches our frontend.
+    if ndims is not None:
+        if frontend == 'kapre' and ndims != 3:
+            raise OpenL3Error('Invalid model input shape: {}. Expected 3 dims got {}.'.format(model.input_shape, ndims))
+        if frontend == 'librosa' and ndims != 4:
+            raise OpenL3Error('Invalid model input shape: {}. Expected 4 dims got {}.'.format(model.input_shape, ndims))
+
+    if input_repr is None:
+        if frontend == 'librosa':
+            raise OpenL3Error('You must specify input_repr for a librosa frontend.')
+        else:
+            input_repr = 'mel256'
+    
+    if str(input_repr) not in VALID_INPUT_REPRS:
+        raise OpenL3Error('Invalid input representation "{}". Must be one of {}'.format(input_repr, VALID_INPUT_REPRS))
+
+    return frontend, input_repr
 
 
 AUDIO_POOLING_SIZES = {
@@ -36,7 +107,7 @@ IMAGE_POOLING_SIZES = {
 }
 
 
-def load_audio_embedding_model(input_repr, content_type, embedding_size):
+def load_audio_embedding_model(input_repr, content_type, embedding_size, frontend='kapre'):
     """
     Returns a model with the given characteristics. Loads the model
     if the model has not been loaded yet.
@@ -49,17 +120,21 @@ def load_audio_embedding_model(input_repr, content_type, embedding_size):
         Type of content used to train embedding.
     embedding_size : 6144 or 512
         Embedding dimensionality.
+    frontend : "kapre" or "librosa"
+        The audio frontend to use. If frontend == 'kapre', then the kapre frontend will
+        be included. Otherwise no frontend will be added inside the keras model.
 
     Returns
     -------
-    model : keras.models.Model
+    model : tf.keras.Model
         Model object.
     """
+    frontend, input_repr = _validate_audio_frontend(frontend, input_repr)
 
     # Construct embedding model and load model weights
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        m = AUDIO_MODELS[input_repr]()
+        m = AUDIO_MODELS[input_repr](include_frontend=frontend == 'kapre')
 
     m.load_weights(get_audio_embedding_model_path(input_repr, content_type))
 
@@ -68,6 +143,7 @@ def load_audio_embedding_model(input_repr, content_type, embedding_size):
     y_a = MaxPooling2D(pool_size=pool_size, padding='same')(m.output)
     y_a = Flatten()(y_a)
     m = Model(inputs=m.input, outputs=y_a)
+    m.frontend = frontend
     return m
 
 
@@ -108,7 +184,7 @@ def load_image_embedding_model(input_repr, content_type, embedding_size):
 
     Returns
     -------
-    model : keras.models.Model
+    model : tf.keras.Model
         Model object.
     """
 
@@ -148,14 +224,14 @@ def get_image_embedding_model_path(input_repr, content_type):
                         'openl3_image_{}_{}.h5'.format(input_repr, content_type))
 
 
-def _construct_linear_audio_network():
+def _construct_linear_audio_network(include_frontend=True):
     """
     Returns an uninitialized model object for an audio network with a linear
     spectrogram input (With 257 frequency bins)
 
     Returns
     -------
-    model : keras.models.Model
+    model : tf.keras.Model
         Model object.
     """
 
@@ -165,13 +241,24 @@ def _construct_linear_audio_network():
     asr = 48000
     audio_window_dur = 1
 
-    # INPUT
-    x_a = Input(shape=(1, asr * audio_window_dur), dtype='float32')
+    if include_frontend:
+        # INPUT
+        input_shape = (1, asr * audio_window_dur)
+        x_a = Input(shape=input_shape, dtype='float32')
 
-    # SPECTROGRAM PREPROCESSING
-    # 257 x 199 x 1
-    y_a = Spectrogram(n_dft=n_dft, n_hop=n_hop, power_spectrogram=1.0,
-                      return_decibel_spectrogram=True, padding='valid')(x_a)
+        # SPECTROGRAM PREPROCESSING
+        # 257 x 197 x 1
+        from kapre.composed import get_stft_magnitude_layer
+        spec = __fix_kapre_spec(get_stft_magnitude_layer)(
+            input_shape=input_shape, 
+            n_fft=n_dft, hop_length=n_hop, return_decibel=True,
+            input_data_format='channels_first', 
+            output_data_format='channels_last')
+        y_a = spec(x_a)
+    else:  # NOTE: asr - n_dft because we're not padding (I think?)
+        input_shape = (n_dft // 2 + 1, int(np.ceil((asr - n_dft) * audio_window_dur / n_hop)), 1)
+        x_a = y_a = Input(shape=input_shape, dtype='float32')
+
     y_a = BatchNormalization()(y_a)
 
     # CONV BLOCK 1
@@ -239,14 +326,14 @@ def _construct_linear_audio_network():
     return m
 
 
-def _construct_mel128_audio_network():
+def _construct_mel128_audio_network(include_frontend=True):
     """
     Returns an uninitialized model object for an audio network with a Mel
     spectrogram input (with 128 frequency bins).
 
     Returns
     -------
-    model : keras.models.Model
+    model : tf.keras.Model
         Model object.
     """
 
@@ -257,14 +344,27 @@ def _construct_mel128_audio_network():
     asr = 48000
     audio_window_dur = 1
 
-    # INPUT
-    x_a = Input(shape=(1, asr * audio_window_dur), dtype='float32')
+    
 
-    # MELSPECTROGRAM PREPROCESSING
-    # 128 x 199 x 1
-    y_a = Melspectrogram(n_dft=n_dft, n_hop=n_hop, n_mels=n_mels,
-                      sr=asr, power_melgram=1.0, htk=True,
-                      return_decibel_melgram=True, padding='same')(x_a)
+    if include_frontend:
+        # INPUT
+        input_shape = (1, asr * audio_window_dur)
+        x_a = Input(shape=input_shape, dtype='float32')
+
+        # MELSPECTROGRAM PREPROCESSING
+        # 128 x 199 x 1
+        from kapre.composed import get_melspectrogram_layer
+        spec = __fix_kapre_spec(get_melspectrogram_layer)(
+            input_shape=input_shape, 
+            n_fft=n_dft, hop_length=n_hop, n_mels=n_mels, 
+            sample_rate=asr, return_decibel=True, pad_end=True,
+            input_data_format='channels_first', 
+            output_data_format='channels_last')
+        y_a = spec(x_a)
+    else:
+        input_shape = (n_mels, int(np.ceil(asr * audio_window_dur / n_hop)), 1)
+        x_a = y_a = Input(shape=input_shape, dtype='float32')
+
     y_a = BatchNormalization()(y_a)
 
     # CONV BLOCK 1
@@ -333,14 +433,14 @@ def _construct_mel128_audio_network():
     return m
 
 
-def _construct_mel256_audio_network():
+def _construct_mel256_audio_network(include_frontend=True):
     """
     Returns an uninitialized model object for an audio network with a Mel
     spectrogram input (with 256 frequency bins).
 
     Returns
     -------
-    model : keras.models.Model
+    model : tf.keras.Model
         Model object.
     """
 
@@ -351,14 +451,26 @@ def _construct_mel256_audio_network():
     asr = 48000
     audio_window_dur = 1
 
-    # INPUT
-    x_a = Input(shape=(1, asr * audio_window_dur), dtype='float32')
+    if include_frontend:
+        # INPUT
+        input_shape = (1, asr * audio_window_dur)
+        x_a = Input(shape=input_shape, dtype='float32')
 
-    # MELSPECTROGRAM PREPROCESSING
-    # 128 x 199 x 1
-    y_a = Melspectrogram(n_dft=n_dft, n_hop=n_hop, n_mels=n_mels,
-                      sr=asr, power_melgram=1.0, htk=True, # n_win=n_win,
-                      return_decibel_melgram=True, padding='same')(x_a)
+        # MELSPECTROGRAM PREPROCESSING
+        # 256 x 199 x 1
+        from kapre.composed import get_melspectrogram_layer
+        spec = __fix_kapre_spec(get_melspectrogram_layer)(
+            input_shape=input_shape, 
+            n_fft=n_dft, hop_length=n_hop, n_mels=n_mels,
+            sample_rate=asr, return_decibel=True, pad_end=True,
+            input_data_format='channels_first', 
+            output_data_format='channels_last')
+        y_a = spec(x_a)
+    else:
+        input_shape = (n_mels, int(np.ceil(asr * audio_window_dur / n_hop)), 1)
+        x_a = y_a = Input(shape=input_shape, dtype='float32')
+
+
     y_a = BatchNormalization()(y_a)
 
     # CONV BLOCK 1
@@ -432,7 +544,7 @@ def _construct_image_network():
 
     Returns
     -------
-    model : keras.models.Model
+    model : tf.keras.Model
         Model object.
     """
 

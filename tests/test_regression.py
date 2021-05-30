@@ -3,11 +3,7 @@ from openl3.cli import run
 import tempfile
 import numpy as np
 import shutil
-try:
-    # python 3.4+ should use builtin unittest.mock not mock package
-    from unittest.mock import patch
-except ImportError:
-    from mock import patch
+import pytest
 
 
 TEST_DIR = os.path.dirname(__file__)
@@ -34,27 +30,27 @@ BENTO_PATH = os.path.join(TEST_VIDEO_DIR, 'bento.mp4')
 
 # Regression file paths
 TEST_REG_DIR = os.path.join(TEST_DIR, 'data', 'regression')
-REG_CHIRP_44K_PATH = os.path.join(TEST_REG_DIR, 'chirp_44k.npz')
-REG_CHIRP_44K_LINEAR_PATH = os.path.join(TEST_REG_DIR, 'chirp_44k_linear.npz')
+REG_CHIRP_44K_PATH = os.path.join(TEST_REG_DIR, 'chirp_44k_{}.npz')
+REG_CHIRP_44K_LINEAR_PATH = os.path.join(TEST_REG_DIR, 'chirp_44k_{}_linear.npz')
 REG_DAISY_PATH = os.path.join(TEST_REG_DIR, 'daisy.npz')
 REG_DAISY_LINEAR_PATH = os.path.join(TEST_REG_DIR, 'daisy_linear.npz')
-REG_BENTO_AUDIO_PATH = os.path.join(TEST_REG_DIR, 'bento_audio.npz')
-REG_BENTO_AUDIO_LINEAR_PATH = os.path.join(TEST_REG_DIR, 'bento_audio_linear.npz')
-REG_BENTO_IMAGE_PATH = os.path.join(TEST_REG_DIR, 'bento_image.npz')
-REG_BENTO_IMAGE_LINEAR_PATH = os.path.join(TEST_REG_DIR, 'bento_image_linear.npz')
+REG_BENTO_AUDIO_PATH = os.path.join(TEST_REG_DIR, 'bento_audio_{}.npz')
+REG_BENTO_AUDIO_LINEAR_PATH = os.path.join(TEST_REG_DIR, 'bento_audio_{}_linear.npz')
+REG_BENTO_IMAGE_PATH = os.path.join(TEST_REG_DIR, 'bento_image_{}.npz')
+REG_BENTO_IMAGE_LINEAR_PATH = os.path.join(TEST_REG_DIR, 'bento_image_{}_linear.npz')
 
-
-def test_audio_regression(capsys):
+@pytest.mark.parametrize("frontend", ['kapre', 'librosa'])
+def test_audio_regression(capsys, frontend):
     # test correct execution on test audio file (regression)
     tempdir = tempfile.mkdtemp()
-    run('audio', CHIRP_44K_PATH, output_dir=tempdir, verbose=True)
+    run('audio', CHIRP_44K_PATH, output_dir=tempdir, audio_frontend=frontend, verbose=True)
 
     # check output file created
     audio_outfile = os.path.join(tempdir, 'chirp_44k.npz')
     assert os.path.isfile(audio_outfile)
 
     # regression test
-    audio_data_reg = np.load(REG_CHIRP_44K_PATH)
+    audio_data_reg = np.load(REG_CHIRP_44K_PATH.format(frontend))
     audio_data_out = np.load(audio_outfile)
     assert sorted(audio_data_out.files) == sorted(audio_data_reg.files) == sorted(
         ['embedding', 'timestamps'])
@@ -66,13 +62,13 @@ def test_audio_regression(capsys):
     # SECOND regression test
     run('audio', CHIRP_44K_PATH, output_dir=tempdir, suffix='linear', input_repr='linear',
         content_type='env', audio_embedding_size=512, audio_center=False, audio_hop_size=0.5,
-        verbose=False)
+        audio_frontend=frontend, verbose=False)
     # check output file created
     audio_outfile = os.path.join(tempdir, 'chirp_44k_linear.npz')
     assert os.path.isfile(audio_outfile)
 
     # regression test
-    audio_data_reg = np.load(REG_CHIRP_44K_LINEAR_PATH)
+    audio_data_reg = np.load(REG_CHIRP_44K_LINEAR_PATH.format(frontend))
     audio_data_out = np.load(audio_outfile)
     assert sorted(audio_data_out.files) == sorted(audio_data_reg.files) == sorted(
         ['embedding', 'timestamps'])
@@ -118,12 +114,12 @@ def test_image_regression(capsys):
     # delete output file and temp folder
     shutil.rmtree(tempdir)
 
-
-def test_video_regression(capsys):
+@pytest.mark.parametrize("frontend", ['kapre', 'librosa'])
+def test_video_regression(capsys, frontend):
     tempdir = tempfile.mkdtemp()
 
     ## Video processing regression tests
-    run('video', BENTO_PATH, output_dir=tempdir, verbose=True)
+    run('video', BENTO_PATH, output_dir=tempdir, audio_frontend=frontend, verbose=True)
 
     # check output files created
     audio_outfile = os.path.join(tempdir, 'bento_audio.npz')
@@ -132,9 +128,9 @@ def test_video_regression(capsys):
     assert os.path.isfile(image_outfile)
 
     # regression test
-    audio_data_reg = np.load(REG_BENTO_AUDIO_PATH)
+    audio_data_reg = np.load(REG_BENTO_AUDIO_PATH.format(frontend))
     audio_data_out = np.load(audio_outfile)
-    image_data_reg = np.load(REG_BENTO_IMAGE_PATH)
+    image_data_reg = np.load(REG_BENTO_IMAGE_PATH.format(frontend))
     image_data_out = np.load(image_outfile)
 
     assert sorted(audio_data_out.files) == sorted(audio_data_reg.files) == sorted(
@@ -154,7 +150,7 @@ def test_video_regression(capsys):
     # SECOND regression test
     run('video', BENTO_PATH, output_dir=tempdir, suffix='linear', input_repr='linear',
         content_type='env', audio_embedding_size=512, image_embedding_size=512,
-        audio_center=False, audio_hop_size=0.5, verbose=False)
+        audio_center=False, audio_hop_size=0.5, audio_frontend=frontend, verbose=False)
 
     # check output files created
     audio_outfile = os.path.join(tempdir, 'bento_audio_linear.npz')
@@ -163,9 +159,9 @@ def test_video_regression(capsys):
     assert os.path.isfile(image_outfile)
 
     # regression test
-    audio_data_reg = np.load(REG_BENTO_AUDIO_LINEAR_PATH)
+    audio_data_reg = np.load(REG_BENTO_AUDIO_LINEAR_PATH.format(frontend))
     audio_data_out = np.load(audio_outfile)
-    image_data_reg = np.load(REG_BENTO_IMAGE_LINEAR_PATH)
+    image_data_reg = np.load(REG_BENTO_IMAGE_LINEAR_PATH.format(frontend))
     image_data_out = np.load(image_outfile)
 
     assert sorted(audio_data_out.files) == sorted(audio_data_reg.files) == sorted(

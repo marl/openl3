@@ -1,10 +1,11 @@
 import pytest
 import tempfile
+import itertools
 import numpy as np
 import os
 import shutil
 import soundfile as sf
-import keras.backend as K
+import tensorflow.keras.backend as K
 from skimage.io import imread
 import openl3
 import openl3.models
@@ -34,102 +35,45 @@ SMALL_PATH = os.path.join(TEST_IMAGE_DIR, 'smol.png')
 # Test video file paths
 BENTO_PATH = os.path.join(TEST_VIDEO_DIR, 'bento.mp4')
 
+INPUT_REPR_SIZES = {
+    'linear': (None, 257, 197, 1),
+    'mel128': (None, 128, 199, 1),
+    'mel256': (None, 256, 199, 1),
+}
+INPUT_REPRS = list(INPUT_REPR_SIZES)
+CONTENT_TYPES = ['env', 'music']
+EMBEDDING_SIZES = [6144, 512]
+FRONTENDS = ['kapre', 'librosa']
 
-def test_get_audio_embedding():
+
+@pytest.fixture(scope='module')
+def chirp_audio_sr():
+    audio, sr = sf.read(CHIRP_MONO_PATH)
+    return audio, sr
+
+
+@pytest.mark.parametrize(
+    "input_repr,content_type,embedding_size,frontend", 
+    itertools.product(INPUT_REPRS, CONTENT_TYPES, EMBEDDING_SIZES, FRONTENDS))
+def test_get_audio_embedding_basic(input_repr, content_type, embedding_size, frontend, chirp_audio_sr):
+    hop_size = 0.1
+    tol = 1e-5
+    # Make sure all embedding types work fine
+    audio, sr = chirp_audio_sr
+    emb1, ts1 = openl3.get_audio_embedding(
+        audio, sr, input_repr=input_repr, content_type=content_type, embedding_size=embedding_size,
+        center=True, hop_size=hop_size, verbose=True, frontend=frontend)
+    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
+    assert emb1.shape[1] == embedding_size
+    assert not np.any(np.isnan(emb1))
+    K.clear_session()
+
+
+def test_get_audio_embedding(chirp_audio_sr):
     hop_size = 0.1
     tol = 1e-5
 
-    # Make sure all embedding types work fine
-    audio, sr = sf.read(CHIRP_MONO_PATH)
-    emb1, ts1 = openl3.get_audio_embedding(audio, sr,
-                                           input_repr="mel256", content_type="music", embedding_size=512,
-                                           center=True, hop_size=hop_size, verbose=True)
-    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
-    assert emb1.shape[1] == 512
-    assert not np.any(np.isnan(emb1))
-    K.clear_session()
-
-    emb1, ts1 = openl3.get_audio_embedding(audio, sr,
-                                           input_repr="mel256", content_type="music", embedding_size=6144,
-                                           center=True, hop_size=hop_size, verbose=True)
-    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
-    assert emb1.shape[1] == 6144
-    assert not np.any(np.isnan(emb1))
-    K.clear_session()
-
-    emb1, ts1 = openl3.get_audio_embedding(audio, sr,
-                                           input_repr="mel128", content_type="music", embedding_size=512,
-                                           center=True, hop_size=hop_size, verbose=True)
-    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
-    assert emb1.shape[1] == 512
-    assert not np.any(np.isnan(emb1))
-    K.clear_session()
-
-    emb1, ts1 = openl3.get_audio_embedding(audio, sr,
-                                           input_repr="mel128", content_type="music", embedding_size=6144,
-                                           center=True, hop_size=hop_size, verbose=True)
-    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
-    assert emb1.shape[1] == 6144
-    assert not np.any(np.isnan(emb1))
-    K.clear_session()
-
-    emb1, ts1 = openl3.get_audio_embedding(audio, sr,
-                                           input_repr="linear", content_type="music", embedding_size=512,
-                                           center=True, hop_size=hop_size, verbose=True)
-    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
-    assert emb1.shape[1] == 512
-    assert not np.any(np.isnan(emb1))
-    K.clear_session()
-
-    audio, sr = sf.read(CHIRP_MONO_PATH)
-    emb1, ts1 = openl3.get_audio_embedding(audio, sr,
-                                           input_repr="linear", content_type="music", embedding_size=6144,
-                                           center=True, hop_size=hop_size, verbose=True)
-    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
-    assert emb1.shape[1] == 6144
-    assert not np.any(np.isnan(emb1))
-    K.clear_session()
-
-    emb1, ts1 = openl3.get_audio_embedding(audio, sr,
-                                           input_repr="mel256", content_type="env", embedding_size=512,
-                                           center=True, hop_size=hop_size, verbose=True)
-    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
-    assert emb1.shape[1] == 512
-    assert not np.any(np.isnan(emb1))
-    K.clear_session()
-
-    emb1, ts1 = openl3.get_audio_embedding(audio, sr,
-                                           input_repr="mel256", content_type="env", embedding_size=6144,
-                                           center=True, hop_size=hop_size, verbose=True)
-    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
-    assert emb1.shape[1] == 6144
-    assert not np.any(np.isnan(emb1))
-    K.clear_session()
-
-    emb1, ts1 = openl3.get_audio_embedding(audio, sr,
-                                           input_repr="mel128", content_type="env", embedding_size=512,
-                                           center=True, hop_size=hop_size, verbose=True)
-    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
-    assert emb1.shape[1] == 512
-    assert not np.any(np.isnan(emb1))
-    K.clear_session()
-
-    emb1, ts1 = openl3.get_audio_embedding(audio, sr,
-                                           input_repr="mel128", content_type="env", embedding_size=6144,
-                                           center=True, hop_size=hop_size, verbose=True)
-    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
-    assert emb1.shape[1] == 6144
-    assert not np.any(np.isnan(emb1))
-    K.clear_session()
-
-    emb1, ts1 = openl3.get_audio_embedding(audio, sr,
-                                           input_repr="linear", content_type="env", embedding_size=6144,
-                                           center=True, hop_size=hop_size, verbose=True)
-    assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
-    assert emb1.shape[1] == 6144
-    assert not np.any(np.isnan(emb1))
-    K.clear_session()
-
+    audio, sr = chirp_audio_sr
     emb1, ts1 = openl3.get_audio_embedding(audio, sr,
                                            input_repr="linear", content_type="env", embedding_size=512,
                                            center=True, hop_size=hop_size, verbose=True)
@@ -303,6 +247,8 @@ def test_get_audio_embedding():
     pytest.raises(OpenL3Error, openl3.get_audio_embedding, np.ones((10, 10, 10)), sr,
                   input_repr="mel256", content_type="music", embedding_size=512,
                   center=True, hop_size=0.1, verbose=True)
+    pytest.raises(OpenL3Error, openl3.get_audio_embedding, audio, sr,
+                  frontend="invalid", center=True, hop_size=0.1, verbose=True)
 
 
 def test_get_image_embedding():
@@ -1063,6 +1009,23 @@ def test_get_num_windows():
     num_windows =  openl3.core._get_num_windows(audio_len, frame_len, hop_len,
                                                 center=True)
     assert num_windows == 4
+
+
+
+def test_preprocess_audio(chirp_audio_sr):
+    # hop_len = 0.1
+    audio, sr = chirp_audio_sr
+    n_frames = 16 #int(np.ceil(len(audio) / hop_len / sr))  # ??? ugh padding or smsht
+
+    X = openl3.preprocess_audio(audio, sr)
+    assert X.shape == (n_frames, 1, sr)
+
+    for input_repr in INPUT_REPR_SIZES:
+        X = openl3.preprocess_audio(audio, sr, input_repr=input_repr)
+        assert X.shape == (n_frames,) + INPUT_REPR_SIZES[input_repr][1:]
+
+    with pytest.raises(OpenL3Error):
+        openl3.preprocess_audio(audio, sr, input_repr='asdfadsasdfasdfaasdf')
 
 
 def test_preprocess_image_batch():

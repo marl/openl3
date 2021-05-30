@@ -5,6 +5,7 @@
 __pycache__
 .idea/*
 .cache/*
+.vscode
 .ipynb_checkpoints
 
 .pytest_cache
@@ -20,3 +21,4 @@ thumbs.db
 *.egg-info
 
 openl3/models/*
+openl3_*.h5

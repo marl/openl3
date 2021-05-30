@@ -1,13 +1,10 @@
-from __future__ import print_function
 import os
 import sys
-import sklearn.decomposition
 from openl3 import process_audio_file, process_image_file, process_video_file
 from openl3.models import load_audio_embedding_model, load_image_embedding_model
 from openl3.openl3_exceptions import OpenL3Error
 from argparse import ArgumentParser, RawDescriptionHelpFormatter, ArgumentTypeError
 from collections import Iterable
-from six import string_types
 
 
 def positive_float(value):
@@ -36,7 +33,7 @@ def positive_int(value):
 
 def get_file_list(input_list):
     """Get list of files from the list of inputs"""
-    if not isinstance(input_list, Iterable) or isinstance(input_list, string_types):
+    if not isinstance(input_list, Iterable) or isinstance(input_list, str):
         raise ArgumentTypeError('input_list must be iterable (and not string)')
     file_list = []
     for item in input_list:
@@ -57,7 +54,8 @@ def run(modality, inputs, output_dir=None, suffix=None,
         input_repr="mel256", content_type="music",
         audio_embedding_size=6144, audio_center=True, audio_hop_size=0.1,
         audio_batch_size=32, image_embedding_size=8192,
-        image_batch_size=32, overwrite=False, verbose=False):
+        image_batch_size=32, audio_frontend='kapre',
+        overwrite=False, verbose=False):
     """
     Computes and saves L3 embedding for given inputs.
 
@@ -99,7 +97,7 @@ def run(modality, inputs, output_dir=None, suffix=None,
     -------
     """
 
-    if isinstance(inputs, string_types):
+    if isinstance(inputs, str):
         file_list = [inputs]
     elif isinstance(inputs, Iterable):
         file_list = get_file_list(inputs)
@@ -113,7 +111,8 @@ def run(modality, inputs, output_dir=None, suffix=None,
     # Load model
     if modality == 'audio':
         model = load_audio_embedding_model(input_repr, content_type,
-                                           audio_embedding_size)
+                                           audio_embedding_size,
+                                           frontend=audio_frontend)
 
         # Process all files in the arguments
         process_audio_file(file_list,
@@ -124,6 +123,8 @@ def run(modality, inputs, output_dir=None, suffix=None,
                            hop_size=audio_hop_size,
                            batch_size=audio_batch_size,
                            overwrite=overwrite,
+                           input_repr=input_repr,
+                           frontend=audio_frontend,
                            verbose=verbose)
     elif modality == 'image':
         model = load_image_embedding_model(input_repr, content_type,
@@ -139,7 +140,8 @@ def run(modality, inputs, output_dir=None, suffix=None,
                            verbose=verbose)
     elif modality == 'video':
         audio_model = load_audio_embedding_model(input_repr, content_type,
-                                                 audio_embedding_size)
+                                                 audio_embedding_size,
+                                                 frontend=audio_frontend)
         image_model = load_image_embedding_model(input_repr, content_type,
                                                  image_embedding_size)
 
@@ -155,6 +157,8 @@ def run(modality, inputs, output_dir=None, suffix=None,
                            audio_batch_size=audio_batch_size,
                            image_batch_size=image_batch_size,
                            image_embedding_size=image_embedding_size,
+                           input_repr=input_repr,
+                           audio_frontend=audio_frontend,
                            overwrite=overwrite,
                            verbose=verbose)
     else:
@@ -220,6 +224,10 @@ def parse_args(args):
     parser.add_argument('--image-batch-size', '-ib', type=positive_int, default=32,
                         help='Batch size used for input to image embedding model.')
 
+    parser.add_argument('--audio-frontend', '-af', default='kapre',
+                        choices=['kapre', 'librosa'],
+                        help='The acoustic frontend to use.')
+
     parser.add_argument('--overwrite', '-ow', action='store_true',
                         help='If set, overwrites existing outputs files.')
 
@@ -247,5 +255,6 @@ def main():
         audio_batch_size=args.audio_batch_size,
         image_embedding_size=args.image_embedding_size,
         image_batch_size=args.image_batch_size,
+        audio_frontend=args.audio_frontend,
         overwrite=args.overwrite,
         verbose=not args.quiet)
