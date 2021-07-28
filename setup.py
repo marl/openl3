@@ -84,6 +84,7 @@ setup(
         'h5py>=2.7.0,<3.0.0',
         'moviepy>=1.0.0',
         'scikit-image>=0.14.3'
+        'librosa>=0.7.2',  # version limit from kapre
     ],
     extras_require={
         'docs': [
