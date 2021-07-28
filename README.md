@@ -10,31 +10,19 @@ OpenL3 is an open-source Python library for computing deep audio and image embed
 
 Please refer to the [documentation](https://openl3.readthedocs.io/en/latest/) for detailed instructions and examples.
 
+> **UPDATE:** Openl3 now has Tensorflow 2 support!
+
 The audio and image embedding models provided here are published as part of [1], and are based on the Look, Listen and Learn approach [2]. For details about the embedding models and how they were trained, please see:
 
 [Look, Listen and Learn More: Design Choices for Deep Audio Embeddings](http://www.justinsalamon.com/uploads/4/3/9/4/4394963/cramer_looklistenlearnmore_icassp_2019.pdf)<br/>
 Jason Cramer, Ho-Hsiang Wu, Justin Salamon, and Juan Pablo Bello.<br/>
 IEEE Int. Conf. on Acoustics, Speech and Signal Processing (ICASSP), pages 3852–3856, Brighton, UK, May 2019.
 
+
 # Installing OpenL3
 
 Dependencies
 ------------
-#### Tensorflow
-Because Tensorflow comes in CPU-only and GPU variants, we leave it up to the user to install the version that best fits
-their usecase.
-
-On most platforms, either of the following commands should properly install Tensorflow:
-
-    pip install "tensorflow<1.14" # CPU-only version
-    pip install "tensorflow-gpu<1.14" # GPU version
-    
-    
-**Please note that Tensorflow 2.x is not yet supported. Ensure that an earlier version of Tensorflow is installed.** If you run into further issues with installation, a known working dependency combination is Tensorflow 1.13, Keras 2.0, and Kapre 0.1.4.
-
-For more detailed information, please consult the
-[Tensorflow installation documentation](https://www.tensorflow.org/install/).
-
 
 #### libsndfile
 OpenL3 depends on the `pysoundfile` module to load audio files, which depends on the non-Python library
@@ -50,6 +38,26 @@ Alternatively, if you are using `conda`, you can install `libsndfile` simply by 
 
 For more detailed information, please consult the
 [`pysoundfile` installation documentation](https://pysoundfile.readthedocs.io/en/0.9.0/#installation>).
+
+
+#### Tensorflow
+Starting with `openl3>=0.4.0`, Openl3 has been upgraded to use Tensorflow 2. Because Tensorflow 2 and higher now includes GPU support, `tensorflow>=2.0.0` is included as a dependency and no longer needs to be installed separately. 
+
+If you are interested in using Tensorflow 1.x, please install using `pip install 'openl3<=0.3.1'`.
+
+##### Tensorflow 1x & OpenL3 <= v0.3.1
+Because Tensorflow 1.x comes in CPU-only and GPU variants, we leave it up to the user to install the version that best fits
+their usecase.
+
+On most platforms, either of the following commands should properly install Tensorflow:
+
+```bash
+pip install "tensorflow<1.14" # CPU-only version
+pip install "tensorflow-gpu<1.14" # GPU version
+```
+
+For more detailed information, please consult the
+[Tensorflow installation documentation](https://www.tensorflow.org/install/).
 
 
 Installing OpenL3
