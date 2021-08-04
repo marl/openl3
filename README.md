@@ -95,3 +95,6 @@ IEEE Int. Conf. on Acoustics, Speech and Signal Processing (ICASSP), pages 3852â
 [2] [Look, Listen and Learn](http://openaccess.thecvf.com/content\_ICCV\_2017/papers/Arandjelovic\_Look\_Listen\_and\_ICCV\_2017\_paper.pdf)<br/>
 Relja ArandjeloviÄ‡ and Andrew Zisserman<br/>
 IEEE International Conference on Computer Vision (ICCV), Venice, Italy, Oct. 2017.
+
+# Model Weights License
+The model weights are made available under a [Creative Commons Attribution 4.0 International (CC BY 4.0) License](https://creativecommons.org/licenses/by/4.0/).
