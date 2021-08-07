@@ -449,6 +449,7 @@ def _preprocess_image_batch(image):
         4d numpy array of image data.
     """
     import skimage
+    import skimage.transform
     if image.size == 0:
         raise OpenL3Error('Got empty image')
 
@@ -679,7 +680,7 @@ def process_image_file(filepath, output_dir=None, suffix=None, model=None,
     -------
 
     """
-    import skimage
+    import skimage.io
     if isinstance(filepath, str):
         filepath_list = [filepath]
     elif isinstance(filepath, list):
