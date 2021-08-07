@@ -27,8 +27,8 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'OpenL3'
-copyright = '2018, Jason Cramer, Ho-Hsiang Wu, and Justin Salamon'
-author = 'Jason Cramer, Ho-Hsiang Wu, and Justin Salamon'
+copyright = '2018-2021, Aurora Cramer, Ho-Hsiang Wu, Bea Steers, and Justin Salamon'
+author = 'Aurora Cramer, Ho-Hsiang Wu, Bea Steers, and Justin Salamon'
 
 
 # -- Mock dependencies
@@ -44,8 +44,9 @@ class Mock(MagicMock):
 
 MOCK_MODULES = [
     'numpy', 'soundfile', 'resampy', 'keras', 'tensorflow',
-    'kapre', 'kapre.time_frequency', 'keras.layers', 'keras.models',
-    'keras.regularizers', 'sklearn', 'sklearn.decomposition', 'skimage',
+    'tensorflow.keras', 'tensorflow.keras.layers', 'tensorflow.keras.backend',
+    'tensorflow.keras.regularizers', 'kapre', 'kapre.time_frequency',
+    'sklearn', 'sklearn.decomposition', 'skimage',
     'moviepy', 'skimage.io', 'moviepy.video', 'moviepy.video.io',
     'moviepy.video.io.VideoFileClip'
 ]
