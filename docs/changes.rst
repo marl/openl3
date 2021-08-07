@@ -6,6 +6,8 @@ Changelog
 v0.4.2
 ~~~~~~
  - Fix incorrect embedding_size in ``load_image_embedding_model`` docstring
+ - Add ``tensorflow.keras`` mock modules to ``docs/conf.py`` to fix docs build
+ - Remove pin on ``sphinx`` version
 
 v0.4.1
 ~~~~~~
