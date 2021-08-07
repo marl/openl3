@@ -19,7 +19,8 @@ with warnings.catch_warnings():
 VALID_FRONTENDS = ("librosa", "kapre")
 VALID_INPUT_REPRS = ("linear", "mel128", "mel256")
 VALID_CONTENT_TYPES = ("music", "env")
-VALID_EMBEDDING_SIZES = (6144, 512)
+VALID_AUDIO_EMBEDDING_SIZES = (6144, 512)
+VALID_IMAGE_EMBEDDING_SIZES = (8192, 512)
 
 
 def _log10(x):
@@ -179,7 +180,7 @@ def load_image_embedding_model(input_repr, content_type, embedding_size):
         Spectrogram representation used for audio model.
     content_type : "music" or "env"
         Type of content used to train embedding.
-    embedding_size : 6144 or 512
+    embedding_size : 8192 or 512
         Embedding dimensionality.
 
     Returns
