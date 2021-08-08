@@ -129,6 +129,8 @@ def load_audio_embedding_model(input_repr, content_type, embedding_size, fronten
     model : tf.keras.Model
         Model object.
     """
+    model_path = get_audio_embedding_model_path(input_repr, content_type)
+    return load_audio_embedding_model_from_path(model_path, embedding_size, frontend=frontend)
     frontend, input_repr = _validate_audio_frontend(frontend, input_repr)
 
     # Construct embedding model and load model weights
@@ -137,6 +139,53 @@ def load_audio_embedding_model(input_repr, content_type, embedding_size, fronten
         m = AUDIO_MODELS[input_repr](include_frontend=frontend == 'kapre')
 
     m.load_weights(get_audio_embedding_model_path(input_repr, content_type))
+
+    # Pooling for final output embedding size
+    pool_size = AUDIO_POOLING_SIZES[input_repr][embedding_size]
+    y_a = MaxPooling2D(pool_size=pool_size, padding='same')(m.output)
+    y_a = Flatten()(y_a)
+    m = Model(inputs=m.input, outputs=y_a)
+    m.frontend = frontend
+    return m
+
+
+def load_audio_embedding_model_from_path(model_path, embedding_size, frontend='kapre'):
+    """
+    Loads a model with weights at the given path. Filename is expected to follow
+    the format: `*._<input_repr>_<content_type>.h5` or
+    `*._<input_repr>_<content_type>-.*.h5`, since the model configuration will
+    be parsed from the filename.
+
+    Parameters
+    ----------
+    model_path : str
+        Path to model weights HDF5 (.h5) file. Must be in format
+        `*._<input_repr>_<content_type>.h5` or
+        `*._<input_repr>_<content_type>-.*.h5`, since model configuration
+        will be determined from the filename.
+    embedding_size : 6144 or 512
+        Embedding dimensionality.
+    frontend : "kapre" or "librosa"
+        The audio frontend to use. If frontend == 'kapre', then the kapre frontend will
+        be included. Otherwise no frontend will be added inside the keras model.
+
+    Returns
+    -------
+    model : tf.keras.Model
+        Model object.
+    """
+    model_stem = os.path.splitext(os.path.basename(model_path))[0]
+    model_spec_str = model_stem.split('-', 1)[0]
+    input_repr, content_type = model_spec_str.split('_')[-2:]
+
+    frontend, input_repr = _validate_audio_frontend(frontend, input_repr)
+
+    # Construct embedding model and load model weights
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        m = AUDIO_MODELS[input_repr](include_frontend=frontend == 'kapre')
+
+    m.load_weights(model_path)
 
     # Pooling for final output embedding size
     pool_size = AUDIO_POOLING_SIZES[input_repr][embedding_size]
@@ -188,12 +237,39 @@ def load_image_embedding_model(input_repr, content_type, embedding_size):
         Model object.
     """
 
+    model_path = get_image_embedding_model_path(input_repr, content_type)
+    return load_image_embedding_model_from_path(model_path, embedding_size)
+
+
+def load_image_embedding_model_from_path(model_path, embedding_size):
+    """
+    Loads a model with weights at the given path.
+
+    Parameters
+    ----------
+    model_path : str
+        Path to model weights HDF5 (.h5) file.
+    embedding_size : 6144 or 512
+        Embedding dimensionality.
+    input_repr : "linear", "mel128", or "mel256"
+        Spectrogram representation used for audio model.
+    content_type : "music" or "env"
+        Type of content used to train embedding.
+    embedding_size : 8192 or 512
+        Embedding dimensionality.
+
+    Returns
+    -------
+    model : tf.keras.Model
+        Model object.
+    """
+
     # Construct embedding model and load model weights
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         m = _construct_image_network()
 
-    m.load_weights(get_image_embedding_model_path(input_repr, content_type))
+    m.load_weights(model_path)
 
     # Pooling for final output embedding size
     pool_size = IMAGE_POOLING_SIZES[embedding_size]
