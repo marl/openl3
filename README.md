@@ -7,6 +7,7 @@ OpenL3 is an open-source Python library for computing deep audio and image embed
 [![Build Status](https://travis-ci.com/marl/openl3.svg?branch=main)](https://travis-ci.com/marl/openl3)
 [![Coverage Status](https://coveralls.io/repos/github/marl/openl3/badge.svg?branch=main)](https://coveralls.io/github/marl/openl3?branch=main)
 [![Documentation Status](https://readthedocs.org/projects/openl3/badge/?version=latest)](http://openl3.readthedocs.io/en/latest/?badge=latest)
+[![Downloads](https://pepy.tech/badge/openl3)](https://pepy.tech/project/openl3)
 
 Please refer to the [documentation](https://openl3.readthedocs.io/en/latest/) for detailed instructions and examples.
 
