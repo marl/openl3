@@ -3,6 +3,19 @@
 Changelog
 ---------
 
+v0.4.2
+~~~~~~
+ - Fix incorrect embedding_size in ``load_image_embedding_model`` docstring
+ - Add ``tensorflow.keras`` mock modules to ``docs/conf.py`` to fix docs build
+ - Remove pin on ``sphinx`` version
+
+v0.4.1
+~~~~~~
+ - Add librosa as an explicit dependency
+ - Remove upper limit pinning for scikit-image dependency
+ - Fix version number typo in README
+ - Update TensorFlow information in README
+
 v0.4.0
 ~~~~~~
  - Upgraded to `tensorflow>=2.0.0`. Tensorflow is now included as a dependency because of dual CPU-GPU support.
@@ -22,30 +35,30 @@ v0.4.0
 
 v0.3.1
 ~~~~~~
-- Require `keras>=2.0.9,<2.3.0` in dependencies to avoid force installation of TF 2.x during pip installation.
-- Update README and installation docs to explicitly state that we do not yet support TF 2.x and to offer a working dependency combination.
-- Require `kapre==0.1.4` in dependencies to avoid installing `tensorflow>=1.14` which break regression tests.
+ - Require `keras>=2.0.9,<2.3.0` in dependencies to avoid force installation of TF 2.x during pip installation.
+ - Update README and installation docs to explicitly state that we do not yet support TF 2.x and to offer a working dependency combination.
+ - Require `kapre==0.1.4` in dependencies to avoid installing `tensorflow>=1.14` which break regression tests.
 
 
 v0.3.0
 ~~~~~~
-- Rename audio related embedding functions to indicate that they are specific to audio.
-- Add image embedding functionality to API and CLI.
-- Add video processing functionality to API and CLI.
-- Add batch processing functionality to API and CLI to more efficiently process multiple inputs.
-- Update documentation with new functionality.
-- Address build issues with updated dependencies.
+ - Rename audio related embedding functions to indicate that they are specific to audio.
+ - Add image embedding functionality to API and CLI.
+ - Add video processing functionality to API and CLI.
+ - Add batch processing functionality to API and CLI to more efficiently process multiple inputs.
+ - Update documentation with new functionality.
+ - Address build issues with updated dependencies.
 
 v0.2.0
 ~~~~~~
-- Update embedding models with ones that have been trained with the kapre bug fixed.
-- Allow loaded models to be passed in and used in `process_file` and `get_embedding`.
-- Rename `get_embedding_model` to `load_embedding_model`.
+ - Update embedding models with ones that have been trained with the kapre bug fixed.
+ - Allow loaded models to be passed in and used in `process_file` and `get_embedding`.
+ - Rename `get_embedding_model` to `load_embedding_model`.
 
 v0.1.1
 ~~~~~~
-- Update kapre to fix issue with dynamic range normalization for decibel computation when computing spectrograms.
+ - Update kapre to fix issue with dynamic range normalization for decibel computation when computing spectrograms.
 
 v0.1.0
 ~~~~~~
-- First release.
+ - First release.

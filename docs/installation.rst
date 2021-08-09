@@ -47,11 +47,11 @@ if needed. To install OpenL3 using ``pip``, simply run
 
 To install the latest version of OpenL3 from source:
 
-1. Clone or pull the lastest version:
+1. Clone or pull the latest version, only retrieving the ``main`` branch to avoid downloading the branch where we store the model weight files (these will be properly downloaded during installation).
 
->>> git clone git@github.com:marl/openl3.git
+>>> git clone git@github.com:marl/openl3.git --branch main --single-branch
 
-2. Install using pip to handle python dependencies:
+2. Install using pip to handle python dependencies. The installation also downloads model files, which requires a stable network connection.
 
 >>> cd openl3
 >>> pip install -e .
