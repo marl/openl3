@@ -23,8 +23,6 @@ IMAGE_INPUT_REPR_SIZES = {
 VALID_IMAGE_EMBEDDING_SIZES = (8192, 512)
 
 
-
-
 @pytest.fixture(scope="module")
 def ref_audio_model():
     input_repr, content_type, embedding_size = 'linear', 'music', 6144
