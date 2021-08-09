@@ -449,6 +449,7 @@ def _preprocess_image_batch(image):
         4d numpy array of image data.
     """
     import skimage
+    import skimage.transform
     if image.size == 0:
         raise OpenL3Error('Got empty image')
 
@@ -480,7 +481,24 @@ def _preprocess_image_batch(image):
         for idx, frame in enumerate(image):
             # Only reshape if image is larger than 256x256
             if min(frame.shape[0], frame.shape[1]) > 256:
-                frame = skimage.transform.rescale(frame, scaling)
+                try:
+                    frame = skimage.transform.rescale(frame, scaling,
+                                                      mode='constant',
+                                                      cval=0,
+                                                      clip=True,
+                                                      preserve_range=False,
+                                                      channel_axis=-1,
+                                                      anti_aliasing=False,
+                                                      anti_aliasing_sigma=None)
+                except TypeError:
+                    frame = skimage.transform.rescale(frame, scaling,
+                                                      mode='constant',
+                                                      cval=0,
+                                                      clip=True,
+                                                      preserve_range=False,
+                                                      multichannel=True,
+                                                      anti_aliasing=False,
+                                                      anti_aliasing_sigma=None)
             x1, x2 = frame.shape[:-1]
             startx1 = x1//2-(224//2)
             startx2 = x2//2-(224//2)
@@ -679,7 +697,7 @@ def process_image_file(filepath, output_dir=None, suffix=None, model=None,
     -------
 
     """
-    import skimage
+    import skimage.io
     if isinstance(filepath, str):
         filepath_list = [filepath]
     elif isinstance(filepath, list):
