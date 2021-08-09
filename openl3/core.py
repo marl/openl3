@@ -483,22 +483,22 @@ def _preprocess_image_batch(image):
             if min(frame.shape[0], frame.shape[1]) > 256:
                 try:
                     frame = skimage.transform.rescale(frame, scaling,
-                                                      order=1,
-                                                      mode='reflect',
+                                                      mode='constant',
+                                                      cval=0,
                                                       clip=True,
                                                       preserve_range=False,
                                                       channel_axis=-1,
-                                                      anti_aliasing=None,
+                                                      anti_aliasing=False,
                                                       anti_aliasing_sigma=None)
                 except TypeError:
                     frame = skimage.transform.rescale(frame, scaling,
-                                                      order=1,
-                                                      mode='reflect',
+                                                      mode='constant',
+                                                      cval=0,
                                                       clip=True,
                                                       preserve_range=False,
                                                       multichannel=True,
-                                                      anti_aliasing = None,
-                                                      anti_aliasing_sigma = None)
+                                                      anti_aliasing=False,
+                                                      anti_aliasing_sigma=None)
             x1, x2 = frame.shape[:-1]
             startx1 = x1//2-(224//2)
             startx2 = x2//2-(224//2)
