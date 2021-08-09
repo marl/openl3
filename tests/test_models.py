@@ -7,14 +7,62 @@ from openl3.openl3_exceptions import OpenL3Error
 import pytest
 
 
-INPUT_REPR_SIZES = {
+AUDIO_INPUT_REPR_SIZES = {
     'linear': (None, 257, 197, 1),
     'mel128': (None, 128, 199, 1),
     'mel256': (None, 256, 199, 1),
 }
 CONTENT_TYPES = ['env', 'music']
+VALID_AUDIO_EMBEDDING_SIZES = (6144, 512)
 
-@pytest.mark.parametrize('input_repr', list(INPUT_REPR_SIZES))
+IMAGE_INPUT_REPR_SIZES = {
+    'linear': (None, 224, 224, 3),
+    'mel128': (None, 224, 224, 3),
+    'mel256': (None, 224, 224, 3),
+}
+VALID_IMAGE_EMBEDDING_SIZES = (8192, 512)
+
+
+
+
+@pytest.fixture(scope="module")
+def ref_audio_model():
+    input_repr, content_type, embedding_size = 'linear', 'music', 6144
+    m = load_audio_embedding_model(input_repr, content_type, embedding_size)
+    # assert isinstance(m.layers[1], kapre.time_frequency.Spectrogram)
+    assert m.layers[1].output_shape == AUDIO_INPUT_REPR_SIZES[input_repr]
+    assert m.output_shape[1] == embedding_size
+    return m
+
+
+@pytest.fixture(scope="module")
+def ref_image_model():
+    input_repr, content_type, embedding_size = 'linear', 'music', 8192
+    m = load_image_embedding_model(input_repr, content_type, embedding_size)
+    assert m.output_shape[1] == embedding_size
+    return m
+
+
+def _compare_models(m, ref_model, input_size, embedding_size, **kw):
+    assert m.layers[1].output_shape == input_size
+    assert m.output_shape[1] == embedding_size
+    if kw.get('skip_layers') is not True:
+        _compare_layers(m.layers, ref_model.layers, **kw)
+
+
+def _compare_layers(layersA, layersB, skip_layers=None, compare_shapes=False):
+    skip_layers = set(skip_layers or ())
+    assert len(layersA) == len(layersB)
+    for i, (la, lb) in enumerate(zip(layersA, layersB)):
+        if i in skip_layers:
+            continue
+        assert isinstance(la, type(lb))
+        if compare_shapes:
+            assert la.input_shape == lb.input_shape
+            assert la.output_shape == lb.output_shape
+
+
+@pytest.mark.parametrize('input_repr', list(AUDIO_INPUT_REPR_SIZES))
 @pytest.mark.parametrize('content_type', CONTENT_TYPES)
 def test_get_audio_embedding_model_path(input_repr, content_type):
     embedding_model_path = get_audio_embedding_model_path(input_repr, content_type)
@@ -23,65 +71,31 @@ def test_get_audio_embedding_model_path(input_repr, content_type):
         'openl3/openl3_audio_{}_{}.h5'.format(input_repr, content_type))
 
 
-def _compare_models(modelA, modelB):
-    for la, lb in zip(modelA.layers, modelB.layers):
-        assert la.get_config() == lb.get_config()
+@pytest.mark.parametrize('input_repr', list(AUDIO_INPUT_REPR_SIZES))
+@pytest.mark.parametrize('content_type', CONTENT_TYPES)
+@pytest.mark.parametrize('embedding_size', VALID_AUDIO_EMBEDDING_SIZES)
+def test_get_audio_embedding_model(input_repr, content_type, embedding_size, ref_audio_model):
+    m = load_audio_embedding_model(input_repr, content_type, embedding_size)
+    _compare_models(m, ref_audio_model, AUDIO_INPUT_REPR_SIZES[input_repr], embedding_size, skip_layers=[1])
 
 
-def test_load_audio_embedding_model():
-    import kapre
-
-    m = load_audio_embedding_model('linear', 'music', 6144)
-    # assert isinstance(m.layers[1], kapre.time_frequency.Spectrogram)
-    assert m.layers[1].output_shape == (None, 257, 197, 1)
-    assert m.output_shape[1] == 6144
-    m2 = load_audio_embedding_model_from_path(
-        get_audio_embedding_model_path('linear', 'music'), 6144)
-    _compare_models(m, m2)
-
-    first_model = m
-
-    for input_repr in ('linear', 'mel128', 'mel256'):
-        for content_type in ('music', 'env'):
-            for emb_size in (6144, 512):
-                m = load_audio_embedding_model(input_repr, content_type, emb_size)
-                # assert isinstance(m.layers[1], kapre.time_frequency.Spectrogram)
-                if input_repr == 'linear':
-                    assert m.layers[1].output_shape == (None, 257, 197, 1)
-                elif input_repr == 'mel128':
-                    assert m.layers[1].output_shape == (None, 128, 199, 1)
-                elif input_repr == 'mel256':
-                    assert m.layers[1].output_shape == (None, 256, 199, 1)
-                assert m.output_shape[1] == emb_size
-                # Check model consistency
-                assert isinstance(m.layers[0], type(first_model.layers[0]))
-                assert len(m.layers) == len(first_model.layers)
-                assert all([isinstance(l1, type(l2))
-                            for (l1, l2) in zip(m.layers[2:], first_model.layers[2:])])
-                m2 = load_audio_embedding_model_from_path(
-                    get_audio_embedding_model_path(input_repr, content_type), emb_size)
-                _compare_models(m, m2)
+@pytest.mark.parametrize('input_repr', list(AUDIO_INPUT_REPR_SIZES))
+@pytest.mark.parametrize('content_type', CONTENT_TYPES)
+@pytest.mark.parametrize('embedding_size', VALID_AUDIO_EMBEDDING_SIZES)
+def test_get_audio_embedding_model_by_path(input_repr, content_type, embedding_size, ref_audio_model):
+    m = load_audio_embedding_model_from_path(get_audio_embedding_model_path(input_repr, content_type), input_repr, embedding_size)
+    _compare_models(m, ref_audio_model, AUDIO_INPUT_REPR_SIZES[input_repr], embedding_size, skip_layers=[1])
 
 
-def _compare_layers(layersA, layersB):
-    assert len(layersA) == len(layersB)
-    for la, lb in zip(layersA, layersB):
-        assert type(la) == type(lb)
-        assert la.input_shape == lb.input_shape
-        assert la.output_shape == lb.output_shape
-
-
-@pytest.mark.parametrize('input_repr', list(INPUT_REPR_SIZES))
+@pytest.mark.parametrize('input_repr', list(AUDIO_INPUT_REPR_SIZES))
 def test_frontend(input_repr):
     # check spectrogram input size
     m = load_audio_embedding_model(input_repr, 'env', 512, frontend='librosa')
-    assert m.input_shape == INPUT_REPR_SIZES[input_repr]
-
+    assert m.input_shape == AUDIO_INPUT_REPR_SIZES[input_repr]
     m2 = load_audio_embedding_model(input_repr, 'env', 512, frontend='kapre')
     assert m2.input_shape == (None, 1, openl3.core.TARGET_SR)
-
     # compare all layers to model with frontend
-    _compare_layers(m.layers[1:], m2.layers[2:])
+    _compare_layers(m.layers[1:], m2.layers[2:], compare_shapes=True)
 
     with pytest.raises(OpenL3Error):
         load_audio_embedding_model(input_repr, 'env', 512, frontend='not-a-thing')
@@ -114,7 +128,7 @@ def test_validate_audio_frontend():
         openl3.models._validate_audio_frontend('kapre', None, ml)
 
 
-@pytest.mark.parametrize('input_repr', list(INPUT_REPR_SIZES))
+@pytest.mark.parametrize('input_repr', list(AUDIO_INPUT_REPR_SIZES))
 @pytest.mark.parametrize('content_type', CONTENT_TYPES)
 def test_get_image_embedding_model_path(input_repr, content_type):
     embedding_model_path = get_image_embedding_model_path(input_repr, content_type)
@@ -123,24 +137,18 @@ def test_get_image_embedding_model_path(input_repr, content_type):
         'openl3/openl3_image_{}_{}.h5'.format(input_repr, content_type))
 
 
-def test_load_image_embedding_model():
-    m = load_image_embedding_model('linear', 'music', 8192)
-    assert m.output_shape[1] == 8192
-    m2 = load_image_embedding_model_from_path(
-        get_image_embedding_model_path('linear', 'music'), 8192)
-    _compare_models(m, m2)
+@pytest.mark.parametrize('input_repr', list(IMAGE_INPUT_REPR_SIZES))
+@pytest.mark.parametrize('content_type', CONTENT_TYPES)
+@pytest.mark.parametrize('embedding_size', VALID_IMAGE_EMBEDDING_SIZES)
+def test_get_image_embedding_model(input_repr, content_type, embedding_size, ref_image_model):
+    m = load_image_embedding_model(input_repr, content_type, embedding_size)
+    _compare_models(m, ref_image_model, IMAGE_INPUT_REPR_SIZES[input_repr], embedding_size)
 
-    first_model = m
 
-    for input_repr in ('linear', 'mel128', 'mel256'):
-        for content_type in ('music', 'env'):
-            for emb_size in (8192, 512):
-                m = load_image_embedding_model(input_repr, content_type, emb_size)
-                assert m.output_shape[1] == emb_size
-                assert len(m.layers) == len(first_model.layers)
-                assert all([isinstance(l1, type(l2))
-                            for (l1, l2) in zip(m.layers, first_model.layers)])
-                m2 = load_image_embedding_model_from_path(
-                    get_image_embedding_model_path(input_repr, content_type), emb_size)
-                _compare_models(m, m2)
-
+@pytest.mark.parametrize('input_repr', list(IMAGE_INPUT_REPR_SIZES))
+@pytest.mark.parametrize('content_type', CONTENT_TYPES)
+@pytest.mark.parametrize('embedding_size', VALID_IMAGE_EMBEDDING_SIZES)
+def test_get_image_embedding_model_from_path(input_repr, content_type, embedding_size, ref_image_model):
+    m = load_image_embedding_model_from_path(
+        get_image_embedding_model_path(input_repr, content_type), embedding_size)
+    _compare_models(m, ref_image_model, IMAGE_INPUT_REPR_SIZES[input_repr], embedding_size)
