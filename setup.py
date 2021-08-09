@@ -50,8 +50,8 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/marl/openl3',
-    author='Jason Cramer, Ho-Hsiang Wu, Bea Steers, and Justin Salamon',
-    author_email='jtcramer@nyu.edu',
+    author='Aurora Cramer, Ho-Hsiang Wu, Bea Steers, and Justin Salamon',
+    author_email='jtc440@nyu.edu',
     packages=find_packages(),
     entry_points={
         'console_scripts': ['openl3=openl3.cli:main'],
@@ -88,7 +88,7 @@ setup(
     ],
     extras_require={
         'docs': [
-                'sphinx==1.2.3',  # autodoc was broken in 1.3.1
+                'sphinx',
                 'sphinxcontrib-napoleon',
                 'sphinx_rtd_theme',
                 'numpydoc',

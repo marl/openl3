@@ -4,9 +4,10 @@ OpenL3 is an open-source Python library for computing deep audio and image embed
 
 [![PyPI](https://img.shields.io/badge/python-2.7%2C%203.5%2C%203.6-blue.svg)](https://pypi.python.org/pypi/openl3)
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://choosealicense.com/licenses/mit/)
-[![Build Status](https://travis-ci.org/marl/openl3.svg?branch=master)](https://travis-ci.org/marl/openl3)
-[![Coverage Status](https://coveralls.io/repos/github/marl/openl3/badge.svg?branch=master)](https://coveralls.io/github/marl/openl3?branch=master)
+[![Build Status](https://travis-ci.com/marl/openl3.svg?branch=main)](https://travis-ci.com/marl/openl3)
+[![Coverage Status](https://coveralls.io/repos/github/marl/openl3/badge.svg?branch=main)](https://coveralls.io/github/marl/openl3?branch=main)
 [![Documentation Status](https://readthedocs.org/projects/openl3/badge/?version=latest)](http://openl3.readthedocs.io/en/latest/?badge=latest)
+[![Downloads](https://pepy.tech/badge/openl3)](https://pepy.tech/project/openl3)
 
 Please refer to the [documentation](https://openl3.readthedocs.io/en/latest/) for detailed instructions and examples.
 
@@ -69,11 +70,11 @@ if needed. To install OpenL3 using ``pip``, simply run
 
 To install the latest version of OpenL3 from source:
 
-1. Clone or pull the lastest version:
+1. Clone or pull the latest version, only retrieving the ``main`` branch to avoid downloading the branch where we store the model weight files (these will be properly downloaded during installation).
 
-        git clone git@github.com:marl/openl3.git
+        git clone git@github.com:marl/openl3.git --branch main --single-branch
 
-2. Install using pip to handle python dependencies:
+2. Install using pip to handle python dependencies. The installation also downloads model files, **which requires a stable network connection**.
 
         cd openl3
         pip install -e .
