@@ -481,7 +481,10 @@ def _preprocess_image_batch(image):
         for idx, frame in enumerate(image):
             # Only reshape if image is larger than 256x256
             if min(frame.shape[0], frame.shape[1]) > 256:
-                frame = skimage.transform.rescale(frame, scaling)
+                try:
+                    frame = skimage.transform.rescale(frame, scaling, channel_axis=-1)
+                except TypeError:
+                    frame = skimage.transform.rescale(frame, scaling, multichannel=True)
             x1, x2 = frame.shape[:-1]
             startx1 = x1//2-(224//2)
             startx2 = x2//2-(224//2)
