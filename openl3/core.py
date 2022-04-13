@@ -103,8 +103,8 @@ def _librosa_linear_frontend(audio, n_fft=512, hop_length=242, db_amin=1e-10,
                              db_ref=1.0, dynamic_range=80.0):
     '''Librosa linear frontend designed to match original Kapre (0.1.4).'''
     import librosa
-    S = np.abs(librosa.stft(audio, n_fft=n_fft, hop_length=hop_length, center=False))
-    S = librosa.power_to_db(S, ref=db_ref, amin=db_amin, top_db=dynamic_range)
+    S = np.abs(librosa.stft(y=audio, n_fft=n_fft, hop_length=hop_length, center=False))
+    S = librosa.power_to_db(S=S, ref=db_ref, amin=db_amin, top_db=dynamic_range)
     S -= S.max()
     return S
 
@@ -114,9 +114,9 @@ def _librosa_mel_frontend(audio, sr, n_mels=128, n_fft=2048, hop_length=242,
     '''Librosa mel frontend designed to match original Kapre (0.1.4).'''
     import librosa
     S = librosa.feature.melspectrogram(
-        audio, sr, n_mels=n_mels, n_fft=n_fft, hop_length=hop_length, 
+        y=audio, sr=sr, n_mels=n_mels, n_fft=n_fft, hop_length=hop_length,
         center=True, power=1.0)
-    S = librosa.power_to_db(S, ref=db_ref, amin=db_amin, top_db=dynamic_range)
+    S = librosa.power_to_db(S=S, ref=db_ref, amin=db_amin, top_db=dynamic_range)
     S -= S.max()
     return S
 
