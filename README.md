@@ -13,6 +13,8 @@ Please refer to the [documentation](https://openl3.readthedocs.io/en/latest/) fo
 
 > **UPDATE:** Openl3 now has Tensorflow 2 support!
 
+> **NOTE:** Whoops! A bug was reported in the [training code](https://github.com/marl/l3embedding), with the effect that positive examples are audio-image pairs that come from the same video do not necessarily overlap in time. Nonetheless, the embedding still seems to capture useful semantic information.
+
 The audio and image embedding models provided here are published as part of [1], and are based on the Look, Listen and Learn approach [2]. For details about the embedding models and how they were trained, please see:
 
 [Look, Listen and Learn More: Design Choices for Deep Audio Embeddings](http://www.justinsalamon.com/uploads/4/3/9/4/4394963/cramer_looklistenlearnmore_icassp_2019.pdf)<br/>
