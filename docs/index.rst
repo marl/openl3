@@ -21,7 +21,7 @@ OpenL3 is an open-source Python library for computing deep audio and image embed
 The audio and image embedding models provided here are published as part of [1], and are based on the Look, Listen and Learn approach [2]. For details about the embedding models and how they were trained, please see:
 
 `Look, Listen and Learn More: Design Choices for Deep Audio Embeddings <http://www.justinsalamon.com/uploads/4/3/9/4/4394963/cramer_looklistenlearnmore_icassp_2019.pdf>`_ |br|
-Jason Cramer, Ho-Hsiang Wu, Justin Salamon, and Juan Pablo Bello. |br|
+Aurora Cramer, Ho-Hsiang Wu, Justin Salamon, and Juan Pablo Bello. |br|
 IEEE Int. Conf. on Acoustics, Speech and Signal Processing (ICASSP), pages 3852-3856, Brighton, UK, May 2019. |br|
 
 
@@ -46,7 +46,7 @@ Acknowledging OpenL3
 Please cite the following papers when using OpenL3 in your work:
 
 [1] Look, Listen and Learn More: Design Choices for Deep Audio Embeddings |br|
-Jason Cramer, Ho-Hsiang Wu, Justin Salamon, and Juan Pablo Bello. |br|
+Aurora Cramer, Ho-Hsiang Wu, Justin Salamon, and Juan Pablo Bello. |br|
 IEEE Int. Conf. on Acoustics, Speech and Signal Processing (ICASSP), pages 3852-3856, Brighton, UK, May 2019. |br|
 
 [2] Look, Listen and Learn |br|

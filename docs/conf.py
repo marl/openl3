@@ -173,7 +173,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'OpenL3.tex', 'OpenL3 Documentation',
-     'Jason Cramer, Ho-Hsiang Wu, and Justin Salamon', 'manual'),
+     'Aurora Cramer, Ho-Hsiang Wu, and Justin Salamon', 'manual'),
 ]
 
 
