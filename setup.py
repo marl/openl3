@@ -81,7 +81,7 @@ setup(
         'kapre>=0.3.5',
         'soundfile>=0.9.0.post1',
         'resampy>=0.2.1,<0.3.0',
-        'h5py>=2.7.0,<3.0.0',
+        'h5py>=2.7.0',
         'moviepy>=1.0.0',
         'scikit-image>=0.14.3',
         'librosa>=0.7.2',  # version limit from kapre
