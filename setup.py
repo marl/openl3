@@ -40,7 +40,7 @@ else:
 
 version = imp.load_source('openl3.version', os.path.join('openl3', 'version.py'))
 
-with open('README.md') as file:
+with open('README.md',encoding='utf8') as file:
     long_description = file.read()
 
 setup(
