@@ -6,9 +6,12 @@ from openl3 import process_audio_file, process_image_file, process_video_file
 from openl3.models import load_audio_embedding_model, load_image_embedding_model
 from openl3.openl3_exceptions import OpenL3Error
 from argparse import ArgumentParser, RawDescriptionHelpFormatter, ArgumentTypeError
-from collections import Iterable
 from six import string_types
 import numpy as np
+try: # python>=3.3
+    from collections.abc import Iterable
+except:
+    from collections import Iterable
 
 
 def positive_float(value):
